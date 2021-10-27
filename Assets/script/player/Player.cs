@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    float m_MySliderValue;
+    public float slowMotionTimeScale;
+    private float startTimeScale;
+    private float StartFixedDeltaTime;
+
+    private float timer = 0;
 
     private SpriteRenderer spriteRenderer;
 
@@ -13,17 +19,17 @@ public class Player : MonoBehaviour
     private bool isWalking;
     private bool isRunning;
     private bool isDashing;
-    private bool isDemonTransform;
+
 
     private bool isDemonPunch;
     private bool isDemonPowerPunch;
 
-    private bool isDemon;
+
 
     private Rigidbody2D rigidbody2D;
 
     private Direction playerDirection;
-
+    [SerializeField] private GameObject player;
 
     private float movementSpeed;
 
@@ -44,10 +50,14 @@ public class Player : MonoBehaviour
     private LayerMask groundLayer;
 
     private bool resetJump = false;
+
+
     public Animator animator;
     public bool isAttacking = false;
     public static Player Instance;
     public bool isPowerAttacking = false;
+
+
     ToolEffect toolEffect = ToolEffect.none;
     private void Awake()
     {
@@ -59,6 +69,8 @@ public class Player : MonoBehaviour
         rigidbody2D = GetComponent<Rigidbody2D>();
 
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        startTimeScale = Time.timeScale;
+        StartFixedDeltaTime = Time.fixedDeltaTime;
     }
 
     private void Update()
@@ -69,22 +81,36 @@ public class Player : MonoBehaviour
         Attack();
         PowerAttack();
         // send event to any listeners for player movement input
-        EventHandler.CallMovementEvent(inputX, isWalking, isRunning, isDashing, isIdle, toolEffect, isDemonTransform, isDemon, isDemonPunch, isDemonPowerPunch, false, false);
+        EventHandler.CallMovementEvent(inputX, isWalking, isRunning, isDashing, isIdle, toolEffect, isDemonPunch, isDemonPowerPunch, false, false);
 
     }
 
-    void PowerAttack()
+    public void PowerAttack()
     {
-        if (Input.GetMouseButtonDown(1) && !isPowerAttacking)
+        if (Input.GetMouseButtonDown(1) && isAttacking && !isPowerAttacking)
         {
             isPowerAttacking = true;
         }
+    }
+
+    IEnumerator Charged()
+    {
+        Debug.Log("charging");
+        yield return new WaitForSeconds(1f);
+        animator.Play("demon power punch");
+        animator.speed = 1f;
+        isPowerAttacking = false;
     }
     void Attack()
     {
         if (Input.GetMouseButtonDown(0) && !isAttacking)
         {
+
+
             isAttacking = true;
+
+
+
         }
     }
     private void ResetAnimationTriggers()
@@ -94,7 +120,7 @@ public class Player : MonoBehaviour
         isRunning = false;
         isDashing = false;
 
-        isDemonTransform = false;
+
         isDemonPunch = false;
         isDemonPowerPunch = false;
         toolEffect = ToolEffect.none;

@@ -23,7 +23,9 @@ public static class Settings
     // shared animation parameter
     public static int idleLeft;
     public static int idleRight;
+    //demonactioncontrollers
 
+    public static int isElectricEffect;
     static Settings()
     {
         //player Animation Parameters
@@ -41,6 +43,9 @@ public static class Settings
         // shared animation parameters
         idleLeft = Animator.StringToHash("idleLeft");
         idleRight = Animator.StringToHash("idleRight");
+
+        //demon action controller
+        isElectricEffect = Animator.StringToHash("isElectricEffect");
 
     }
 }
