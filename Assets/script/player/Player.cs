@@ -79,19 +79,19 @@ public class Player : MonoBehaviour
         Movement();
 
         Attack();
-        PowerAttack();
+        //PowerAttack();
         // send event to any listeners for player movement input
         EventHandler.CallMovementEvent(inputX, isWalking, isRunning, isDashing, isIdle, toolEffect, isDemonPunch, isDemonPowerPunch, false, false);
 
     }
 
-    public void PowerAttack()
-    {
-        if (Input.GetMouseButtonDown(1) && isAttacking && !isPowerAttacking)
-        {
-            isPowerAttacking = true;
-        }
-    }
+    //public void PowerAttack()
+    //{
+    //    if (Input.GetMouseButtonDown(1) && isAttacking && isPowerAttacking)
+    //    {
+    //        isPowerAttacking = true;
+    //    }
+    //}
 
     IEnumerator Charged()
     {
@@ -108,6 +108,11 @@ public class Player : MonoBehaviour
 
 
             isAttacking = true;
+
+            if (Input.GetMouseButtonDown(1) && isAttacking && !isPowerAttacking)
+            {
+                isPowerAttacking = true;
+            }
 
 
 
@@ -163,17 +168,17 @@ public class Player : MonoBehaviour
         // running
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
-            isRunning = true;
-            isWalking = false;
-            isIdle = false;
-            movementSpeed = Settings.runningSpeed;
-        }
-        else
-        {
             isRunning = false;
             isWalking = true;
             isIdle = false;
             movementSpeed = Settings.walkingSpeed;
+        }
+        else
+        {
+            isRunning = true;
+            isWalking = false;
+            isIdle = false;
+            movementSpeed = Settings.runningSpeed;
         }
 
 

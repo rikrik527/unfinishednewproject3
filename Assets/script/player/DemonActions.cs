@@ -129,6 +129,15 @@ public class DemonActions : MonoBehaviour
         cinemachineVirtualCamera.LookAt = playerTransform;
         gameStart = true;
     }
+
+    //demon attacks
+    public void DemonPowerPunch()
+    {
+        float demonPowerDistance = 10f;
+        Debug.Log("demon power punch");
+        demonAnimator.Play("demon power punch");
+        rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x + demonPowerDistance * Time.deltaTime, rigidbody2D.velocity.y);
+    }
 }
 
 //public void DemonPowerPunch()

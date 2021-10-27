@@ -4,7 +4,7 @@ using UnityEngine;
 using Cinemachine;
 public class DemonAnimationController : MonoBehaviour
 {
-    public Animator effectAnimator;
+    [SerializeField] private Animator effectAnimator;
 
     private Animator animator;
     private bool isDemonTransform;
@@ -31,7 +31,7 @@ public class DemonAnimationController : MonoBehaviour
             }
 
         }
-        effectAnimator = GetComponentInChildren<Animator>();
+
         animator = GetComponent<Animator>();
         cinemachineVirtualCamera = GameObject.FindGameObjectWithTag(Tags.FollowCamera).GetComponent<CinemachineVirtualCamera>();
     }
@@ -62,10 +62,21 @@ public class DemonAnimationController : MonoBehaviour
             animator.SetTrigger(Settings.isDemonTransform);
         }
     }
-
-    public void isElectric()
+    public void IsSatanReturn()
+    {
+        effectAnimator.SetTrigger("isSatanReturn");
+    }
+    public void IsFeatherEffect()
+    {
+        effectAnimator.SetTrigger("isFeatherEffect");
+    }
+    public void IsElectric()
     {
         effectAnimator.SetBool("isElectricEffect", true);
+    }
+    public void IsNotElectric()
+    {
+        effectAnimator.SetBool("isElectricEffect", false);
     }
     public void DemonIdle()
     {
