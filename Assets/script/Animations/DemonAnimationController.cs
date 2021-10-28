@@ -18,9 +18,14 @@ public class DemonAnimationController : MonoBehaviour
     [SerializeField] private GameObject closeCam;
     [SerializeField] private Camera mainCamera;
     private Transform playerGameobject;
+    public static DemonAnimationController demonControllerInstance;
+    public bool comboPossible;
+    public int comboStep;
+    public bool inputSmash;
 
     private void Awake()
     {
+        demonControllerInstance = this;
 
         if (camera == null)
         {
@@ -82,5 +87,61 @@ public class DemonAnimationController : MonoBehaviour
     {
         Debug.Log("demonidle");
         DemonActions.demonInstance.DemonYushanIdle();
+    }
+    public void ComboPossible()
+    {
+        comboPossible = true;
+    }
+    public void NextAtk()
+    {
+        if (!inputSmash)
+        {
+            if (comboStep == 2)
+            {
+                animator.Play("demon punch");
+            }
+            if (comboStep == 3)
+            {
+                animator.Play("demon second punch");
+            }
+        }
+        if (inputSmash)
+        {
+            if (comboStep == 1)
+            {
+                animator.Play("demon power punch");
+            }
+        }
+    }
+    public void ResetComBo()
+    {
+        comboPossible = false;
+        inputSmash = false;
+        comboStep = 0;
+    }
+    public void NormalAttack()
+    {
+        if (comboStep == 0)
+        {
+            animator.Play("demon punch");
+            comboStep = 1;
+            return;
+        }
+        if (comboStep != 0)
+        {
+            if (comboPossible)
+            {
+                comboPossible = false;
+                comboStep += 1;
+            }
+        }
+    }
+    public void SmashAttack()
+    {
+        if (comboPossible)
+        {
+            comboPossible = false;
+            inputSmash = true;
+        }
     }
 }

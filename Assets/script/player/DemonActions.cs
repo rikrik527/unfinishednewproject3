@@ -26,6 +26,8 @@ public class DemonActions : MonoBehaviour
     private bool isDemon;
 
 
+
+
     // game start
     private bool gameStart;
     private void Awake()
@@ -136,7 +138,7 @@ public class DemonActions : MonoBehaviour
         float demonPowerDistance = 10f;
         Debug.Log("demon power punch");
         demonAnimator.Play("demon power punch");
-        rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x + demonPowerDistance * Time.deltaTime, rigidbody2D.velocity.y);
+
     }
 }
 

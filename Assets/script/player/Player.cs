@@ -53,9 +53,19 @@ public class Player : MonoBehaviour
 
 
     public Animator animator;
+    public bool comboPossible;
+    public int comboStep;
+    public bool inputSmash;
     public bool isAttacking = false;
     public static Player Instance;
     public bool isPowerAttacking = false;
+    public bool isNormalAttack = false;
+    public bool normalAttack = false;
+    public bool powerAttacking = false;
+    public bool isFinishedAttack = false;
+    public bool isFinishedPowerAttack = false;
+
+
 
 
     ToolEffect toolEffect = ToolEffect.none;
@@ -73,12 +83,20 @@ public class Player : MonoBehaviour
         StartFixedDeltaTime = Time.fixedDeltaTime;
     }
 
+
     private void Update()
     {
         ResetAnimationTriggers();
         Movement();
-
-        Attack();
+        if (Input.GetMouseButtonDown(0))
+        {
+            DemonAnimationController.demonControllerInstance.NormalAttack();
+        }
+        if (Input.GetMouseButtonDown(1))
+        {
+            DemonAnimationController.demonControllerInstance.SmashAttack();
+        }
+        //Attack();
         //PowerAttack();
         // send event to any listeners for player movement input
         EventHandler.CallMovementEvent(inputX, isWalking, isRunning, isDashing, isIdle, toolEffect, isDemonPunch, isDemonPowerPunch, false, false);
@@ -106,16 +124,27 @@ public class Player : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && !isAttacking)
         {
 
-
+            Debug.Log("isattacking");
             isAttacking = true;
+            //if (isAttacking)
+            //{
+            //    isPowerAttacking = true;
+            //    isNormalAttack = true;
+            //    if (Input.GetMouseButtonDown(0)&& isNormalAttack)
+            //    {
+            //        normalAttack = true;
+            //        isPowerAttacking = false;
+            //    }
+            //}
 
-            if (Input.GetMouseButtonDown(1) && isAttacking && !isPowerAttacking)
-            {
-                isPowerAttacking = true;
-            }
 
 
 
+        }
+        if (Input.GetMouseButtonDown(1) && isAttacking && !isPowerAttacking)
+        {
+            Debug.Log("powerattacking");
+            powerAttacking = true;
         }
     }
     private void ResetAnimationTriggers()
