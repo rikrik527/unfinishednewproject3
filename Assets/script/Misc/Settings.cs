@@ -4,7 +4,8 @@ using UnityEngine;
 public static class Settings
 {
     // playerMovement
-    public const float runningSpeed = 5.333f;
+    public const float sprintSpeed = 10.666f;
+    public const float runningSpeed = 14.666f;
     public const float walkingSpeed = 2.666f;
 
     // player animation parameters
@@ -34,7 +35,7 @@ public static class Settings
         isRunning = Animator.StringToHash("inRunning");
         isDashing = Animator.StringToHash("isDashing");
         toolEffect = Animator.StringToHash("toolEffect");
-
+        isIdle = Animator.StringToHash("isIdle");
         isDemonTransform = Animator.StringToHash("isDemonTransform");
         isDemon = Animator.StringToHash("isDemon");
         isDemonPunch = Animator.StringToHash("isDemonPunch");

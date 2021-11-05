@@ -30,6 +30,7 @@ public class MovementAnimationController : MonoBehaviour
         animator.SetBool(Settings.isWalking, isWalking);
         animator.SetBool(Settings.isRunning, isRunning);
         animator.SetBool(Settings.isDashing, isDashing);
+        animator.SetBool(Settings.isIdle, isIdle);
 
 
         animator.SetInteger(Settings.toolEffect, (int)toolEffect);

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class Player : MonoBehaviour
 {
@@ -12,6 +13,39 @@ public class Player : MonoBehaviour
     private float timer = 0;
 
     private SpriteRenderer spriteRenderer;
+
+
+    private CinemachineFollowZoom cinemachineFollowZoom;
+
+
+
+
+
+    private Transform playerTransform;
+    private Transform point;
+    [SerializeField] private GameObject followCamera;
+    [SerializeField] private GameObject closeCamera;
+
+    private AnimatorStateInfo animatorStateInfo;
+    private bool isDemonTransform;
+
+
+    private bool switchDemon;
+    private bool isDemon;
+
+
+    private float holdDownStartingTime;
+
+    //color
+    public Color colorWhite = Color.white;
+    public Color black = Color.black;
+    public float duration = 3.0f;
+
+    public Camera camera;
+
+    // game start
+    private bool gameStart;
+
 
     //movement parameters
     private float inputX;
@@ -28,7 +62,7 @@ public class Player : MonoBehaviour
 
     private Rigidbody2D rigidbody2D;
 
-    private Direction playerDirection;
+    public Direction playerDirection;
     [SerializeField] private GameObject player;
 
     private float movementSpeed;
@@ -56,28 +90,37 @@ public class Player : MonoBehaviour
     public bool comboPossible;
     public int comboStep;
     public bool inputSmash;
-    public bool isAttacking = false;
+
     public static Player Instance;
-    public bool isPowerAttacking = false;
-    public bool isNormalAttack = false;
-    public bool normalAttack = false;
-    public bool powerAttacking = false;
-    public bool isFinishedAttack = false;
-    public bool isFinishedPowerAttack = false;
 
 
 
 
     ToolEffect toolEffect = ToolEffect.none;
+
+
+    //camera
+    [SerializeField] private CinemachineVirtualCamera cinemachineVirtualCamera;
+    private CinemachineTransposer cinemachineTransposer;
+
     private void Awake()
     {
         Instance = this;
+        playerTransform = GetComponent<Transform>();
+        point = GameObject.FindGameObjectWithTag(Tags.Point).GetComponent<Transform>();
     }
     private void Start()
     {
+        if (!gameStart)
+        {
+            cinemachineVirtualCamera.Follow = point;
+            StartCoroutine(StartGameTransition());
+            playerDirection = Direction.right;
+        }
         animator = GetComponentInChildren<Animator>();
         rigidbody2D = GetComponent<Rigidbody2D>();
-
+        cinemachineVirtualCamera = GameObject.FindGameObjectWithTag(Tags.FollowCamera).GetComponent<CinemachineVirtualCamera>();
+        cinemachineTransposer = cinemachineVirtualCamera.GetCinemachineComponent<CinemachineTransposer>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         startTimeScale = Time.timeScale;
         StartFixedDeltaTime = Time.fixedDeltaTime;
@@ -87,20 +130,69 @@ public class Player : MonoBehaviour
     private void Update()
     {
         ResetAnimationTriggers();
+
         Movement();
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetKeyDown(KeyCode.E) && gameStart)
         {
-            DemonAnimationController.demonControllerInstance.NormalAttack();
+            DemonTransform();
+
         }
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(0) && isDemon)
         {
-            DemonAnimationController.demonControllerInstance.SmashAttack();
+
+            DemonAnimationController.Instance.NormalAttack();
         }
+
+        if (Input.GetMouseButtonDown(1) && isDemon)
+        {
+
+            DemonAnimationController.Instance.SmashAttack();
+
+        }
+
+
+        EventHandler.CallDemonEvent(isDemonTransform, isDemon);
+        //DemonPunch();
         //Attack();
         //PowerAttack();
         // send event to any listeners for player movement input
         EventHandler.CallMovementEvent(inputX, isWalking, isRunning, isDashing, isIdle, toolEffect, isDemonPunch, isDemonPowerPunch, false, false);
 
+    }
+    void FixedUpdate()
+    {
+
+
+
+
+
+
+    }
+    // Update is called once per frame
+
+    private void LateUpdate()
+    {
+        if (animator == null)
+        {
+            Debug.Log("animator == null");
+        }
+        animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        if (animatorStateInfo.IsTag("demon transform"))
+        {
+            Debug.Log(animatorStateInfo);
+        }
+        if (animatorStateInfo.IsName("demon transform") && animatorStateInfo.normalizedTime <= 0.1f)
+        {
+            Debug.Log("run");
+            ShakeCamera.Instance.Shake(10f, 2f);
+
+        }
+        if (animatorStateInfo.IsName("demon transform") && animatorStateInfo.normalizedTime >= 0.9f)
+        {
+
+            ShakeCamera.Instance.Shake(0f, 0f);
+
+        }
     }
 
     //public void PowerAttack()
@@ -111,42 +203,8 @@ public class Player : MonoBehaviour
     //    }
     //}
 
-    IEnumerator Charged()
-    {
-        Debug.Log("charging");
-        yield return new WaitForSeconds(1f);
-        animator.Play("demon power punch");
-        animator.speed = 1f;
-        isPowerAttacking = false;
-    }
-    void Attack()
-    {
-        if (Input.GetMouseButtonDown(0) && !isAttacking)
-        {
-
-            Debug.Log("isattacking");
-            isAttacking = true;
-            //if (isAttacking)
-            //{
-            //    isPowerAttacking = true;
-            //    isNormalAttack = true;
-            //    if (Input.GetMouseButtonDown(0)&& isNormalAttack)
-            //    {
-            //        normalAttack = true;
-            //        isPowerAttacking = false;
-            //    }
-            //}
 
 
-
-
-        }
-        if (Input.GetMouseButtonDown(1) && isAttacking && !isPowerAttacking)
-        {
-            Debug.Log("powerattacking");
-            powerAttacking = true;
-        }
-    }
     private void ResetAnimationTriggers()
     {
 
@@ -163,6 +221,7 @@ public class Player : MonoBehaviour
     void Movement()
     {
         inputX = Input.GetAxisRaw("Horizontal");
+        //inputX = Input.GetAxisRaw("Horizontal");
         if (inputX != 0)
         {
             inputX = inputX * 0.71f;
@@ -170,29 +229,42 @@ public class Player : MonoBehaviour
         rigidbody2D.velocity = new Vector2(inputX * movementSpeed, rigidbody2D.velocity.y);
         if (inputX != 0)
         {
-            isWalking = true;
-            isRunning = false;
+            isWalking = false;
+            isRunning = true;
             isIdle = false;
             movementSpeed = Settings.walkingSpeed;
 
             // capture player direction for save game
             if (inputX < 0)
             {
+
                 playerDirection = Direction.left;
                 spriteRenderer.flipX = true;
+
+
+
+
+
+
             }
-            else if (inputX > 0)
+            if (inputX > 0)
             {
 
                 playerDirection = Direction.right;
                 spriteRenderer.flipX = false;
+
+
             }
+
         }
         else if (inputX == 0)
         {
+            Debug.Log("isidle" + isIdle);
             isRunning = false;
             isWalking = false;
             isIdle = true;
+
+
         }
         // running
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
@@ -219,6 +291,22 @@ public class Player : MonoBehaviour
             rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, jumpForce);
 
             StartCoroutine(ResetJumpNeededRoutine());
+        }
+        while (playerDirection == Direction.left && cinemachineTransposer.m_FollowOffset.x >= -10f)
+        {
+            Debug.Log("left");
+            cinemachineTransposer.m_FollowOffset.x -= 0.1f;
+            break;
+
+
+        }
+        while (playerDirection == Direction.right && cinemachineTransposer.m_FollowOffset.x <= 11.8f)
+        {
+            Debug.Log("right");
+            cinemachineTransposer.m_FollowOffset.x += 0.1f;
+            break;
+
+
         }
     }
     bool IsGrounded()
@@ -247,4 +335,55 @@ public class Player : MonoBehaviour
     }
 
 
+
+
+
+
+
+    private void DemonTransform()
+    {
+
+
+
+
+
+
+
+
+
+        animator.SetTrigger(Settings.isDemonTransform);
+
+    }
+
+
+    public void DemonYushanIdle()
+    {
+        if (inputX < 0)
+        {
+            Debug.Log("if" + playerDirection);
+            playerDirection = Direction.left;
+            spriteRenderer.flipX = true;
+        }
+        else if (inputX > 0)
+        {
+            Debug.Log("else if" + playerDirection);
+            playerDirection = Direction.right;
+            spriteRenderer.flipX = false;
+        }
+        isDemon = true;
+        animator.SetBool(Settings.isDemon, isDemon);
+        Debug.Log("isdemon" + isDemon);
+        Debug.Log("isdemon idle" + playerDirection);
+    }
+
+    IEnumerator StartGameTransition()
+    {
+        yield return new WaitForSeconds(1.0f);
+        cinemachineVirtualCamera.Follow = playerTransform;
+        cinemachineVirtualCamera.LookAt = playerTransform;
+        gameStart = true;
+    }
+
+
 }
+
