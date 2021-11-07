@@ -6,8 +6,8 @@ public class DemonAnimationController : MonoBehaviour
 {
     [SerializeField] private Animator effectAnimator;
     private Rigidbody2D rigidbody2D;
-    private Animator animator;
-    private AnimatorStateInfo animatorStateInfo;
+    public Animator animator;
+    public AnimatorStateInfo animatorStateInfo;
     private bool isDemonTransform;
     private bool isDemon;
 
@@ -29,9 +29,13 @@ public class DemonAnimationController : MonoBehaviour
     private Player Player1;
     //player
     private Transform player;
+
+
     private void Awake()
     {
         Instance = this;
+
+
         player = GameObject.FindGameObjectWithTag(Tags.Player).GetComponent<Transform>();
         if (camera == null)
         {
@@ -46,8 +50,14 @@ public class DemonAnimationController : MonoBehaviour
         rigidbody2D = GameObject.FindGameObjectWithTag(Tags.Player).GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
 
+        if (animator != null)
+        {
+            animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            Debug.Log(animatorStateInfo.fullPathHash.ToString());
+
+        }
         cinemachineVirtualCamera = GameObject.FindGameObjectWithTag(Tags.FollowCamera).GetComponent<CinemachineVirtualCamera>();
-        target = GameObject.FindGameObjectWithTag("target").GetComponent<Transform>();
+
     }
     private void Start()
     {
@@ -135,6 +145,7 @@ public class DemonAnimationController : MonoBehaviour
 
                 //player.position = Vector3.MoveTowards(player.position, target.position, step);
 
+
                 DemonPowerPunch();
 
                 //rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x + 2f, rigidbody2D.velocity.y);
@@ -143,42 +154,49 @@ public class DemonAnimationController : MonoBehaviour
             }
         }
     }
+    private void LateUpdate()
+    {
+
+    }
     public void DemonPowerPunch()
     {
-        while (Player1.playerDirection == Direction.left)
-        {
-            player.Translate(Vector2.left * 10f * Time.deltaTime);
 
-            //Debug.Log("left" + rigidbody2D.name);
 
-            //rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, 0f);
-            //rigidbody2D.AddForce(new Vector2(10f * -5f, 0f), ForceMode2D.Impulse);
-            //float gravity = rigidbody2D.gravityScale;
-            //rigidbody2D.gravityScale = 0;
 
-            animator.Play(Tags.DemonPowerPunch);
-            //rigidbody2D.gravityScale = gravity;
-            break;
-        }
+        //Debug.Log("left" + rigidbody2D.name);
 
-        while (Player1.playerDirection == Direction.right)
-        {
+        //rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, 0f);
+        //rigidbody2D.AddForce(new Vector2(10f * -5f, 0f), ForceMode2D.Impulse);
+        //float gravity = rigidbody2D.gravityScale;
+        //rigidbody2D.gravityScale = 0;
 
-            Debug.Log(player.name);
-            player.Translate(Vector2.right * 10f * Time.deltaTime);
+        animator.Play(Tags.DemonPowerPunch);
 
-            //Debug.Log("right" + rigidbody2D.name);
 
-            //rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, 0f);
-            //rigidbody2D.AddForce(new Vector2(10f * 5f, 0f), ForceMode2D.Impulse);
-            //float gravity = rigidbody2D.gravityScale;
-            //rigidbody2D.gravityScale = 0;
+        //rigidbody2D.gravityScale = gravity;
 
-            animator.Play(Tags.DemonPowerPunch);
+        //while (Player1.playerDirection == Direction.right)
+        //{
 
-            //rigidbody2D.gravityScale = gravity;
-            break;
-        }
+        //    Debug.Log(player.name);
+        //    //player.Translate(Vector2.right * 10f * Time.deltaTime);
+
+        //    //Debug.Log("right" + rigidbody2D.name);
+
+        //    //rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, 0f);
+        //    //rigidbody2D.AddForce(new Vector2(10f * 5f, 0f), ForceMode2D.Impulse);
+        //    //float gravity = rigidbody2D.gravityScale;
+        //    //rigidbody2D.gravityScale = 0;
+
+        //    animator.Play(Tags.DemonPowerPunch);
+        //    if (animatorStateInfo.IsName(Tags.DemonPowerPunch) != null && animatorStateInfo.normalizedTime >= 0.3f)
+        //    {
+        //        Debug.Log("moveright" + animatorStateInfo.IsName(Tags.DemonPowerPunch));
+        //        player.Translate(Vector2.right * 10f * Time.fixedDeltaTime);
+        //    }
+        //    //rigidbody2D.gravityScale = gravity;
+        //    break;
+        //}
     }
     //IEnumerator DemonPowerPunch()
     //{
@@ -205,7 +223,7 @@ public class DemonAnimationController : MonoBehaviour
         Debug.Log("normal attack");
         if (comboStep == 0)
         {
-            animator.Play("demon punch");
+            DemonPunch();
             comboStep = 1;
             return;
         }
@@ -226,6 +244,11 @@ public class DemonAnimationController : MonoBehaviour
             comboPossible = false;
             inputSmash = true;
         }
+    }
+    public void DemonPunch()
+    {
+        Debug.Log("demon punch");
+        animator.Play(Tags.DemonPunch);
     }
 }
 

@@ -15,4 +15,5 @@ public static class Tags
     public const string DemonPunch = "demon punch";
     public const string DemonSecondPunch = "demon second punch";
     public const string DemonPowerPunch = "demon power punch";
+    public const string DemonChargeGrab = "demon charge grab";
 }

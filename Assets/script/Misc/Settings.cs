@@ -4,14 +4,15 @@ using UnityEngine;
 public static class Settings
 {
     // playerMovement
-    public const float sprintSpeed = 10.666f;
-    public const float runningSpeed = 14.666f;
+    public const float sprintSpeed = 20.666f;
+    public const float runningSpeed = 6.666f;
     public const float walkingSpeed = 2.666f;
 
     // player animation parameters
     public static int inputX;
     public static int isWalking;
     public static int isRunning;
+    public static int isSprinting;
     public static int isDashing;
     public static int isIdle;
     public static int toolEffect;
@@ -40,7 +41,7 @@ public static class Settings
         isDemon = Animator.StringToHash("isDemon");
         isDemonPunch = Animator.StringToHash("isDemonPunch");
         isDemonPowerPunch = Animator.StringToHash("isDemonPowerPunch");
-
+        isSprinting = Animator.StringToHash("isSprinting");
         // shared animation parameters
         idleLeft = Animator.StringToHash("idleLeft");
         idleRight = Animator.StringToHash("idleRight");

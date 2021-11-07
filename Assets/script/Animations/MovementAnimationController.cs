@@ -24,8 +24,9 @@ public class MovementAnimationController : MonoBehaviour
 
 
 
-    private void SetAnimationParameter(float inputX, bool isWalking, bool isRunning, bool isDashing, bool isIdle, ToolEffect toolEffect, bool isDemonPunch, bool isDemonPowerPunch, bool idleLeft, bool idleRight)
+    private void SetAnimationParameter(float inputX, bool isWalking, bool isRunning, bool isSprinting, bool isDashing, bool isIdle, ToolEffect toolEffect, bool isDemonPunch, bool isDemonPowerPunch, bool idleLeft, bool idleRight)
     {
+        animator.SetBool(Settings.isSprinting, isSprinting);
         animator.SetFloat(Settings.inputX, inputX);
         animator.SetBool(Settings.isWalking, isWalking);
         animator.SetBool(Settings.isRunning, isRunning);

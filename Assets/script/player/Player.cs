@@ -5,20 +5,27 @@ using Cinemachine;
 
 public class Player : MonoBehaviour
 {
-    float m_MySliderValue;
-    public float slowMotionTimeScale;
-    private float startTimeScale;
-    private float StartFixedDeltaTime;
 
-    private float timer = 0;
+    public float slowMotionTimeScale;
+    public float demonPowerChargeTimer = 0f;
+
+
+
 
     private SpriteRenderer spriteRenderer;
-
+    // demonanimationcontroller
+    public DemonAnimationController demonAnimationController;
 
     private CinemachineFollowZoom cinemachineFollowZoom;
 
-
-
+    //demon power punch
+    public Vector2 targetPosition;//where you want the gameobject to move to
+    private Vector2 currentVelocity = Vector2.zero;//this is used inside the function dont touch
+    private float smoothing = 0.5f;
+    private float maxSpeed = 10f;
+    public float acceleration = 5.0f;
+    public float maxSpeedLeft = 10f;
+    private float curSpeed = 0.0f;
 
 
     private Transform playerTransform;
@@ -53,7 +60,7 @@ public class Player : MonoBehaviour
     private bool isWalking;
     private bool isRunning;
     private bool isDashing;
-
+    private bool isSprinting;
 
     private bool isDemonPunch;
     private bool isDemonPowerPunch;
@@ -93,6 +100,8 @@ public class Player : MonoBehaviour
 
     public static Player Instance;
 
+    public bool canRun = false;
+    public bool canSprint = false;
 
 
 
@@ -108,6 +117,7 @@ public class Player : MonoBehaviour
         Instance = this;
         playerTransform = GetComponent<Transform>();
         point = GameObject.FindGameObjectWithTag(Tags.Point).GetComponent<Transform>();
+        demonAnimationController = GetComponentInChildren<DemonAnimationController>();
     }
     private void Start()
     {
@@ -122,8 +132,7 @@ public class Player : MonoBehaviour
         cinemachineVirtualCamera = GameObject.FindGameObjectWithTag(Tags.FollowCamera).GetComponent<CinemachineVirtualCamera>();
         cinemachineTransposer = cinemachineVirtualCamera.GetCinemachineComponent<CinemachineTransposer>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        startTimeScale = Time.timeScale;
-        StartFixedDeltaTime = Time.fixedDeltaTime;
+
     }
 
 
@@ -137,18 +146,12 @@ public class Player : MonoBehaviour
             DemonTransform();
 
         }
-        if (Input.GetMouseButtonDown(0) && isDemon)
+        if (Input.GetKeyDown(KeyCode.R) && gameStart)
         {
 
-            DemonAnimationController.Instance.NormalAttack();
-        }
-
-        if (Input.GetMouseButtonDown(1) && isDemon)
-        {
-
-            DemonAnimationController.Instance.SmashAttack();
 
         }
+
 
 
         EventHandler.CallDemonEvent(isDemonTransform, isDemon);
@@ -156,11 +159,71 @@ public class Player : MonoBehaviour
         //Attack();
         //PowerAttack();
         // send event to any listeners for player movement input
-        EventHandler.CallMovementEvent(inputX, isWalking, isRunning, isDashing, isIdle, toolEffect, isDemonPunch, isDemonPowerPunch, false, false);
+        EventHandler.CallMovementEvent(inputX, isWalking, isRunning, isSprinting, isDashing, isIdle, toolEffect, isDemonPunch, isDemonPowerPunch, false, false);
 
     }
     void FixedUpdate()
     {
+        if (Input.GetMouseButtonDown(0) && isDemon)
+        {
+
+            DemonAnimationController.Instance.NormalAttack();
+        }
+        if (Input.GetMouseButton(1) && isDemon)
+        {
+            Debug.Log("mouse down");
+            demonPowerChargeTimer += Time.deltaTime;
+            if (demonPowerChargeTimer > 2)
+            {
+                acceleration = 5f;
+                maxSpeedLeft = 10f;
+                Debug.Log("demonpowercjargetimer>2");
+                DemonAnimationController.Instance.SmashAttack();
+
+
+                if (Time.timeScale == 1f)
+                {
+                    Time.timeScale = 0.5f;
+                }
+                else if (animatorStateInfo.IsName(Tags.DemonPowerPunch) && animatorStateInfo.normalizedTime >= 0.6f)
+                {
+                    Time.timeScale = 1f;
+                    Debug.Log("animatorstateinfo demon power punch");
+                }
+
+
+                demonPowerChargeTimer = 0;
+            }
+        }
+        if (Input.GetMouseButtonUp(1) && isDemon && (demonPowerChargeTimer > 2))
+        {
+            Debug.Log("mouse up power");
+            acceleration = 5f;
+            maxSpeedLeft = 10f;
+
+            if (Time.timeScale == 1f)
+            {
+                Time.timeScale = 0.5f;
+            }
+            else if (animatorStateInfo.IsName(Tags.DemonPowerPunch) && animatorStateInfo.normalizedTime >= 0.6f)
+            {
+                Time.timeScale = 1f;
+                Debug.Log("animatorstateinfo demon power punch");
+            }
+
+
+            demonPowerChargeTimer = 0;
+        }
+        if (Input.GetMouseButtonUp(1) && isDemon && (demonPowerChargeTimer < 2))
+        {
+            Debug.Log("mouse up no power");
+            acceleration = 2.5f;
+            maxSpeedLeft = 5f;
+            DemonAnimationController.Instance.SmashAttack();
+            demonPowerChargeTimer = 0;
+        }
+
+
 
 
 
@@ -172,15 +235,14 @@ public class Player : MonoBehaviour
 
     private void LateUpdate()
     {
+
+
         if (animator == null)
         {
             Debug.Log("animator == null");
         }
         animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        if (animatorStateInfo.IsTag("demon transform"))
-        {
-            Debug.Log(animatorStateInfo);
-        }
+        //annimatorstateinfo to get demon transform and trigger shake func
         if (animatorStateInfo.IsName("demon transform") && animatorStateInfo.normalizedTime <= 0.1f)
         {
             Debug.Log("run");
@@ -193,15 +255,62 @@ public class Player : MonoBehaviour
             ShakeCamera.Instance.Shake(0f, 0f);
 
         }
+        //demon power punch animatorstateinfo
+        while (playerDirection == Direction.left)
+        {
+            Debug.Log("left" + animatorStateInfo.IsName("demon power punch"));
+            if (animatorStateInfo.IsName(Tags.DemonPowerPunch))
+            {
+                //targetPosition = Vector2.left * -10f * Time.deltaTime;
+
+                Debug.Log("move left" + animatorStateInfo.IsName("demon power punch"));
+                //playerTransform.position = Vector2.SmoothDamp(playerTransform.position, targetPosition, ref currentVelocity, smoothing, maxSpeed);
+                playerTransform.Translate(Vector2.left * curSpeed * Time.deltaTime);
+                curSpeed += acceleration * Time.deltaTime;
+                Debug.Log("curspeed" + curSpeed + "" + acceleration);
+                if (curSpeed > maxSpeedLeft)
+                {
+                    Debug.Log("curspeed > maxspeedleft" + curSpeed);
+                    curSpeed = maxSpeedLeft;
+                }
+                //playerTransform.Translate(Vector2.left * 10f * Time.deltaTime);
+
+            }
+            break;
+        }
+
+        while (playerDirection == Direction.right)
+        {
+            Debug.Log("right" + animatorStateInfo.IsName("demon power punch"));
+            if (animatorStateInfo.IsName(Tags.DemonPowerPunch))
+            {
+                Debug.Log("move right" + animatorStateInfo.IsName(Tags.DemonPowerPunch));
+                playerTransform.Translate(Vector2.right * curSpeed * Time.deltaTime);
+                curSpeed += acceleration * Time.deltaTime;
+                Debug.Log("curspeed" + curSpeed + "" + acceleration);
+                if (curSpeed > maxSpeedLeft)
+                {
+                    Debug.Log("curspeed > maxspeedleft" + curSpeed);
+                    curSpeed = maxSpeedLeft;
+                }
+                //playerTransform.Translate(Vector2.right * 10f * Time.deltaTime);
+            }
+            break;
+        }
+        if (animatorStateInfo.IsName(Tags.DemonPowerPunch) && animatorStateInfo.normalizedTime <= 0.5f)
+        {
+            demonAnimationController.IsElectric();
+            Debug.Log("stateinfo" + animatorStateInfo.IsName("demon power punch"));
+        }
+        else if (animatorStateInfo.IsName(Tags.DemonPowerPunch) && animatorStateInfo.normalizedTime >= 0.6f)
+        {
+
+            demonAnimationController.IsNotElectric();
+        }
+
     }
 
-    //public void PowerAttack()
-    //{
-    //    if (Input.GetMouseButtonDown(1) && isAttacking && isPowerAttacking)
-    //    {
-    //        isPowerAttacking = true;
-    //    }
-    //}
+
 
 
 
@@ -211,7 +320,7 @@ public class Player : MonoBehaviour
         isWalking = false;
         isRunning = false;
         isDashing = false;
-
+        isSprinting = false;
 
         isDemonPunch = false;
         isDemonPowerPunch = false;
@@ -229,10 +338,13 @@ public class Player : MonoBehaviour
         rigidbody2D.velocity = new Vector2(inputX * movementSpeed, rigidbody2D.velocity.y);
         if (inputX != 0)
         {
+            Debug.Log("if isrunning" + isRunning);
+            isSprinting = false;
             isWalking = false;
             isRunning = true;
             isIdle = false;
-            movementSpeed = Settings.walkingSpeed;
+            movementSpeed = Settings.runningSpeed;
+            StartCoroutine(SprintingTime());
 
             // capture player direction for save game
             if (inputX < 0)
@@ -262,6 +374,7 @@ public class Player : MonoBehaviour
             Debug.Log("isidle" + isIdle);
             isRunning = false;
             isWalking = false;
+            isSprinting = false;
             isIdle = true;
 
 
@@ -269,6 +382,7 @@ public class Player : MonoBehaviour
         // running
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
+            isSprinting = false;
             isRunning = false;
             isWalking = true;
             isIdle = false;
@@ -276,10 +390,13 @@ public class Player : MonoBehaviour
         }
         else
         {
+            Debug.Log("else runinnig");
+            isSprinting = false;
             isRunning = true;
             isWalking = false;
             isIdle = false;
             movementSpeed = Settings.runningSpeed;
+            StartCoroutine(SprintingTime());
         }
 
 
@@ -308,6 +425,58 @@ public class Player : MonoBehaviour
 
 
         }
+    }
+    private void Run()
+    {
+        canRun = true;
+        isRunning = true;
+        if (canRun)
+        {
+            isSprinting = false;
+            movementSpeed = Settings.runningSpeed;
+            StartCoroutine(SprintingTime());
+        }
+
+
+    }
+    private void Sprint()
+    {
+        canSprint = true;
+        isSprinting = true;
+        if (canSprint)
+        {
+            Debug.Log("cansprint in void sprint");
+            isRunning = false;
+            movementSpeed = Settings.sprintSpeed;
+        }
+        else if (canSprint == false)
+        {
+            Debug.Log("sprint can sprint === false is run");
+            isSprinting = false;
+
+            Run();
+        }
+
+    }
+    IEnumerator SprintingTime()
+    {
+        yield return new WaitForSeconds(2.5f);
+        Sprint();
+        yield return new WaitForSeconds(2.5f);
+        canSprint = false;
+        Debug.Log("sprinting" + isSprinting);
+        if (inputX == 0)
+        {
+            Debug.Log("resetmovement");
+            ResetMovement();
+        }
+    }
+    private void ResetMovement()
+    {
+        isRunning = false;
+        isSprinting = false;
+        isWalking = false;
+        isIdle = true;
     }
     bool IsGrounded()
     {
