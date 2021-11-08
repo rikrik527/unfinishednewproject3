@@ -2,13 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
-
+using UnityEngine.Events;
 public class Player : MonoBehaviour
 {
 
     public float slowMotionTimeScale;
+    public float demonPowerChargeDuration = 1f;
     public float demonPowerChargeTimer = 0f;
-
+    public float speedFactor = 2.3f;
+    public bool isStanding;
+    public UnityEvent OnLongClick;
+    private bool click = false;
 
 
 
@@ -61,9 +65,10 @@ public class Player : MonoBehaviour
     private bool isRunning;
     private bool isDashing;
     private bool isSprinting;
-
+    private bool isDemonPowerCharge;
     private bool isDemonPunch;
     private bool isDemonPowerPunch;
+    private bool isDemonIdle;
 
 
 
@@ -151,77 +156,24 @@ public class Player : MonoBehaviour
 
 
         }
+        if (Input.GetMouseButtonDown(0) && isDemon && !isDemonPowerCharge)
+        {
+            Debug.Log(isDemonPowerCharge + "first click");
+            DemonAnimationController.Instance.NormalAttack();
+        }
+        ChargeAttackAndInputGetMouse();
 
-
-
-        EventHandler.CallDemonEvent(isDemonTransform, isDemon);
+        EventHandler.CallDemonEvent(isDemonTransform, isDemon, isDemonPowerCharge, isDemonPowerPunch, isDemonPunch, isDemonIdle);
         //DemonPunch();
         //Attack();
         //PowerAttack();
         // send event to any listeners for player movement input
-        EventHandler.CallMovementEvent(inputX, isWalking, isRunning, isSprinting, isDashing, isIdle, toolEffect, isDemonPunch, isDemonPowerPunch, false, false);
+        EventHandler.CallMovementEvent(inputX, isWalking, isRunning, isSprinting, isDashing, isIdle, toolEffect, false, false);
 
     }
     void FixedUpdate()
     {
-        if (Input.GetMouseButtonDown(0) && isDemon)
-        {
 
-            DemonAnimationController.Instance.NormalAttack();
-        }
-        if (Input.GetMouseButton(1) && isDemon)
-        {
-            Debug.Log("mouse down");
-            demonPowerChargeTimer += Time.deltaTime;
-            if (demonPowerChargeTimer > 2)
-            {
-                acceleration = 5f;
-                maxSpeedLeft = 10f;
-                Debug.Log("demonpowercjargetimer>2");
-                DemonAnimationController.Instance.SmashAttack();
-
-
-                if (Time.timeScale == 1f)
-                {
-                    Time.timeScale = 0.5f;
-                }
-                else if (animatorStateInfo.IsName(Tags.DemonPowerPunch) && animatorStateInfo.normalizedTime >= 0.6f)
-                {
-                    Time.timeScale = 1f;
-                    Debug.Log("animatorstateinfo demon power punch");
-                }
-
-
-                demonPowerChargeTimer = 0;
-            }
-        }
-        if (Input.GetMouseButtonUp(1) && isDemon && (demonPowerChargeTimer > 2))
-        {
-            Debug.Log("mouse up power");
-            acceleration = 5f;
-            maxSpeedLeft = 10f;
-
-            if (Time.timeScale == 1f)
-            {
-                Time.timeScale = 0.5f;
-            }
-            else if (animatorStateInfo.IsName(Tags.DemonPowerPunch) && animatorStateInfo.normalizedTime >= 0.6f)
-            {
-                Time.timeScale = 1f;
-                Debug.Log("animatorstateinfo demon power punch");
-            }
-
-
-            demonPowerChargeTimer = 0;
-        }
-        if (Input.GetMouseButtonUp(1) && isDemon && (demonPowerChargeTimer < 2))
-        {
-            Debug.Log("mouse up no power");
-            acceleration = 2.5f;
-            maxSpeedLeft = 5f;
-            DemonAnimationController.Instance.SmashAttack();
-            demonPowerChargeTimer = 0;
-        }
 
 
 
@@ -235,27 +187,179 @@ public class Player : MonoBehaviour
 
     private void LateUpdate()
     {
+        animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
 
-        if (animator == null)
+        if (animator != null)
         {
             Debug.Log("animator == null");
+
         }
-        animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
         //annimatorstateinfo to get demon transform and trigger shake func
-        if (animatorStateInfo.IsName("demon transform") && animatorStateInfo.normalizedTime <= 0.1f)
-        {
-            Debug.Log("run");
-            ShakeCamera.Instance.Shake(10f, 2f);
+        DemonGroundShake();
 
-        }
-        if (animatorStateInfo.IsName("demon transform") && animatorStateInfo.normalizedTime >= 0.9f)
-        {
+        // charge input mouse up
+        ChargeAttackAndInputMouseUp();
 
-            ShakeCamera.Instance.Shake(0f, 0f);
-
-        }
         //demon power punch animatorstateinfo
+        DemonPowerPunchMovePower();
+
+        ElectricEffectAfterDemonPowerPunch();
+
+        if (animatorStateInfo.IsName("demon power punch"))
+        {
+            Debug.Log("isname demon power punch");
+
+        }
+    }
+
+    public void ChargeAttackAndInputGetMouse()
+    {
+        if (Input.GetMouseButtonDown(1) && isDemon && animatorStateInfo.IsName(Tags.DemonPunch) && animatorStateInfo.normalizedTime <= 0.6f && !isDemonPowerCharge)
+        {
+            Debug.Log("moudedown first click");
+            demonPowerChargeTimer = 0;
+            click = true;
+        }
+
+        if (Input.GetMouseButton(1) && isDemon && animatorStateInfo.IsName(Tags.DemonPunch) && animatorStateInfo.normalizedTime <= 0.6f && !isDemonPowerCharge && click)
+        {
+            isDemonPowerCharge = true;
+            if (isDemonPowerCharge)
+            {
+                followCamera.SetActive(false);
+                closeCamera.SetActive(true);
+                demonPowerChargeTimer += Time.deltaTime;
+                demonAnimationController.IsElectric();
+                Debug.Log("mouse down" + demonPowerChargeTimer + isDemonPowerCharge);
+                click = false;
+                OnLongClick.Invoke();
+
+            }
+
+
+
+
+
+
+
+        }
+    }
+    public void ChargeAttackAndInputMouseUp()
+    {
+        if (Input.GetMouseButtonUp(1) && isDemon && (demonPowerChargeTimer > demonPowerChargeDuration) && animatorStateInfo.IsName(Tags.DemonPowerCharge) && isDemonPowerCharge && click)
+        {
+            isDemonPowerCharge = false;
+            click = false;
+            demonAnimationController.IsNotElectric();
+            Debug.Log("mouse up power" + isDemonPowerCharge);
+            acceleration = 5f;
+            maxSpeedLeft = 10f;
+            closeCamera.SetActive(false);
+            followCamera.SetActive(true);
+
+            DemonAnimationController.Instance.SmashAttack();
+
+            demonPowerChargeTimer = 0;
+        }
+        if (Input.GetMouseButtonUp(1) && isDemon && (demonPowerChargeTimer < demonPowerChargeDuration) && animatorStateInfo.IsName(Tags.DemonPowerCharge) && isDemonPowerCharge && click)
+        {
+
+
+            isDemonPowerCharge = false;
+            click = false;
+            demonAnimationController.IsNotElectric();
+            Debug.Log("mouse up no power" + isDemonPowerCharge);
+            acceleration = 2.5f;
+            maxSpeedLeft = 5f;
+
+            closeCamera.SetActive(false);
+            followCamera.SetActive(true);
+            DemonAnimationController.Instance.SmashAttack();
+            demonPowerChargeTimer = 0;
+        }
+    }
+    //    if (Input.GetMouseButton(1) && isDemon && animatorStateInfo.IsName("demon idle") && isStanding && !isDemonPowerCharge)
+    //    {
+    //        isDemonPowerCharge = true;
+
+    //        if (isDemonPowerCharge)
+    //        {
+    //            demonAnimationController.IsElectric();
+    //            Debug.Log("charging" + demonPowerChargeTimer + isDemonPowerCharge);
+    //            demonPowerChargeTimer += Time.deltaTime * speedFactor;
+    //            if (demonPowerChargeTimer > 1f)
+    //            {
+    //                Debug.Log("smash2" + isDemonPowerCharge);
+    //                isDemonPowerCharge = false;
+    //                demonAnimationController.IsNotElectric();
+    //                acceleration = 5f;
+    //                maxSpeedLeft = 10f;
+    //                DemonAnimationController.Instance.SmashAttack();
+    //                demonPowerChargeTimer = 0;
+    //            }
+    //            if (demonPowerChargeTimer < 1)
+    //            {
+    //                Debug.Log("smash" + isDemonPowerCharge);
+    //                isDemonPowerCharge = false;
+    //                demonAnimationController.IsNotElectric();
+    //                acceleration = 2.5f;
+    //                maxSpeedLeft = 5f;
+    //                DemonAnimationController.Instance.SmashAttack();
+    //                demonPowerChargeTimer = 0;
+    //                StartCoroutine(IsStanding());
+    //            }
+    //        }
+
+
+    //    }
+    //    if (Input.GetMouseButtonUp(1) && isDemon && animatorStateInfo.IsName("demon idle") && demonPowerChargeTimer > 1 && isStanding && isDemonPowerCharge)
+    //    {
+    //        Debug.Log("smash" + isDemonPowerCharge);
+    //        isDemonPowerCharge = false;
+    //        demonAnimationController.IsNotElectric();
+    //        acceleration = 5f;
+    //        maxSpeedLeft = 10f;
+    //        DemonAnimationController.Instance.SmashAttack();
+    //        demonPowerChargeTimer = 0;
+    //        StartCoroutine(IsStanding());
+    //    }
+    //    if (Input.GetMouseButtonUp(1) && isDemon && animatorStateInfo.IsName("demon idle") && demonPowerChargeTimer < 1 && isStanding && isDemonPowerCharge)
+    //    {
+    //        Debug.Log("smash" + isDemonPowerCharge);
+    //        isDemonPowerCharge = false;
+    //        demonAnimationController.IsNotElectric();
+    //        acceleration = 2.5f;
+    //        maxSpeedLeft = 5f;
+    //        DemonAnimationController.Instance.SmashAttack();
+    //        demonPowerChargeTimer = 0;
+    //        StartCoroutine(IsStanding());
+    //    }
+
+
+    IEnumerator IsStanding()
+    {
+        yield return new WaitForSeconds(1f);
+        Debug.Log("isStanding count down");
+
+    }
+
+    private void ElectricEffectAfterDemonPowerPunch()
+    {
+        if (animatorStateInfo.IsName(Tags.DemonPowerPunch) && animatorStateInfo.normalizedTime <= 0.5f)
+        {
+            demonAnimationController.IsElectric();
+            Debug.Log("stateinfo" + animatorStateInfo.IsName("demon power punch"));
+        }
+        else if (animatorStateInfo.IsName(Tags.DemonPowerPunch) && animatorStateInfo.normalizedTime >= 0.6f)
+        {
+
+            demonAnimationController.IsNotElectric();
+        }
+    }
+    private void DemonPowerPunchMovePower()
+    {
         while (playerDirection == Direction.left)
         {
             Debug.Log("left" + animatorStateInfo.IsName("demon power punch"));
@@ -265,12 +369,17 @@ public class Player : MonoBehaviour
 
                 Debug.Log("move left" + animatorStateInfo.IsName("demon power punch"));
                 //playerTransform.position = Vector2.SmoothDamp(playerTransform.position, targetPosition, ref currentVelocity, smoothing, maxSpeed);
+                followCamera.SetActive(false);
+                closeCamera.SetActive(true);
                 playerTransform.Translate(Vector2.left * curSpeed * Time.deltaTime);
+                closeCamera.SetActive(false);
+                followCamera.SetActive(true);
+
                 curSpeed += acceleration * Time.deltaTime;
-                Debug.Log("curspeed" + curSpeed + "" + acceleration);
+
                 if (curSpeed > maxSpeedLeft)
                 {
-                    Debug.Log("curspeed > maxspeedleft" + curSpeed);
+
                     curSpeed = maxSpeedLeft;
                 }
                 //playerTransform.Translate(Vector2.left * 10f * Time.deltaTime);
@@ -285,34 +394,38 @@ public class Player : MonoBehaviour
             if (animatorStateInfo.IsName(Tags.DemonPowerPunch))
             {
                 Debug.Log("move right" + animatorStateInfo.IsName(Tags.DemonPowerPunch));
+                followCamera.SetActive(false);
+                closeCamera.SetActive(true);
                 playerTransform.Translate(Vector2.right * curSpeed * Time.deltaTime);
+                closeCamera.SetActive(false);
+                followCamera.SetActive(true);
                 curSpeed += acceleration * Time.deltaTime;
-                Debug.Log("curspeed" + curSpeed + "" + acceleration);
+
                 if (curSpeed > maxSpeedLeft)
                 {
-                    Debug.Log("curspeed > maxspeedleft" + curSpeed);
+
                     curSpeed = maxSpeedLeft;
                 }
                 //playerTransform.Translate(Vector2.right * 10f * Time.deltaTime);
             }
             break;
         }
-        if (animatorStateInfo.IsName(Tags.DemonPowerPunch) && animatorStateInfo.normalizedTime <= 0.5f)
-        {
-            demonAnimationController.IsElectric();
-            Debug.Log("stateinfo" + animatorStateInfo.IsName("demon power punch"));
-        }
-        else if (animatorStateInfo.IsName(Tags.DemonPowerPunch) && animatorStateInfo.normalizedTime >= 0.6f)
-        {
-
-            demonAnimationController.IsNotElectric();
-        }
-
     }
+    private void DemonGroundShake()
+    {
+        if (animatorStateInfo.IsName("demon transform") && animatorStateInfo.normalizedTime <= 0.1f)
+        {
+            Debug.Log("run");
+            ShakeCamera.Instance.Shake(10f, 2f);
 
+        }
+        if (animatorStateInfo.IsName("demon transform") && animatorStateInfo.normalizedTime >= 0.9f)
+        {
 
+            ShakeCamera.Instance.Shake(0f, 0f);
 
-
+        }
+    }
 
     private void ResetAnimationTriggers()
     {
@@ -344,7 +457,7 @@ public class Player : MonoBehaviour
             isRunning = true;
             isIdle = false;
             movementSpeed = Settings.runningSpeed;
-            StartCoroutine(SprintingTime());
+
 
             // capture player direction for save game
             if (inputX < 0)
@@ -396,7 +509,7 @@ public class Player : MonoBehaviour
             isWalking = false;
             isIdle = false;
             movementSpeed = Settings.runningSpeed;
-            StartCoroutine(SprintingTime());
+
         }
 
 
@@ -409,6 +522,12 @@ public class Player : MonoBehaviour
 
             StartCoroutine(ResetJumpNeededRoutine());
         }
+
+        CameraPlayerPosition();
+
+    }
+    public void CameraPlayerPosition()
+    {
         while (playerDirection == Direction.left && cinemachineTransposer.m_FollowOffset.x >= -10f)
         {
             Debug.Log("left");
@@ -426,51 +545,7 @@ public class Player : MonoBehaviour
 
         }
     }
-    private void Run()
-    {
-        canRun = true;
-        isRunning = true;
-        if (canRun)
-        {
-            isSprinting = false;
-            movementSpeed = Settings.runningSpeed;
-            StartCoroutine(SprintingTime());
-        }
 
-
-    }
-    private void Sprint()
-    {
-        canSprint = true;
-        isSprinting = true;
-        if (canSprint)
-        {
-            Debug.Log("cansprint in void sprint");
-            isRunning = false;
-            movementSpeed = Settings.sprintSpeed;
-        }
-        else if (canSprint == false)
-        {
-            Debug.Log("sprint can sprint === false is run");
-            isSprinting = false;
-
-            Run();
-        }
-
-    }
-    IEnumerator SprintingTime()
-    {
-        yield return new WaitForSeconds(2.5f);
-        Sprint();
-        yield return new WaitForSeconds(2.5f);
-        canSprint = false;
-        Debug.Log("sprinting" + isSprinting);
-        if (inputX == 0)
-        {
-            Debug.Log("resetmovement");
-            ResetMovement();
-        }
-    }
     private void ResetMovement()
     {
         isRunning = false;
@@ -522,11 +597,13 @@ public class Player : MonoBehaviour
 
         animator.SetTrigger(Settings.isDemonTransform);
 
+
     }
 
 
     public void DemonYushanIdle()
     {
+
         if (inputX < 0)
         {
             Debug.Log("if" + playerDirection);
@@ -539,7 +616,9 @@ public class Player : MonoBehaviour
             playerDirection = Direction.right;
             spriteRenderer.flipX = false;
         }
+        Debug.Log("isstanding" + isStanding);
         isDemon = true;
+        isStanding = true;
         animator.SetBool(Settings.isDemon, isDemon);
         Debug.Log("isdemon" + isDemon);
         Debug.Log("isdemon idle" + playerDirection);

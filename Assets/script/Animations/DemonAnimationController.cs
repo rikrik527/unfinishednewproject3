@@ -10,7 +10,10 @@ public class DemonAnimationController : MonoBehaviour
     public AnimatorStateInfo animatorStateInfo;
     private bool isDemonTransform;
     private bool isDemon;
-
+    private bool isDemonPowerCharge;
+    private bool isDemonPunch;
+    private bool isDemonIdle;
+    private bool isDemonPowerPunch;
     private CinemachineVirtualCamera cinemachineVirtualCamera;
     private CinemachineTransposer cinemachineTransposer;
     private Camera camera;
@@ -78,14 +81,23 @@ public class DemonAnimationController : MonoBehaviour
 
 
     }
-    private void SetDemonParameter(bool isDemonTransform, bool isDemon)
+    private void SetDemonParameter(bool isDemonTransform, bool isDemon, bool isDemonPowerCharge, bool isDemonPowerPunch, bool isDemonPunch, bool isDemonIdle)
     {
 
         animator.SetBool(Settings.isDemon, isDemon);
-
+        animator.SetBool(Settings.isDemonPowerCharge, isDemonPowerCharge);
+        animator.SetBool(Settings.isDemonIdle, isDemonIdle);
+        if (isDemonPunch)
+        {
+            animator.SetTrigger(Settings.isDemonPunch);
+        }
         if (isDemonTransform)
         {
             animator.SetTrigger(Settings.isDemonTransform);
+        }
+        if (isDemonPowerPunch)
+        {
+            animator.SetTrigger(Settings.isDemonPowerPunch);
         }
     }
     //effect
@@ -111,6 +123,7 @@ public class DemonAnimationController : MonoBehaviour
     {
 
         Player.Instance.DemonYushanIdle();
+        isDemonIdle = true;
 
     }
 
@@ -127,6 +140,7 @@ public class DemonAnimationController : MonoBehaviour
         {
             if (comboStep == 2)
             {
+                Player.Instance.isStanding = false;
                 Debug.Log("combo step" + comboStep);
                 animator.Play(Tags.DemonSecondPunch);
             }
@@ -144,7 +158,7 @@ public class DemonAnimationController : MonoBehaviour
                 Debug.Log("demon power punch");
 
                 //player.position = Vector3.MoveTowards(player.position, target.position, step);
-
+                Player.Instance.isStanding = false;
 
                 DemonPowerPunch();
 
@@ -160,57 +174,11 @@ public class DemonAnimationController : MonoBehaviour
     }
     public void DemonPowerPunch()
     {
+        Debug.Log("isdemonpunch" + isDemonPowerCharge);
 
-
-
-        //Debug.Log("left" + rigidbody2D.name);
-
-        //rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, 0f);
-        //rigidbody2D.AddForce(new Vector2(10f * -5f, 0f), ForceMode2D.Impulse);
-        //float gravity = rigidbody2D.gravityScale;
-        //rigidbody2D.gravityScale = 0;
-
-        animator.Play(Tags.DemonPowerPunch);
-
-
-        //rigidbody2D.gravityScale = gravity;
-
-        //while (Player1.playerDirection == Direction.right)
-        //{
-
-        //    Debug.Log(player.name);
-        //    //player.Translate(Vector2.right * 10f * Time.deltaTime);
-
-        //    //Debug.Log("right" + rigidbody2D.name);
-
-        //    //rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, 0f);
-        //    //rigidbody2D.AddForce(new Vector2(10f * 5f, 0f), ForceMode2D.Impulse);
-        //    //float gravity = rigidbody2D.gravityScale;
-        //    //rigidbody2D.gravityScale = 0;
-
-        //    animator.Play(Tags.DemonPowerPunch);
-        //    if (animatorStateInfo.IsName(Tags.DemonPowerPunch) != null && animatorStateInfo.normalizedTime >= 0.3f)
-        //    {
-        //        Debug.Log("moveright" + animatorStateInfo.IsName(Tags.DemonPowerPunch));
-        //        player.Translate(Vector2.right * 10f * Time.fixedDeltaTime);
-        //    }
-        //    //rigidbody2D.gravityScale = gravity;
-        //    break;
-        //}
+        isDemonPowerCharge = false;
+        animator.SetTrigger(Settings.isDemonPowerPunch);
     }
-    //IEnumerator DemonPowerPunch()
-    //{
-    //    yield return new WaitForSeconds(0.2f);
-    //    animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-    //    if (animatorStateInfo.IsName("demon power punch") && animatorStateInfo.normalizedTime <= 0.1f)
-    //    {
-    //        Debug.Log("animator power punch is not null");
-    //        animator.speed = 0.1f;
-    //        Debug.Log("start count down");
-    //        yield return new WaitForSeconds(0.5f);
-    //        animator.speed = 1f;
-    //    }
-    //}
     public void ResetComBo()
     {
         Debug.Log("resetcombo");
@@ -224,6 +192,7 @@ public class DemonAnimationController : MonoBehaviour
         if (comboStep == 0)
         {
             DemonPunch();
+
             comboStep = 1;
             return;
         }
@@ -238,17 +207,22 @@ public class DemonAnimationController : MonoBehaviour
     }
     public void SmashAttack()
     {
-        Debug.Log("smash attack");
+        isDemonPowerCharge = false;
+        Debug.Log("smash attack" + isDemonPowerCharge);
         if (comboPossible)
         {
+            Debug.Log("combopossible");
+
             comboPossible = false;
             inputSmash = true;
         }
     }
     public void DemonPunch()
     {
-        Debug.Log("demon punch");
-        animator.Play(Tags.DemonPunch);
+        isDemonPunch = true;
+        Debug.Log("demon punch" + isDemonPunch);
+        animator.SetTrigger(Settings.isDemonPunch);
+
     }
 }
 

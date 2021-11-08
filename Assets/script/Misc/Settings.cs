@@ -16,12 +16,12 @@ public static class Settings
     public static int isDashing;
     public static int isIdle;
     public static int toolEffect;
-
+    public static int isDemonPowerCharge;
     public static int isDemonTransform;
     public static int isDemon;
     public static int isDemonPunch;
     public static int isDemonPowerPunch;
-
+    public static int isDemonIdle;
     // shared animation parameter
     public static int idleLeft;
     public static int idleRight;
@@ -45,9 +45,9 @@ public static class Settings
         // shared animation parameters
         idleLeft = Animator.StringToHash("idleLeft");
         idleRight = Animator.StringToHash("idleRight");
-
+        isDemonIdle = Animator.StringToHash("isDemonIdle");
         //demon action controller
         isElectricEffect = Animator.StringToHash("isElectricEffect");
-
+        isDemonPowerCharge = Animator.StringToHash("isDemonPowerCharge");
     }
 }
