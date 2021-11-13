@@ -1,6 +1,8 @@
+using System;
+
 public delegate void MovementDelegate(float inputX, bool isWalking, bool isRunning, bool isSpringing, bool isDashing, bool isIdle, ToolEffect toolEffect, bool idleLeft, bool idleRight);
 
-public delegate void DemonDelegate(bool isDemonTransform, bool isDemon, bool isDemonPowerCharge, bool isDemonPowerPunch, bool isDemonPunch, bool isDemonIdle);
+public delegate void DemonDelegate(bool isDemonTransform, bool isDemon, bool isDemonPowerCharge, bool isDemonPowerPunch, bool isDemonPunch, bool isDemonSecondPunch, bool isDemonIdle);
 public static class EventHandler
 {
     //movement event
@@ -8,11 +10,11 @@ public static class EventHandler
     public static event MovementDelegate MovementEvent;
     public static event DemonDelegate DemonEvent;
     //demon actions event call for publishers
-    public static void CallDemonEvent(bool isDemonTransform, bool isDemon, bool isDemonPowerCharge, bool isDemonPowerPunch, bool isDemonPunch, bool isDemonIdle)
+    public static void CallDemonEvent(bool isDemonTransform, bool isDemon, bool isDemonPowerCharge, bool isDemonPowerPunch, bool isDemonPunch, bool isDemonSecondPunch, bool isDemonIdle)
     {
         if (DemonEvent != null)
         {
-            DemonEvent(isDemonTransform, isDemon, isDemonPowerCharge, isDemonPowerPunch, isDemonPunch, isDemonIdle);
+            DemonEvent(isDemonTransform, isDemon, isDemonPowerCharge, isDemonPowerPunch, isDemonPunch, isDemonSecondPunch, isDemonIdle);
         }
     }
 
@@ -25,4 +27,6 @@ public static class EventHandler
             MovementEvent(inputX, isWalking, isRunning, isSprinting, isDashing, isIdle, toolEffect, idleLeft, idleRight);
         }
     }
+
+
 }

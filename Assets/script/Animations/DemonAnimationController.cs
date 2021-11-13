@@ -14,6 +14,7 @@ public class DemonAnimationController : MonoBehaviour
     private bool isDemonPunch;
     private bool isDemonIdle;
     private bool isDemonPowerPunch;
+    private bool isDemonSecondPunch;
     private CinemachineVirtualCamera cinemachineVirtualCamera;
     private CinemachineTransposer cinemachineTransposer;
     private Camera camera;
@@ -81,22 +82,30 @@ public class DemonAnimationController : MonoBehaviour
 
 
     }
-    private void SetDemonParameter(bool isDemonTransform, bool isDemon, bool isDemonPowerCharge, bool isDemonPowerPunch, bool isDemonPunch, bool isDemonIdle)
+    private void SetDemonParameter(bool isDemonTransform, bool isDemon, bool isDemonPowerCharge, bool isDemonPowerPunch, bool isDemonPunch, bool isDemonSecondPunch, bool isDemonIdle)
     {
 
         animator.SetBool(Settings.isDemon, isDemon);
         animator.SetBool(Settings.isDemonPowerCharge, isDemonPowerCharge);
         animator.SetBool(Settings.isDemonIdle, isDemonIdle);
+        if (isDemonSecondPunch)
+        {
+            Player.Instance.canMove = false;
+            animator.SetTrigger(Settings.isDemonSecondPunch);
+        }
         if (isDemonPunch)
         {
+            Player.Instance.canMove = false;
             animator.SetTrigger(Settings.isDemonPunch);
         }
         if (isDemonTransform)
         {
+            Player.Instance.canMove = false;
             animator.SetTrigger(Settings.isDemonTransform);
         }
         if (isDemonPowerPunch)
         {
+            Player.Instance.canMove = false;
             animator.SetTrigger(Settings.isDemonPowerPunch);
         }
     }
@@ -118,6 +127,16 @@ public class DemonAnimationController : MonoBehaviour
         effectAnimator.SetBool("isElectricEffect", false);
     }
 
+
+    private void Update()
+    {
+
+    }
+    private void FixedUpdate()
+    {
+
+    }
+
     //idle
     public void DemonIdle()
     {
@@ -125,6 +144,11 @@ public class DemonAnimationController : MonoBehaviour
         Player.Instance.DemonYushanIdle();
         isDemonIdle = true;
 
+    }
+    public void DemonPowerCharge()
+    {
+        isDemonPowerCharge = true;
+        Player.Instance.canMove = false;
     }
 
     //attack
@@ -135,14 +159,17 @@ public class DemonAnimationController : MonoBehaviour
     }
     public void NextAtk()
     {
+
         Debug.Log("next attack" + Player1.playerDirection);
+
         if (!inputSmash)
         {
             if (comboStep == 2)
             {
-                Player.Instance.isStanding = false;
+
                 Debug.Log("combo step" + comboStep);
-                animator.Play(Tags.DemonSecondPunch);
+                DemonSecondPunch();
+                //animator.Play(Tags.DemonSecondPunch);
             }
             //if (comboStep == 3)
             //{
@@ -158,7 +185,7 @@ public class DemonAnimationController : MonoBehaviour
                 Debug.Log("demon power punch");
 
                 //player.position = Vector3.MoveTowards(player.position, target.position, step);
-                Player.Instance.isStanding = false;
+
 
                 DemonPowerPunch();
 
@@ -167,6 +194,8 @@ public class DemonAnimationController : MonoBehaviour
 
             }
         }
+
+
     }
     private void LateUpdate()
     {
@@ -174,14 +203,19 @@ public class DemonAnimationController : MonoBehaviour
     }
     public void DemonPowerPunch()
     {
-        Debug.Log("isdemonpunch" + isDemonPowerCharge);
+        Debug.Log("demonpowerpunch" + isDemonPowerCharge);
 
-        isDemonPowerCharge = false;
+
+
         animator.SetTrigger(Settings.isDemonPowerPunch);
+
+
+
+
     }
     public void ResetComBo()
     {
-        Debug.Log("resetcombo");
+        Player.Instance.canMove = true;
         comboPossible = false;
         inputSmash = false;
         comboStep = 0;
@@ -207,7 +241,7 @@ public class DemonAnimationController : MonoBehaviour
     }
     public void SmashAttack()
     {
-        isDemonPowerCharge = false;
+
         Debug.Log("smash attack" + isDemonPowerCharge);
         if (comboPossible)
         {
@@ -219,10 +253,22 @@ public class DemonAnimationController : MonoBehaviour
     }
     public void DemonPunch()
     {
-        isDemonPunch = true;
+
         Debug.Log("demon punch" + isDemonPunch);
         animator.SetTrigger(Settings.isDemonPunch);
 
+
+
     }
+    public void DemonSecondPunch()
+    {
+        Debug.Log("demon second punch");
+
+        animator.SetTrigger(Settings.isDemonSecondPunch);
+
+
+    }
+
+
 }
 

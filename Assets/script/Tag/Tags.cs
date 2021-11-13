@@ -8,6 +8,7 @@ public static class Tags
     public const string Point = "point";
     public const string Effect = "effect";
     public const string FollowCameraLeft = "follow-camera-left";
+    public const string FollowCameraRight = "follow-camera-right";
     public const string Building = "building";
 
 

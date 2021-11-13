@@ -5,7 +5,7 @@ public static class Settings
 {
     // playerMovement
     public const float sprintSpeed = 20.666f;
-    public const float runningSpeed = 6.666f;
+    public const float runningSpeed = 12.666f;
     public const float walkingSpeed = 2.666f;
 
     // player animation parameters
@@ -22,12 +22,18 @@ public static class Settings
     public static int isDemonPunch;
     public static int isDemonPowerPunch;
     public static int isDemonIdle;
+    public static int isDemonSecondPunch;
     // shared animation parameter
     public static int idleLeft;
     public static int idleRight;
     //demonactioncontrollers
 
     public static int isElectricEffect;
+
+
+
+
+
     static Settings()
     {
         //player Animation Parameters
@@ -41,6 +47,7 @@ public static class Settings
         isDemon = Animator.StringToHash("isDemon");
         isDemonPunch = Animator.StringToHash("isDemonPunch");
         isDemonPowerPunch = Animator.StringToHash("isDemonPowerPunch");
+        isDemonSecondPunch = Animator.StringToHash("isDemonSecondPunch");
         isSprinting = Animator.StringToHash("isSprinting");
         // shared animation parameters
         idleLeft = Animator.StringToHash("idleLeft");
