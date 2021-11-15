@@ -7,8 +7,9 @@ public class Player : MonoBehaviour
 {
 
     public float slowMotionTimeScale;
-    public float demonPowerChargeDuration = 1f;
+    public const float demonPowerChargeDuration = 1f;
     public float demonPowerChargeTimer = 0f;
+    public float demonPowerChargeTimer2 = 0f;
     public float speedFactor = 2.3f;
 
 
@@ -31,7 +32,7 @@ public class Player : MonoBehaviour
     private float maxSpeed = 10f;
     public float acceleration = 5.0f;
     public float maxSpeedLeft = 10f;
-    private float curSpeed = 0.0f;
+    public float curSpeed = 0.0f;
 
 
     private Transform playerTransform;
@@ -73,7 +74,8 @@ public class Player : MonoBehaviour
     private bool isDemonPowerPunch;
     private bool isDemonIdle;
     private bool isDemonSecondPunch;
-
+    private bool isDemonPowerPunch2;
+    private bool isDemonPowerCharge2;
 
     private Rigidbody2D rigidbody2D;
 
@@ -162,7 +164,7 @@ public class Player : MonoBehaviour
 
 
         }
-        if (Input.GetMouseButtonDown(0) && isDemon && !isDemonPowerCharge)
+        if (Input.GetMouseButtonDown(0) && isDemon && !isDemonPowerCharge && !isDemonPowerCharge2)
         {
 
             Debug.Log(isDemonPowerCharge + "first click");
@@ -173,7 +175,7 @@ public class Player : MonoBehaviour
         }
         ChargeAttackAndInputGetMouse();
 
-        EventHandler.CallDemonEvent(isDemonTransform, isDemon, isDemonPowerCharge, isDemonPowerPunch, isDemonPunch, isDemonSecondPunch, isDemonIdle);
+        EventHandler.CallDemonEvent(isDemonTransform, isDemon, isDemonPowerCharge, isDemonPowerPunch, isDemonPunch, isDemonSecondPunch, isDemonIdle, isDemonPowerPunch2, isDemonPowerCharge2);
         //DemonPunch();
         //Attack();
         //PowerAttack();
@@ -183,7 +185,7 @@ public class Player : MonoBehaviour
     }
     void FixedUpdate()
     {
-
+        //ChargeAttackAndInputGetMouse2();
 
 
 
@@ -255,8 +257,7 @@ public class Player : MonoBehaviour
                     Debug.Log("button if" + isDemonPowerCharge);
                     acceleration = 5f;
                     maxSpeedLeft = 10f;
-                    closeCamera.SetActive(false);
-                    followCamera.SetActive(true);
+
 
                     DemonAnimationController.Instance.SmashAttack();
 
@@ -283,12 +284,63 @@ public class Player : MonoBehaviour
 
         }
 
+        //charge attack 2
+        if (Input.GetMouseButtonDown(1) && isDemon && animatorStateInfo.IsName(Tags.DemonSecondPunch) && animatorStateInfo.normalizedTime <= 0.666 && !isDemonPowerCharge2)
+        {
+
+            demonPowerChargeTimer2 = 0;
+
+            isDemonPowerCharge2 = true;
+            Debug.Log("moudedown power2 first click" + isDemonPowerCharge2);
+        }
+
+        if (Input.GetMouseButton(1) && isDemon && animatorStateInfo.IsName(Tags.DemonPowerCharge2) && isDemonPowerCharge2)
+        {
+
+            Debug.Log("buttondown(1)power2");
+            demonPowerChargeTimer2 += Time.deltaTime;
 
 
 
+            demonAnimationController.IsElectric();
 
 
+            if (demonPowerChargeTimer2 >= demonPowerChargeDuration)
+            {
+                isDemonPowerCharge2 = false;
+                if (isDemonPowerCharge2 == false)
+                {
+                    demonAnimationController.IsNotElectric();
+                    Debug.Log("button if p2" + isDemonPowerCharge2);
+                    acceleration = 10f;
+                    maxSpeedLeft = 15f;
+
+
+                    DemonAnimationController.Instance.SmashAttack();
+
+                    demonPowerChargeTimer2 = 0;
+                    Debug.Log(isDemonPowerCharge2 + "isdemoncharge2");
+                }
+
+            }
+        }
+        if (Input.GetMouseButtonUp(1) && isDemon && (demonPowerChargeTimer2 < demonPowerChargeDuration) && isDemonPowerCharge2)
+        {
+            isDemonPowerCharge2 = false;
+
+            DemonAnimationController.Instance.IsNotElectric();
+            Debug.Log("mouse up no power2" + isDemonPowerCharge2);
+            acceleration = 2.5f;
+            maxSpeedLeft = 5f;
+
+
+            DemonAnimationController.Instance.SmashAttack();
+            demonPowerChargeTimer2 = 0;
+            Debug.Log("mouseup called power2" + isDemonPowerCharge2);
+
+        }
     }
+
     private void ChargeAttackAndInputMouseUp()
     {
 
@@ -402,11 +454,11 @@ public class Player : MonoBehaviour
             {
 
             }
-            if (animatorStateInfo.IsName(Tags.DemonPowerPunch))
+            if (animatorStateInfo.IsName(Tags.DemonPowerPunch) || animatorStateInfo.IsName(Tags.DemonPowerPunch2))
             {
                 //targetPosition = Vector2.left * -10f * Time.deltaTime;
 
-                Debug.Log("move left" + animatorStateInfo.IsName("demon power punch"));
+
                 //playerTransform.position = Vector2.SmoothDamp(playerTransform.position, targetPosition, ref currentVelocity, smoothing, maxSpeed);
 
                 playerTransform.Translate(Vector2.left * curSpeed * Time.deltaTime);
@@ -432,9 +484,9 @@ public class Player : MonoBehaviour
             {
 
             }
-            if (animatorStateInfo.IsName(Tags.DemonPowerPunch))
+            if (animatorStateInfo.IsName(Tags.DemonPowerPunch) || animatorStateInfo.IsName(Tags.DemonPowerPunch2))
             {
-                Debug.Log("move right" + animatorStateInfo.IsName(Tags.DemonPowerPunch));
+
 
                 playerTransform.Translate(Vector2.right * curSpeed * Time.deltaTime);
 
@@ -473,7 +525,8 @@ public class Player : MonoBehaviour
         isRunning = false;
         isDashing = false;
         isSprinting = false;
-
+        isDemonSecondPunch = false;
+        isDemonPowerPunch2 = false;
         isDemonPunch = false;
         isDemonPowerPunch = false;
         toolEffect = ToolEffect.none;

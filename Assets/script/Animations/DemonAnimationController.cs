@@ -15,6 +15,8 @@ public class DemonAnimationController : MonoBehaviour
     private bool isDemonIdle;
     private bool isDemonPowerPunch;
     private bool isDemonSecondPunch;
+    private bool isDemonPowerCharge2;
+    private bool isDemonPowerPunch2;
     private CinemachineVirtualCamera cinemachineVirtualCamera;
     private CinemachineTransposer cinemachineTransposer;
     private Camera camera;
@@ -82,16 +84,21 @@ public class DemonAnimationController : MonoBehaviour
 
 
     }
-    private void SetDemonParameter(bool isDemonTransform, bool isDemon, bool isDemonPowerCharge, bool isDemonPowerPunch, bool isDemonPunch, bool isDemonSecondPunch, bool isDemonIdle)
+    private void SetDemonParameter(bool isDemonTransform, bool isDemon, bool isDemonPowerCharge, bool isDemonPowerPunch, bool isDemonPunch, bool isDemonSecondPunch, bool isDemonIdle, bool isDemonPowerPunch2, bool isDemonPowerCharge2)
     {
 
         animator.SetBool(Settings.isDemon, isDemon);
         animator.SetBool(Settings.isDemonPowerCharge, isDemonPowerCharge);
+        animator.SetBool(Settings.isDemonPowerCharge2, isDemonPowerCharge2);
         animator.SetBool(Settings.isDemonIdle, isDemonIdle);
         if (isDemonSecondPunch)
         {
             Player.Instance.canMove = false;
             animator.SetTrigger(Settings.isDemonSecondPunch);
+        }
+        if (isDemonPowerPunch2)
+        {
+            animator.SetTrigger(Settings.isDemonPowerPunch2);
         }
         if (isDemonPunch)
         {
@@ -150,6 +157,10 @@ public class DemonAnimationController : MonoBehaviour
         isDemonPowerCharge = true;
         Player.Instance.canMove = false;
     }
+    public void DemonPowerCharge2()
+    {
+        isDemonPowerCharge2 = true;
+    }
 
     //attack
     public void ComboPossible()
@@ -157,13 +168,48 @@ public class DemonAnimationController : MonoBehaviour
         Debug.Log("combo -possible");
         comboPossible = true;
     }
+
+    private void LateUpdate()
+    {
+
+    }
+    public void DemonPowerPunch2()
+    {
+        Debug.Log("demonppunch2");
+        animator.SetTrigger(Settings.isDemonPowerPunch2);
+    }
+    public void DemonPowerPunch()
+    {
+        Debug.Log("demonpowerpunch" + isDemonPowerCharge);
+
+
+
+        animator.SetTrigger(Settings.isDemonPowerPunch);
+
+
+
+
+    }
+    public void ResetComBo()
+    {
+        Debug.Log("reset");
+        Player.Instance.canMove = true;
+        isDemonPowerPunch2 = false;
+        isDemonPowerPunch = false;
+        isDemonPunch = false;
+        isDemonSecondPunch = false;
+        comboPossible = false;
+        inputSmash = false;
+        comboStep = 0;
+    }
     public void NextAtk()
     {
 
-        Debug.Log("next attack" + Player1.playerDirection);
+        Debug.Log("next attack" + comboStep);
 
         if (!inputSmash)
         {
+            Debug.Log("!ifsmash" + comboStep);
             if (comboStep == 2)
             {
 
@@ -173,7 +219,7 @@ public class DemonAnimationController : MonoBehaviour
             }
             //if (comboStep == 3)
             //{
-            //    animator.Play("demon second punch");
+            //    animator.Play("demon power punch2");
             //}
         }
         if (inputSmash)
@@ -193,32 +239,13 @@ public class DemonAnimationController : MonoBehaviour
                 //StartCoroutine(DemonPowerPunch());
 
             }
+            if (comboStep == 2)
+            {
+                DemonPowerPunch2();
+            }
         }
 
 
-    }
-    private void LateUpdate()
-    {
-
-    }
-    public void DemonPowerPunch()
-    {
-        Debug.Log("demonpowerpunch" + isDemonPowerCharge);
-
-
-
-        animator.SetTrigger(Settings.isDemonPowerPunch);
-
-
-
-
-    }
-    public void ResetComBo()
-    {
-        Player.Instance.canMove = true;
-        comboPossible = false;
-        inputSmash = false;
-        comboStep = 0;
     }
     public void NormalAttack()
     {
