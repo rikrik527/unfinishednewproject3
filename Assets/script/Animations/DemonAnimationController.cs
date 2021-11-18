@@ -4,7 +4,7 @@ using UnityEngine;
 using Cinemachine;
 public class DemonAnimationController : MonoBehaviour
 {
-    [SerializeField] private Animator effectAnimator;
+
     private Rigidbody2D rigidbody2D;
     public Animator animator;
     public AnimatorStateInfo animatorStateInfo;
@@ -26,51 +26,23 @@ public class DemonAnimationController : MonoBehaviour
     [SerializeField] private Camera mainCamera;
     private Transform playerGameobject;
     public static DemonAnimationController Instance;
-    public bool comboPossible;
-    public int comboStep;
-    public bool inputSmash;
-    public float step = 2.0f;
+
     //target
     private Transform target;
-    private Player Player1;
-    //player
-    private Transform player;
+    private GameObject Player1;
+
 
 
     private void Awake()
     {
         Instance = this;
-
-
-        player = GameObject.FindGameObjectWithTag(Tags.Player).GetComponent<Transform>();
-        if (camera == null)
-        {
-            camera = GameObject.FindGameObjectWithTag(Tags.MainCamera).GetComponent<Camera>();
-            if (camera != null)
-            {
-                cinemachineBrain = camera.GetComponent<CinemachineBrain>();
-            }
-
-        }
-        Player1 = GameObject.FindGameObjectWithTag(Tags.Player).GetComponent<Player>();
-        rigidbody2D = GameObject.FindGameObjectWithTag(Tags.Player).GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
-
-        if (animator != null)
-        {
-            animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-            Debug.Log(animatorStateInfo.fullPathHash.ToString());
-
-        }
-        cinemachineVirtualCamera = GameObject.FindGameObjectWithTag(Tags.FollowCamera).GetComponent<CinemachineVirtualCamera>();
-
+        animator = GetComponentInParent<Animator>();
     }
     private void Start()
     {
 
-        playerGameobject = GameObject.FindGameObjectWithTag(Tags.Player).GetComponent<Transform>();
-        mainCamera.GetComponent<CinemachineBrain>();
-        cinemachineTransposer = cinemachineVirtualCamera.GetCinemachineComponent<CinemachineTransposer>();
+
+
 
 
     }
@@ -93,7 +65,7 @@ public class DemonAnimationController : MonoBehaviour
         animator.SetBool(Settings.isDemonIdle, isDemonIdle);
         if (isDemonSecondPunch)
         {
-            Player.Instance.canMove = false;
+
             animator.SetTrigger(Settings.isDemonSecondPunch);
         }
         if (isDemonPowerPunch2)
@@ -102,48 +74,32 @@ public class DemonAnimationController : MonoBehaviour
         }
         if (isDemonPunch)
         {
-            Player.Instance.canMove = false;
             animator.SetTrigger(Settings.isDemonPunch);
         }
         if (isDemonTransform)
         {
-            Player.Instance.canMove = false;
+
             animator.SetTrigger(Settings.isDemonTransform);
         }
         if (isDemonPowerPunch)
         {
-            Player.Instance.canMove = false;
+
             animator.SetTrigger(Settings.isDemonPowerPunch);
         }
     }
-    //effect
-    public void IsSatanReturn()
-    {
-        effectAnimator.SetTrigger("isSatanReturn");
-    }
-    public void IsFeatherEffect()
-    {
-        effectAnimator.SetTrigger("isFeatherEffect");
-    }
-    public void IsElectric()
-    {
-        effectAnimator.SetBool("isElectricEffect", true);
-    }
-    public void IsNotElectric()
-    {
-        effectAnimator.SetBool("isElectricEffect", false);
-    }
 
 
-    private void Update()
-    {
 
-    }
+
     private void FixedUpdate()
     {
 
     }
+    private void LateUpdate()
+    {
 
+
+    }
     //idle
     public void DemonIdle()
     {
@@ -155,147 +111,34 @@ public class DemonAnimationController : MonoBehaviour
     public void DemonPowerCharge()
     {
         isDemonPowerCharge = true;
-        Player.Instance.canMove = false;
+
     }
     public void DemonPowerCharge2()
     {
         isDemonPowerCharge2 = true;
     }
 
-    //attack
-    public void ComboPossible()
+
+    // effect on sprite
+
+    public void IsSantanReturn()
     {
-        Debug.Log("combo -possible");
-        comboPossible = true;
+        Effect.Instance.IsSatanReturn();
     }
-
-    private void LateUpdate()
+    public void IsFeatherEffect()
     {
-
+        Effect.Instance.IsFeatherEffect();
     }
-    public void DemonPowerPunch2()
+    public void IsElectric()
     {
-        Debug.Log("demonppunch2");
-        animator.SetTrigger(Settings.isDemonPowerPunch2);
+        Effect.Instance.IsElectric();
     }
-    public void DemonPowerPunch()
+    public void IsNotElectric()
     {
-        Debug.Log("demonpowerpunch" + isDemonPowerCharge);
-
-
-
-        animator.SetTrigger(Settings.isDemonPowerPunch);
-
-
-
-
+        Effect.Instance.IsNotElectric();
     }
-    public void ResetComBo()
-    {
-        Debug.Log("reset");
-        Player.Instance.canMove = true;
-        isDemonPowerPunch2 = false;
-        isDemonPowerPunch = false;
-        isDemonPunch = false;
-        isDemonSecondPunch = false;
-        comboPossible = false;
-        inputSmash = false;
-        comboStep = 0;
-    }
-    public void NextAtk()
-    {
-
-        Debug.Log("next attack" + comboStep);
-
-        if (!inputSmash)
-        {
-            Debug.Log("!ifsmash" + comboStep);
-            if (comboStep == 2)
-            {
-
-                Debug.Log("combo step" + comboStep);
-                DemonSecondPunch();
-                //animator.Play(Tags.DemonSecondPunch);
-            }
-            //if (comboStep == 3)
-            //{
-            //    animator.Play("demon power punch2");
-            //}
-        }
-        if (inputSmash)
-        {
-            if (comboStep == 1)
-            {
-                float speed = step * Time.deltaTime;
-                Debug.Log("inputsmash" + comboStep);
-                Debug.Log("demon power punch");
-
-                //player.position = Vector3.MoveTowards(player.position, target.position, step);
-
-
-                DemonPowerPunch();
-
-                //rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x + 2f, rigidbody2D.velocity.y);
-                //StartCoroutine(DemonPowerPunch());
-
-            }
-            if (comboStep == 2)
-            {
-                DemonPowerPunch2();
-            }
-        }
-
-
-    }
-    public void NormalAttack()
-    {
-        Debug.Log("normal attack");
-        if (comboStep == 0)
-        {
-            DemonPunch();
-
-            comboStep = 1;
-            return;
-        }
-        if (comboStep != 0)
-        {
-            if (comboPossible)
-            {
-                comboPossible = false;
-                comboStep += 1;
-            }
-        }
-    }
-    public void SmashAttack()
-    {
-
-        Debug.Log("smash attack" + isDemonPowerCharge);
-        if (comboPossible)
-        {
-            Debug.Log("combopossible");
-
-            comboPossible = false;
-            inputSmash = true;
-        }
-    }
-    public void DemonPunch()
-    {
-
-        Debug.Log("demon punch" + isDemonPunch);
-        animator.SetTrigger(Settings.isDemonPunch);
-
-
-
-    }
-    public void DemonSecondPunch()
-    {
-        Debug.Log("demon second punch");
-
-        animator.SetTrigger(Settings.isDemonSecondPunch);
-
-
-    }
-
-
 }
+
+
+
 

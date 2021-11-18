@@ -20,4 +20,7 @@ public static class Tags
     public const string DemonChargeGrab = "demon charge grab";
     public const string DemonPowerPunch2 = "demon power punch2";
     public const string DemonPowerCharge2 = "demon power charge2";
+    public const string DemonIdle = "demon idle";
+    public const string DemonPowerPunchTransition = "demon power punch transition";
+
 }

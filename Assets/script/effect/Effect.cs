@@ -8,21 +8,61 @@ public class Effect : MonoBehaviour
 
     //building
     [SerializeField] private GameObject building;
-
+    private AnimatorStateInfo animatorStateInfo;
     private Animator animator;
     private void Awake()
     {
         Instance = this;
         animator = GetComponent<Animator>();
-        building = GameObject.FindGameObjectWithTag(Tags.Building);
+        animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
     }
-    public void BlackEffect()
+    private void LateUpdate()
     {
+        DemonGroundShake();
+    }
+    public void ElectricEffectAfterDemonPowerPunch()
+    {
+        if (animatorStateInfo.IsName(Tags.DemonPowerPunch) && animatorStateInfo.normalizedTime <= 0.5f)
+        {
+            IsElectric();
+            Debug.Log("stateinfo" + animatorStateInfo.IsName("demon power punch"));
+        }
+        else if (animatorStateInfo.IsName(Tags.DemonPowerPunch) && animatorStateInfo.normalizedTime >= 0.6f)
+        {
 
-        building.SetActive(false);
+            IsNotElectric();
+        }
     }
-    public void NormalEffect()
+    private void DemonGroundShake()
     {
-        building.SetActive(true);
+        if (animatorStateInfo.IsName("demon transform") && animatorStateInfo.normalizedTime <= 0.1f)
+        {
+            Debug.Log("run");
+            ShakeCamera.Instance.Shake(10f, 2f);
+
+        }
+        if (animatorStateInfo.IsName("demon transform") && animatorStateInfo.normalizedTime >= 0.9f)
+        {
+
+            ShakeCamera.Instance.Shake(0f, 0f);
+
+        }
+    }
+    //effect
+    public void IsSatanReturn()
+    {
+        animator.SetTrigger("isSatanReturn");
+    }
+    public void IsFeatherEffect()
+    {
+        animator.SetTrigger("isFeatherEffect");
+    }
+    public void IsElectric()
+    {
+        animator.SetBool("isElectricEffect", true);
+    }
+    public void IsNotElectric()
+    {
+        animator.SetBool("isElectricEffect", false);
     }
 }
