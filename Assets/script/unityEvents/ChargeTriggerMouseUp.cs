@@ -16,7 +16,7 @@ public class ChargeTriggerMouseUp : MonoBehaviour
     private bool isDemonPowerPunch;
     private bool isDemonIdle;
     private bool isDemon;
-    public DemonAnimationController demonAnimationController;
+
     private void OnEnable()
     {
 

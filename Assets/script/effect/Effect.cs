@@ -18,7 +18,7 @@ public class Effect : MonoBehaviour
     }
     private void LateUpdate()
     {
-        DemonGroundShake();
+
     }
     public void ElectricEffectAfterDemonPowerPunch()
     {
@@ -33,7 +33,7 @@ public class Effect : MonoBehaviour
             IsNotElectric();
         }
     }
-    private void DemonGroundShake()
+    public void DemonGroundShake()
     {
         if (animatorStateInfo.IsName("demon transform") && animatorStateInfo.normalizedTime <= 0.1f)
         {

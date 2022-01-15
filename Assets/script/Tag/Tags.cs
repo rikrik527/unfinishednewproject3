@@ -10,9 +10,11 @@ public static class Tags
     public const string FollowCameraLeft = "follow-camera-left";
     public const string FollowCameraRight = "follow-camera-right";
     public const string Building = "building";
+    public const string PlayerSprite = "player-sprite";
 
 
     //demon stance
+    public const string DemonTransform = "demon transform";
     public const string DemonPunch = "demon punch";
     public const string DemonSecondPunch = "demon second punch";
     public const string DemonPowerPunch = "demon power punch";
@@ -22,5 +24,13 @@ public static class Tags
     public const string DemonPowerCharge2 = "demon power charge2";
     public const string DemonIdle = "demon idle";
     public const string DemonPowerPunchTransition = "demon power punch transition";
+    //player type sprite
+    public const string DemonTypePlayer = "carolliex3 47";
+    public const string DarkenTypePlayer = "new-yushan 0";
 
+    //
+    public const string ItemParentTransform = "item-parent-transform";
+
+    // yushan dark skill
+    public const string DarkDoubleSpearKick = "dark double spear kick";
 }

@@ -3,424 +3,812 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 using UnityEngine.Events;
-public class Player : MonoBehaviour
+using Yushan.Enums;
+using Yushan.abilities;
+using Yushan.DemonType;
+using Yushan.combo;
+using Yushan.DarkType;
+namespace Yushan.movement
 {
-
-    public float slowMotionTimeScale;
-
-
-
-
-
-
-
-
-
-
-    private SpriteRenderer spriteRenderer;
-
-
-
-    private CinemachineFollowZoom cinemachineFollowZoom;
-
-
-
-
-    private Transform playerTransform;
-    private Transform point;
-    [SerializeField] private GameObject followCamera;
-    [SerializeField] private GameObject closeCamera;
-    [SerializeField] private GameObject closeCameraRight;
-
-
-
-
-    public AnimatorStateInfo animatorStateInfo;
-    private bool isDemonTransform;
-
-
-    private bool switchDemon;
-    private bool isDemon;
-
-
-
-
-
-    public Camera camera;
-
-    // game start
-    private bool gameStart;
-
-
-    //movement parameters
-    private float inputX;
-    private bool isIdle;
-    private bool isWalking;
-    private bool isRunning;
-    private bool isDashing;
-    private bool isSprinting;
-    public bool isDemonPowerCharge;
-    private bool isDemonPunch;
-    private bool isDemonPowerPunch;
-    private bool isDemonIdle;
-    private bool isDemonSecondPunch;
-    private bool isDemonPowerPunch2;
-    public bool isDemonPowerCharge2;
-
-    private Rigidbody2D rigidbody2D;
-
-    public Direction playerDirection;
-    [SerializeField] private GameObject player;
-
-    private float movementSpeed;
-
-    private bool _playerInputIsDisabled = false;
-
-    public bool PlayerInputIsDisabled
+    public class Player : SingletonMonobehaviour<Player>
     {
-        get => _playerInputIsDisabled;
-        set => _playerInputIsDisabled = value;
+        public Yushan_Type yushan_Type = Yushan_Type.fatType;
 
-    }
-    [SerializeField]
-    private float jumpForce = 5.0f;
-
-
-
-    [SerializeField]
-    private LayerMask groundLayer;
-
-    private bool resetJump = false;
-
-
-    public Animator animator;
-
-    public static Player Instance;
-
-    public bool canRun = false;
-    public bool canSprint = false;
+        //type of yushan type
+        private bool fatType;
+        private bool darkenType;
+        private bool demonType;
+        public float slowMotionTimeScale;
 
 
 
-    ToolEffect toolEffect = ToolEffect.none;
+        public bool isAttacking = false;
+
+        public PlayerState currentStat;
+        private Vector3 change;
+
+        public float runningSpeed = 10f;
+        public float dashForce = 3f;
+        public float startDashTimer = 0.24f;
+        public float currentDashTimer;
+        public float dashDirection;
+        public bool isDashing = false;
+
+        public KeyCode tapLeft;
+        public KeyCode tapRight;
+
+        public int leftTotal = 0;
+        public float leftTimeDelay = 0;
+        public int rightTotal = 0;
+        public float rightTimeDelay = 0;
+        public float dashDuration = 0;
+        public int xVel = 0;
+
+        private AnimatorClipInfo[] animatorClipInfo;
 
 
-    //camera
-    [SerializeField] private CinemachineVirtualCamera cinemachineVirtualCamera;
-    private CinemachineTransposer cinemachineTransposer;
+        public AnimationClip darkDoubleSpearKickClip;
+        public const string attackingLayer = "Attacking";
+        public const string animBaseLayer = "Base Layer Attacking";
+        public int darkDoubleSpearHash = Animator.StringToHash(attackingLayer + ".dark-double-spear-kick");
 
-    private void Awake()
-    {
-        Instance = this;
-        playerTransform = GetComponent<Transform>();
-        point = GameObject.FindGameObjectWithTag(Tags.Point).GetComponent<Transform>();
+        Dictionary<int, AnimationClip> hashToClip = new Dictionary<int, AnimationClip>();
 
-    }
-    private void Start()
-    {
-        if (!gameStart)
+        [SerializeField] private float leftOffsetX;
+        [SerializeField] private float rightOffsetX;
+
+
+
+        private SpriteRenderer spriteRenderer;
+
+
+
+        private CinemachineFollowZoom cinemachineFollowZoom;
+
+
+
+
+        private Transform playerTransform;
+        private Transform point;
+        [SerializeField] private GameObject followCamera;
+        [SerializeField] private GameObject closeCamera;
+        [SerializeField] private GameObject closeCameraRight;
+
+
+        //spriterender[]
+        [SerializeField]
+        private Sprite[] playerSprite;
+
+        private AnimatorStateInfo animatorStateInfo;
+
+
+
+        private bool switchDemon;
+
+
+        //running bool
+        public bool isRunningRight;
+        public bool isRunningLeft;
+
+
+        public float movX;
+        public Camera camera;
+
+        // game start
+        private bool gameStart;
+
+
+        //movement parameters
+        private float inputX;
+        private bool isIdle;
+        private bool isWalking;
+        public bool isRunning;
+        public bool isDashingRight;
+        public bool isDashingLeft;
+        private bool isSprinting;
+        private bool isDemonTransform;
+        public bool isDemonPowerCharge;
+        private bool isDemonPunch;
+        private bool isDemonPowerPunch;
+        private bool isDemonIdle;
+        private bool isDemon;
+        private bool isDemonSecondPunch;
+        private bool isDemonPowerPunch2;
+        public bool isDemonPowerCharge2;
+        private bool isDarkDoubleSpearKick;
+
+        public Rigidbody2D rigidbody2D;
+
+        public Direction playerDirection;
+        [SerializeField] private GameObject player;
+
+        private float movementSpeed;
+
+        private bool _playerInputIsDisabled = false;
+
+        public bool PlayerInputIsDisabled
         {
-            cinemachineVirtualCamera.Follow = point;
-            StartCoroutine(StartGameTransition());
-            playerDirection = Direction.right;
-        }
-        animator = GetComponentInChildren<Animator>();
-        rigidbody2D = GetComponent<Rigidbody2D>();
-        cinemachineVirtualCamera = GameObject.FindGameObjectWithTag(Tags.FollowCamera).GetComponent<CinemachineVirtualCamera>();
-        cinemachineTransposer = cinemachineVirtualCamera.GetCinemachineComponent<CinemachineTransposer>();
-        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-
-    }
-
-
-    private void Update()
-    {
-        ResetAnimationTriggers();
-
-        Movement();
-        if (Input.GetKeyDown(KeyCode.E) && gameStart)
-        {
-
-            DemonTransform();
-
-
+            get => _playerInputIsDisabled;
+            set => _playerInputIsDisabled = value;
 
         }
-        if (Input.GetKeyDown(KeyCode.R) && gameStart)
+        [SerializeField]
+        private float jumpForce = 5.0f;
+
+
+
+        [SerializeField]
+        private LayerMask groundLayer;
+
+        private bool resetJump = false;
+
+
+        private Animator animator;
+
+
+
+        public bool canRun = false;
+        public bool canSprint = false;
+
+
+
+        ToolEffect toolEffect = ToolEffect.none;
+
+
+        //camera
+        [SerializeField] public CinemachineVirtualCamera cinemachineVirtualCamera;
+        public CinemachineTransposer cinemachineTransposer;
+
+
+        protected override void Awake()
         {
 
+            animator = GetComponentInChildren<Animator>();
+            playerTransform = GetComponent<Transform>();
+            point = GameObject.FindGameObjectWithTag(Tags.Point).GetComponent<Transform>();
+            hashToClip.Add(darkDoubleSpearHash, darkDoubleSpearKickClip);
+            base.Awake();
+
+        }
+        private void Start()
+        {
+            if (!gameStart)
+            {
+                cinemachineVirtualCamera.Follow = point;
+                StartCoroutine(StartGameTransition());
+                playerDirection = Direction.right;
+            }
+
+
+            rigidbody2D = GetComponent<Rigidbody2D>();
+            cinemachineVirtualCamera = GameObject.FindGameObjectWithTag(Tags.FollowCamera).GetComponent<CinemachineVirtualCamera>();
+            cinemachineTransposer = cinemachineVirtualCamera.GetCinemachineComponent<CinemachineTransposer>();
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
         }
 
 
+        private void Update()
+        {
+            animatorClipInfo = animator.GetCurrentAnimatorClipInfo(0);
 
-        //if (Input.GetMouseButtonDown(0) && isDemon && !isDemonPowerCharge && !isDemonPowerCharge2)
+
+
+
+            switch (yushan_Type)
+            {
+                case Yushan_Type.fatType:
+                    Debug.Log("fat");
+                    break;
+                case Yushan_Type.darkenType:
+                    darkenType = true;
+                    if (darkenType)
+                    {
+                        spriteRenderer.sprite = playerSprite[1];
+                    }
+                    break;
+                case Yushan_Type.demonType:
+                    demonType = true;
+                    if (demonType)
+                    {
+                        spriteRenderer.sprite = playerSprite[2];
+                    }
+                    break;
+                default:
+                    Debug.Log("default");
+                    break;
+            }
+            animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+            if (!PlayerInputIsDisabled)
+            {
+
+                Debug.Log("!playerinputiddisabled");
+
+                if (animatorStateInfo.IsTag("motion"))
+                {
+                    movX = Input.GetAxis("Horizontal");
+                    Debug.Log("motion");
+                    if (movX > 0)
+                    {
+                        playerDirection = Direction.right;
+                        if (playerDirection == Direction.right)
+                        {
+                            spriteRenderer.flipX = false;
+                        }
+                    }
+                    else if (movX < 0)
+                    {
+                        playerDirection = Direction.left;
+                        if (playerDirection == Direction.left)
+                        {
+                            spriteRenderer.flipX = true;
+                        }
+                    }
+
+                    if (Input.GetKey(tapRight))
+                    {
+                        Debug.Log("get");
+                        //rigidbody2D.velocity = new Vector3(2 + xVel, 0, 0);
+                    }
+                    if (Input.GetKeyDown(tapRight))
+                    {
+                        if (movX > 0)
+                        {
+
+                            isRunning = true;
+                            isRunningRight = true;
+                            isRunningLeft = false;
+                            isDashing = false;
+                            playerDirection = Direction.right;
+
+                            animator.SetBool("isRunRight", true);
+                            playerTransform.Translate(runningSpeed * Time.deltaTime, 0, 0);
+                            Debug.Log("isrunningright" + isRunning);
+                        }
+                        rightTotal += 1;
+                    }
+                    if (Input.GetKeyUp(tapRight))
+                    {
+                        Debug.Log("get up");
+                        //xVel = 0;
+                        //rigidbody2D.velocity = new Vector3(0, 0, 0);
+
+                    }
+                    if ((rightTotal == 1) && (rightTimeDelay < .5))
+                    {
+                        rightTimeDelay += Time.deltaTime;
+                    }
+                    if ((rightTotal == 1) && (rightTimeDelay >= .5))
+                    {
+                        rightTimeDelay = 0;
+                        rightTotal = 0;
+                    }
+                    if ((rightTotal == 2) && (rightTimeDelay < .5))
+                    {
+                        Debug.Log("isdashing");
+                        xVel = 2;
+                        rightTotal = 0;
+                        animator.SetTrigger("isDash");
+                        isDashing = true;
+
+                    }
+                    if ((rightTotal == 2) && (rightTimeDelay >= .5))
+                    {
+                        xVel = 0;
+                        rightTotal = 0;
+                        rightTimeDelay = 0;
+                    }
+                    if (xVel == 2)
+                    {
+                        dashDuration += Time.deltaTime;
+                    }
+                    if (dashDuration > 1)
+                    {
+                        xVel = 0;
+                        dashDuration = 0;
+                        rightTotal = 0;
+                        rightTimeDelay = 0;
+                    }
+
+                    if (Input.GetKey(tapLeft))
+                    {
+                        Debug.Log("get");
+                        //rigidbody2D.velocity = new Vector3(-2 + xVel, 0, 0);
+                    }
+                    if (Input.GetKeyDown(tapLeft))
+                    {
+                        if (movX < 0)
+                        {
+                            isDashing = false;
+                            isRunning = true;
+                            isRunningLeft = true;
+                            isRunningRight = false;
+                            playerDirection = Direction.left;
+
+                            animator.SetBool("isRunLeft", true);
+                            playerTransform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
+                            Debug.Log("isrunningleft" + isRunning);
+                        }
+                        leftTotal += 1;
+                    }
+                    if (Input.GetKeyUp(tapLeft))
+                    {
+                        Debug.Log("get up");
+                        //xVel = 0;
+                        //rigidbody2D.velocity = new Vector3(0, 0, 0);
+
+                    }
+                    if ((leftTotal == 1) && (leftTimeDelay < .5))
+                    {
+                        leftTimeDelay += Time.deltaTime;
+                    }
+                    if ((leftTotal == 1) && (leftTimeDelay >= .5))
+                    {
+                        leftTimeDelay = 0;
+                        leftTotal = 0;
+                    }
+                    if ((leftTotal == 2) && (leftTimeDelay < .5))
+                    {
+                        Debug.Log("isdashing");
+                        xVel = 2;
+                        rightTotal = 0;
+                        animator.SetTrigger("isDash");
+                        isDashing = true;
+
+                    }
+                    if ((leftTotal == 2) && (leftTimeDelay >= .5))
+                    {
+                        xVel = 0;
+                        leftTotal = 0;
+                        leftTimeDelay = 0;
+                    }
+                    if (xVel == 2)
+                    {
+                        dashDuration += Time.deltaTime;
+                    }
+                    if (dashDuration > 1)
+                    {
+                        xVel = 0;
+                        dashDuration = 0;
+                        leftTotal = 0;
+                        leftTimeDelay = 0;
+                    }
+
+
+
+                    //if (Input.GetMouseButtonDown(1) && movX != 0)
+                    //{
+
+                    //    isDashing = true;
+                    //    animator.SetTrigger("isDash");
+                    //    //playerTransform.Translate((Vector3.right * 10) * Time.deltaTime * dashingSpeed);
+                    //    currentDashTimer = startDashTimer;
+                    //    rigidbody2D.velocity = Vector2.zero;
+                    //    dashDirection = (int)movX;
+
+
+                    //}
+                    //if (isDashing)
+                    //{
+                    //    rigidbody2D.velocity = transform.right * dashDirection * dashForce;
+                    //    currentDashTimer -= Time.deltaTime;
+                    //    if (currentDashTimer <= 0)
+                    //    {
+                    //        Debug.Log("isdashing false");
+                    //        isDashing = false;
+                    //    }
+                    //}
+                    if (Input.GetAxis("Horizontal") == 0)
+                    {
+
+                        isDashing = false;
+                        isRunning = false;
+                        animator.SetBool("isRunRight", false);
+                        animator.SetBool("isRunLeft", false);
+
+                    }
+                    if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() == true)
+                    {
+                        //jump
+                        Debug.Log("jump");
+                        rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, jumpForce);
+
+                        StartCoroutine(ResetJumpNeededRoutine());
+                    }
+                }
+
+
+
+
+
+
+                // send event to any listeners for player movement input
+
+
+
+            }
+
+
+
+
+            CameraPlayerPosition();
+
+
+
+
+
+            //float time = GetCurrentAnimatorTime(animator, 0);
+            //Debug.Log(time);
+
+        }
+
+        void FixedUpdate()
+        {
+
+
+        }
+        // Update is called once per frame
+
+        private void LateUpdate()
+        {
+            if (animator != null)
+            {
+                animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+                Debug.Log(animatorStateInfo.IsName(Tags.DemonPunch) + "demon punch");
+                if (animatorStateInfo.normalizedTime <= 0.1f && animatorStateInfo.IsName(Tags.DemonTransform))
+                {
+                    Debug.Log("demon transform");
+
+                    ShakeCamera.Instance.Shake(5f, 3f);
+                }
+                if (animatorStateInfo.normalizedTime >= 1.0f && animatorStateInfo.IsName(Tags.DemonTransform))
+                {
+                    ShakeCamera.Instance.Shake(5f, 0f);
+                    Debug.Log("end");
+                }
+                if (animatorStateInfo.normalizedTime >= 1.0f && animatorStateInfo.IsName(Tags.DemonTransform))
+                {
+
+
+                    isDemon = true;
+                    animator.SetBool("isDemon", true);
+                    Debug.Log("while" + isDemonTransform + isDemon);
+
+                }
+
+                if (animatorStateInfo.IsName("dash") && animatorStateInfo.normalizedTime == 1.0f)
+                {
+
+                    isDashing = false;
+                    if (!isDashing)
+                    {
+                        Debug.Log("movx = 0");
+                        movX = 0;
+                        //this.rigidbody2D.velocity = Vector2.zero;
+
+                    }
+                    Debug.Log("isdashing is false");
+                }
+            }
+        }
+        public void InputDashLeft()
+        {
+
+        }
+        public void InputDashRight()
+        {
+
+        }
+        private void ResetMovement()
+        {
+            // reset movement
+            inputX = 0f;
+            isRunning = false;
+            isWalking = false;
+            isIdle = true;
+        }
+        public void DisablePlayerInputAndResetMovement()
+        {
+            DisablePlayerInput();
+            //ResetMovement();
+            //// send event to any listeners for player movement input
+            //EventHandler.CallMovementEvent(inputX, isWalking, isRunning, isSprinting, isDashing, isIdle, toolEffect, isDemonTransform, isDarkDoubleSpearKick);
+
+        }
+        public void DisablePlayerInput()
+        {
+            PlayerInputIsDisabled = true;
+        }
+        public void EnablePlayerInput()
+        {
+            PlayerInputIsDisabled = false;
+        }
+
+
+
+
+        public void DemonTransform()
+        {
+            animator.SetTrigger("isDemonTransform");
+        }
+        public void DemonPunch()
+        {
+            animator.Play("demon punch");
+        }
+        public void DemonSecondPunch()
+        {
+            Debug.Log("demon second punch");
+            animator.Play("demon second punch");
+        }
+
+        public void DemonPowerPunch()
+        {
+            Debug.Log("demon power punch");
+            if (Input.GetMouseButtonDown(1) && isDemon && animatorStateInfo.IsName(Tags.DemonPunch) && animatorStateInfo.normalizedTime <= 0.6f)
+            {
+                isDemonPowerCharge = true;
+
+            }
+            if (Input.GetMouseButton(1) && isDemon && isDemonPowerCharge)
+            {
+                Debug.Log(animatorStateInfo.IsName(Tags.DemonPowerCharge) + "isdemonpowercharge");
+                isDemonPowerPunch = true;
+            }
+
+        }
+        //dark yushan
+
+
+
+        private void ChangeSprite()
+        {
+            //if (fatType)
+            //{
+            //    spriteRenderer = playerSprite[0];
+            //}
+            //if (darkType)
+            //{
+            //    spriteRenderer = playerSprite[1];
+            //}
+            //if (demonType)
+            //{
+            //    spriteRenderer = playerSprite[2];
+            //}
+
+        }
+
+
+        void InputMouseAttack()
+        {
+            if (Input.GetKeyDown(KeyCode.E) && gameStart)
+            {
+
+                DemonTransform();
+
+
+
+            }
+            if (Input.GetKeyDown(KeyCode.R) && gameStart)
+            {
+
+
+            }
+
+
+
+            //if (Input.GetMouseButtonDown(0) && isDemon && !isDemonPowerCharge && !isDemonPowerCharge2)
+            //{
+
+            //    Debug.Log(isDemonPowerCharge + "first click");
+            //    DemonAnimationController.Instance.NormalAttack();
+            //    canMove = true;
+
+
+            //}
+            //if (Input.GetMouseButtonDown(0) && isDemon)
+            //{
+            //    Debug.Log("moudedown");
+            //    NormalAttack();
+            //}
+            //if (Input.GetMouseButtonDown(1) && isDemon)
+            //{
+            //    Debug.Log("mouse smash clicked");
+            //    SmashAttack();
+            //}
+
+            //if (Input.GetMouseButtonDown(0))
+            //{
+            //    Debug.Log("attack next");
+            //    StartCoroutine(AttackCo());
+            //    Debug.Log("currentstat" + currentStat);
+            //    InputMouseAttack();
+            //    EventHandler.CallMovementEvent(inputX, isWalking, isRunning, isSprinting, isDashing, isIdle, toolEffect, isDemonTransform, isDarkDoubleSpearKick);
+            //    EventHandler.CallDemonEvent(isDemon, isDemonIdle, isDemonPunch, isDemonPowerCharge, isDemonPowerPunch, isDemonSecondPunch, isDemonPowerCharge2, isDemonPowerPunch2);
+            //}
+
+        }
+
+
+        private void ResetAnimationTriggers()
+        {
+            isDemonPunch = false;
+            isDemonSecondPunch = false;
+            isWalking = false;
+            isRunning = false;
+
+            isSprinting = false;
+            toolEffect = ToolEffect.none;
+        }
+
+
+
+
+        public void CameraPlayerPosition()
+        {
+            //cinemachineTransposer = cinemachineVirtualCamera.AddCinemachineComponent<CinemachineTransposer>();
+            while (playerDirection == Direction.left && cinemachineTransposer.m_FollowOffset.x >= -10f)
+            {
+                Debug.Log("left");
+                cinemachineTransposer.m_FollowOffset.x -= leftOffsetX;
+                break;
+
+
+            }
+            while (playerDirection == Direction.right && cinemachineTransposer.m_FollowOffset.x <= 11.8f)
+            {
+                Debug.Log("right");
+                cinemachineTransposer.m_FollowOffset.x += rightOffsetX;
+                break;
+
+
+            }
+        }
+
+
+        public bool IsGrounded()
+        {
+            //2d raycast to the ground
+            RaycastHit2D hitInfo = Physics2D.Raycast(transform.position, Vector2.down, 0.6f, groundLayer.value);
+
+
+
+            if (hitInfo.collider != null)
+            {
+                if (resetJump == false)
+                {
+                    return true;
+                }
+
+
+            }
+            return false;
+        }
+        IEnumerator ResetJumpNeededRoutine()
+        {
+            resetJump = true;
+            yield return new WaitForSeconds(0.1f);
+            resetJump = false;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+        IEnumerator StartGameTransition()
+        {
+            yield return new WaitForSeconds(1.0f);
+            cinemachineVirtualCamera.Follow = playerTransform;
+            cinemachineVirtualCamera.LookAt = playerTransform;
+            gameStart = true;
+        }
+
+        //combo
+        //public void ComboPossible()
+        //{
+        //    Debug.Log("combopossible trigger");
+        //    comboPossible = true;
+
+        //    Debug.Log("combopossible should be true" + comboPossible);
+        //}
+        //public void ResetComBo()
+        //{
+        //    Debug.Log("reset");
+        //    comboPossible = false;
+        //    inputSmash = false;
+        //    comboStep = 0;
+        //}
+        //public void NextAtk()
         //{
 
-        //    Debug.Log(isDemonPowerCharge + "first click");
-        //    DemonAnimationController.Instance.NormalAttack();
-        //    canMove = true;
+
+
+        //    if (!inputSmash)
+        //    {
+        //        Debug.Log("!ifsmash" + comboStep);
+        //        if (comboStep == 1)
+        //        {
+
+        //            Debug.Log("combo step" + comboStep);
+        //            //Player.Instance.DemonSecondPunch();
+        //            animator.Play(Tags.DemonSecondPunch);
+        //        }
+        //        //if (comboStep == 3)
+        //        //{
+        //        //    animator.Play("demon power punch2");
+        //        //}
+        //    }
+        //    if (inputSmash)
+        //    {
+        //        if (comboStep == 1)
+        //        {
+
+        //            Debug.Log("inputsmash" + comboStep);
+        //            Debug.Log("demon power punch");
+
+        //            //player.position = Vector3.MoveTowards(player.position, target.position, step);
+
+
+
+
+        //            //rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x + 2f, rigidbody2D.velocity.y);
+        //            //StartCoroutine(DemonPowerPunch());
+
+        //        }
+        //        if (comboStep == 2)
+        //        {
+
+        //        }
+
+
+
+        //    }
 
 
         //}
+        //public void NormalAttack()
+        //{
+        //    Debug.Log("normal attack" + comboStep + comboPossible);
+        //    if (comboStep == 0)
+        //    {
+        //        Player.Instance.DemonPunch();
+
+        //        comboStep = 1;
+        //        return;
+        //    }
+        //    if (comboStep != 0)
+        //    {
+        //        if (comboPossible)
+        //        {
+        //            comboPossible = false;
+        //            comboStep += 1;
+        //        }
+        //    }
+        //}
+        //public void SmashAttack()
+        //{
 
 
-        EventHandler.CallDemonEvent(isDemonTransform, isDemon, isDemonPowerCharge, isDemonPowerPunch, isDemonPunch, isDemonSecondPunch, isDemonIdle, isDemonPowerPunch2, isDemonPowerCharge2);
-        //DemonPunch();
-        //Attack();
-        //PowerAttack();
-        // send event to any listeners for player movement input
-        EventHandler.CallMovementEvent(inputX, isWalking, isRunning, isSprinting, isDashing, isIdle, toolEffect, false, false);
-
-    }
-    void FixedUpdate()
-    {
-        //ChargeAttackAndInputGetMouse2();
+        //    if (comboPossible)
+        //    {
 
 
-
-
-
-
-
-
-
-        // charge input mouse up
-        //ChargeAttackAndInputMouseUp();
-
-
-
-
-
-        if (animatorStateInfo.IsName("demon power punch"))
-        {
-            Debug.Log("isname demon power punch");
-
-        }
-
-
+        //        comboPossible = false;
+        //        inputSmash = true;
+        //    }
+        //}
 
 
 
     }
-    // Update is called once per frame
-
-    private void LateUpdate()
-    {
-        if (animator != null)
-        {
-            animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-
-            Debug.Log(animatorStateInfo.IsName(Tags.DemonPunch) + "demon punch");
-        }
-    }
-
-
-
-
-
-
-
-    private void ResetAnimationTriggers()
-    {
-
-        isWalking = false;
-        isRunning = false;
-        isDashing = false;
-        isSprinting = false;
-        isDemonSecondPunch = false;
-        isDemonPowerPunch2 = false;
-        isDemonPunch = false;
-        isDemonPowerPunch = false;
-        toolEffect = ToolEffect.none;
-    }
-
-    void Movement()
-    {
-
-        inputX = Input.GetAxisRaw("Horizontal");
-        //inputX = Input.GetAxisRaw("Horizontal");
-        if (inputX != 0)
-        {
-            inputX = inputX * 0.71f;
-        }
-        rigidbody2D.velocity = new Vector2(inputX * movementSpeed, rigidbody2D.velocity.y);
-        if (inputX != 0)
-        {
-            Debug.Log("if isrunning" + isRunning);
-            isSprinting = false;
-            isWalking = false;
-            isRunning = true;
-            isIdle = false;
-            movementSpeed = Settings.runningSpeed;
-
-
-            // capture player direction for save game
-            if (inputX < 0)
-            {
-
-                playerDirection = Direction.left;
-                spriteRenderer.flipX = true;
-
-
-
-
-
-
-            }
-            if (inputX > 0)
-            {
-
-                playerDirection = Direction.right;
-                spriteRenderer.flipX = false;
-
-
-            }
-
-        }
-        else if (inputX == 0)
-        {
-            Debug.Log("isidle" + isIdle);
-            isRunning = false;
-            isWalking = false;
-            isSprinting = false;
-            isIdle = true;
-
-
-        }
-        // running
-        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-        {
-            isSprinting = false;
-            isRunning = false;
-            isWalking = true;
-            isIdle = false;
-            movementSpeed = Settings.walkingSpeed;
-        }
-        else
-        {
-            Debug.Log("else runinnig");
-            isSprinting = false;
-            isRunning = true;
-            isWalking = false;
-            isIdle = false;
-            movementSpeed = Settings.runningSpeed;
-
-        }
-
-
-        //jump
-        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() == true)
-        {
-            //jump
-            Debug.Log("jump");
-            rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, jumpForce);
-
-            StartCoroutine(ResetJumpNeededRoutine());
-        }
-
-
-
-        CameraPlayerPosition();
-
-    }
-    public void CameraPlayerPosition()
-    {
-        while (playerDirection == Direction.left && cinemachineTransposer.m_FollowOffset.x >= -10f)
-        {
-            Debug.Log("left");
-            cinemachineTransposer.m_FollowOffset.x -= 0.1f;
-            break;
-
-
-        }
-        while (playerDirection == Direction.right && cinemachineTransposer.m_FollowOffset.x <= 11.8f)
-        {
-            Debug.Log("right");
-            cinemachineTransposer.m_FollowOffset.x += 0.1f;
-            break;
-
-
-        }
-    }
-
-    private void ResetMovement()
-    {
-        isRunning = false;
-        isSprinting = false;
-        isWalking = false;
-        isIdle = true;
-    }
-    bool IsGrounded()
-    {
-        //2d raycast to the ground
-        RaycastHit2D hitInfo = Physics2D.Raycast(transform.position, Vector2.down, 0.6f, groundLayer.value);
-
-
-
-        if (hitInfo.collider != null)
-        {
-            if (resetJump == false)
-            {
-                return true;
-            }
-
-
-        }
-        return false;
-    }
-    IEnumerator ResetJumpNeededRoutine()
-    {
-        resetJump = true;
-        yield return new WaitForSeconds(0.1f);
-        resetJump = false;
-    }
-
-
-
-
-
-
-
-    private void DemonTransform()
-    {
-        animator.SetTrigger(Settings.isDemonTransform);
-
-
-    }
-
-
-    public void DemonYushanIdle()
-    {
-
-        if (inputX < 0)
-        {
-            Debug.Log("if" + playerDirection);
-            playerDirection = Direction.left;
-            spriteRenderer.flipX = true;
-        }
-        else if (inputX > 0)
-        {
-            Debug.Log("else if" + playerDirection);
-            playerDirection = Direction.right;
-            spriteRenderer.flipX = false;
-        }
-
-        isDemon = true;
-
-        animator.SetBool(Settings.isDemon, isDemon);
-        Debug.Log("isdemon" + isDemon);
-        Debug.Log("isdemon idle" + playerDirection);
-    }
-
-    IEnumerator StartGameTransition()
-    {
-        yield return new WaitForSeconds(1.0f);
-        cinemachineVirtualCamera.Follow = playerTransform;
-        cinemachineVirtualCamera.LookAt = playerTransform;
-        gameStart = true;
-    }
-
-
 }
+
 
