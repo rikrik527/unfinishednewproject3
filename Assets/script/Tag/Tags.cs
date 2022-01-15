@@ -33,4 +33,6 @@ public static class Tags
 
     // yushan dark skill
     public const string DarkDoubleSpearKick = "dark double spear kick";
+    public const string DarkKneeKick = "dark knee kick";
+    public const string DarkCrossKick = "dark cross kick";
 }

@@ -10,10 +10,10 @@ namespace Yushan.DarkType
 {
     public class DarkTypeMoves : MonoBehaviour
     {
-        public float darkDoubleSpearKickForce = 10f;
-        public float darkKneeKickForce = 10f;
+        public float darkDoubleSpearKickForce = 20f;
+        public float darkKneeKickForce = 20f;
         public float kickDirection;
-
+        public bool readyToKick;
 
         [SerializeField] private float curSpeed = 0.0f;
         [SerializeField] private float maxSpeed = 10f;
@@ -70,51 +70,51 @@ namespace Yushan.DarkType
             if (animatorStateInfo.IsTag("motion"))
             {
                 Debug.Log("lateupdatemotion");
-                if (actived)
+
+                if (Input.GetMouseButtonDown(0) && Player.Instance.isDashing)
                 {
-                    if (Input.GetMouseButtonDown(0) && Player.Instance.isDashing)
+                    Debug.Log("mousedown" + Player.Instance.isDashing);
+
+                    if (actived)
                     {
-                        Debug.Log("mousedown" + Player.Instance.isDashing);
-
-                        if (actived)
-                        {
 
 
-                            Player.Instance.rigidbody2D.velocity = Vector2.zero;
-                            Player.Instance.dashDirection = (int)Player.Instance.movX;
-                            StartCoroutine(DarkKneeKick());
+                        //Player.Instance.rigidbody2D.velocity = Vector2.zero;
+                        //Player.Instance.dashDirection = (int)Player.Instance.movX;
+                        StartCoroutine(DarkKneeKick());
 
-                            Debug.Log(actived + "actived");
-                        }
+                        Debug.Log(actived + "actived");
                     }
+
                 }
 
 
                 if (Input.GetMouseButtonDown(0) && Player.Instance.isRunning)
                 {
                     Debug.Log("mousedown isrunning" + Player.Instance.isRunning);
-                    if (Player.Instance.isRunningRight)
+
+
+                    Debug.Log("player isruun right");
+                    timerIsRunniing = true;
+                    while (timerIsRunniing)
                     {
-
-                        Debug.Log("player isruun right");
-                        timerIsRunniing = true;
-                        if (timerIsRunniing)
+                        if (timeRemaining > 0f)
                         {
-                            if (timeRemaining > 0f)
+                            startTime += Time.deltaTime;
+                            Debug.Log("time is running" + startTime);
+                            if (startTime >= timeRemaining)
                             {
-                                startTime += Time.deltaTime;
-                                if (startTime >= timeRemaining)
-                                {
+                                readyToKick = true;
+                                StartCoroutine(AttackCo());
+                                startTime = 0;
+                                timerIsRunniing = false;
+                                break;
 
-                                    StartCoroutine(AttackCo());
-                                    startTime = 0;
-
-
-                                }
                             }
-
-
                         }
+
+
+
                     }
 
 
@@ -123,24 +123,27 @@ namespace Yushan.DarkType
                 if (Input.GetMouseButtonDown(0) && Player.Instance.isRunning)
                 {
                     Debug.Log("mousedown" + Player.Instance.isRunning);
-                    if (Player.Instance.isRunningLeft)
+                    timerIsRunniing = true;
+
+                    Debug.Log("playerrunningleft");
+
+                    while (timerIsRunniing)
                     {
-
-                        timerIsRunniing = true;
-                        if (timerIsRunniing)
+                        if (timeRemaining > 0f)
                         {
-                            if (timeRemaining > 0f)
+                            startTime += Time.deltaTime;
+                            Debug.Log("time is running" + startTime);
+                            if (startTime >= timeRemaining)
                             {
-                                startTime += Time.deltaTime;
-                                if (startTime >= timeRemaining)
-                                {
 
-                                    StartCoroutine(AttackCo());
-                                    startTime = 0;
+                                readyToKick = true;
+                                StartCoroutine(AttackCo());
+                                startTime = 0;
+                                timerIsRunniing = false;
+                                break;
 
 
 
-                                }
                             }
                         }
                     }
@@ -162,14 +165,26 @@ namespace Yushan.DarkType
             if (animator != null)
             {
                 Debug.Log("animator is not null");
-                if (animatorStateInfo.IsName(Tags.DarkDoubleSpearKick) && animatorStateInfo.normalizedTime == 1f)
+                if (animatorStateInfo.IsName(Tags.DarkDoubleSpearKick) && animatorStateInfo.normalizedTime >= 0.9f)
                 {
                     Debug.Log("darkdoublespearkick finished stop");
                     Player.Instance.rigidbody2D.velocity = Vector2.zero;
 
                 }
                 Debug.Log("isrunning" + Player.Instance.isRunning + "isdashing" + Player.Instance.isDashing);
+                MoveToStop("DarkKneeKick");
             }
+        }
+        public void MoveToStop(string moveName)
+        {
+            string Tags = "Tags.";
+            //use this in lateupdate
+            if (animatorStateInfo.IsName(Tags + moveName) && animatorStateInfo.normalizedTime >= 0.9f)
+            {
+                Debug.Log("stoped" + moveName + animatorStateInfo.IsName("Tags" + moveName));
+                Player.Instance.rigidbody2D.velocity = Vector2.zero;
+            }
+
         }
         public void ActivedAttack()
         {
@@ -198,14 +213,22 @@ namespace Yushan.DarkType
 
         public void DarkDoubleSpearKick()
         {
-            Debug.Log("darkkick");
-            //animator.SetBool("isAttacking", true);
-            animator.SetTrigger("isDarkDoubleSpearKick");
-            //float time = GetCurrentAnimatorTime(animator, 1);
-            //Debug.Log(time);
-            kickDirection = (int)Player.Instance.movX;
-            Player.Instance.rigidbody2D.velocity = transform.right *
-            kickDirection * darkDoubleSpearKickForce;
+            if (Player.Instance.isRunning && readyToKick)
+            {
+                Debug.Log("darkdoublespearkick");
+                //animator.SetBool("isAttacking", true);
+                animator.SetTrigger("isDarkDoubleSpearKick");
+                //float time = GetCurrentAnimatorTime(animator, 1);
+                //Debug.Log(time);
+                kickDirection = (int)Player.Instance.movX;
+                Player.Instance.rigidbody2D.velocity = transform.right *
+                kickDirection * darkDoubleSpearKickForce;
+            }
+            else
+            {
+                Debug.Log("跑不夠多");
+            }
+
 
 
         }
@@ -225,6 +248,7 @@ namespace Yushan.DarkType
 
             yield return new WaitForSeconds(1f);
             Player.Instance.rigidbody2D.velocity = Vector2.zero;
+            readyToKick = false;
 
             Debug.Log("coruotine done" + animatorStateInfo.IsName(Tags.DarkDoubleSpearKick) + animatorStateInfo.normalizedTime);
         }
