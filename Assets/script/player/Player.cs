@@ -97,7 +97,15 @@ namespace Yushan.movement
         // game start
         private bool gameStart;
 
-
+        private float dashTimeLeft;
+        private float lastImageXpos;
+        private float lastDash = -100f;
+        public float dashTime;
+        public float dashSpeed;
+        public float distanceBetweenImages;
+        public float dashCoolDown;
+        public bool canMove;
+        public bool canFlip;
         //movement parameters
         private float inputX;
         private bool isIdle;
@@ -118,7 +126,7 @@ namespace Yushan.movement
         private bool isDarkDoubleSpearKick;
 
         public Rigidbody2D rigidbody2D;
-
+        public Yushan_Type yushanType;
         public Direction playerDirection;
         [SerializeField] private GameObject player;
 
@@ -153,7 +161,7 @@ namespace Yushan.movement
 
 
         ToolEffect toolEffect = ToolEffect.none;
-
+        public float orthoSize;
 
         //camera
         [SerializeField] public CinemachineVirtualCamera cinemachineVirtualCamera;
@@ -179,11 +187,12 @@ namespace Yushan.movement
                 playerDirection = Direction.right;
             }
 
-
+            yushanType = Yushan_Type.darkenType;
             rigidbody2D = GetComponent<Rigidbody2D>();
             cinemachineVirtualCamera = GameObject.FindGameObjectWithTag(Tags.FollowCamera).GetComponent<CinemachineVirtualCamera>();
             cinemachineTransposer = cinemachineVirtualCamera.GetCinemachineComponent<CinemachineTransposer>();
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            orthoSize = cinemachineVirtualCamera.m_Lens.OrthographicSize;
 
         }
 
@@ -195,7 +204,7 @@ namespace Yushan.movement
 
 
 
-            switch (yushan_Type)
+            switch (yushanType)
             {
                 case Yushan_Type.fatType:
                     Debug.Log("fat");
@@ -218,238 +227,273 @@ namespace Yushan.movement
                     Debug.Log("default");
                     break;
             }
+
             animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-
-            if (!PlayerInputIsDisabled)
+            if (yushanType == Yushan_Type.darkenType)
             {
-
-                Debug.Log("!playerinputiddisabled");
-
-                if (animatorStateInfo.IsTag("motion"))
+                if (!PlayerInputIsDisabled)
                 {
-                    movX = Input.GetAxis("Horizontal");
-                    Debug.Log("motion");
-                    if (movX > 0)
+
+                    Debug.Log("!playerinputiddisabled");
+
+                    if (animatorStateInfo.IsTag("motion"))
                     {
-                        isRunning = true;
-                        isRunningRight = true;
-                        isRunningLeft = false;
-
-
-
-                        animator.SetBool("isRunRight", true);
-                        playerTransform.Translate(runningSpeed * Time.deltaTime, 0, 0);
-                        Debug.Log("isrunningright" + isRunning);
-                        playerDirection = Direction.right;
-                        if (playerDirection == Direction.right)
+                        movX = Input.GetAxis("Horizontal");
+                        Debug.Log("motion");
+                        if (movX > 0)
                         {
-                            spriteRenderer.flipX = false;
+                            canMove = true;
+                            if (canMove)
+                            {
+                                isRunning = true;
+                                isRunningRight = true;
+                                isRunningLeft = false;
+
+
+
+                                animator.SetBool("isRunRight", true);
+                                playerTransform.Translate(runningSpeed * Time.deltaTime, 0, 0);
+                                Debug.Log("isrunningright" + isRunning);
+                                playerDirection = Direction.right;
+                                if (playerDirection == Direction.right)
+                                {
+                                    canFlip = true;
+                                    if (canFlip)
+                                    {
+                                        spriteRenderer.flipX = false;
+                                    }
+
+                                }
+                            }
+
                         }
-                    }
-                    else if (movX < 0)
-                    {
-                        isRunning = true;
-                        isRunningRight = false;
-                        isRunningLeft = true;
-
-
-
-                        animator.SetBool("isRunLeft", true);
-                        playerTransform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
-                        Debug.Log("isrunningright" + isRunning);
-                        playerDirection = Direction.left;
-                        if (playerDirection == Direction.left)
+                        else if (movX < 0)
                         {
-                            spriteRenderer.flipX = true;
+                            canMove = true;
+                            if (canMove)
+                            {
+                                isRunning = true;
+                                isRunningRight = false;
+                                isRunningLeft = true;
+
+
+
+                                animator.SetBool("isRunLeft", true);
+                                playerTransform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
+                                Debug.Log("isrunningright" + isRunning);
+                                playerDirection = Direction.left;
+                                if (playerDirection == Direction.left)
+                                {
+                                    canFlip = true;
+                                    if (canFlip)
+                                    {
+                                        spriteRenderer.flipX = true;
+                                    }
+
+                                }
+                            }
+
                         }
-                    }
-                    //if (movX > 0)
-                    //{
-                    //    if (Input.GetKey(tapRight))
-                    //    {
-                    //        Debug.Log("get");
-                    //        //rigidbody2D.velocity = new Vector3(2 + xVel, 0, 0);
-                    //        isRunning = true;
-                    //        isRunningRight = true;
-                    //        isRunningLeft = false;
-                    //        isDashing = false;
+                        //if (movX > 0)
+                        //{
+                        //    if (Input.GetKey(tapRight))
+                        //    {
+                        //        Debug.Log("get");
+                        //        //rigidbody2D.velocity = new Vector3(2 + xVel, 0, 0);
+                        //        isRunning = true;
+                        //        isRunningRight = true;
+                        //        isRunningLeft = false;
+                        //        isDashing = false;
 
 
-                    //        animator.SetBool("isRunRight", true);
-                    //        playerTransform.Translate(runningSpeed * Time.deltaTime, 0, 0);
-                    //        Debug.Log("isrunningright" + isRunning);
-                    //    }
-                    //    if (Input.GetKeyDown(tapRight))
-                    //    {
+                        //        animator.SetBool("isRunRight", true);
+                        //        playerTransform.Translate(runningSpeed * Time.deltaTime, 0, 0);
+                        //        Debug.Log("isrunningright" + isRunning);
+                        //    }
+                        //    if (Input.GetKeyDown(tapRight))
+                        //    {
 
-                    //        rightTotal += 1;
-                    //    }
-                    //    if (Input.GetKeyUp(tapRight))
-                    //    {
-                    //        Debug.Log("get up");
-                    //        //xVel = 0;
-                    //        //rigidbody2D.velocity = new Vector3(0, 0, 0);
+                        //        rightTotal += 1;
+                        //    }
+                        //    if (Input.GetKeyUp(tapRight))
+                        //    {
+                        //        Debug.Log("get up");
+                        //        //xVel = 0;
+                        //        //rigidbody2D.velocity = new Vector3(0, 0, 0);
 
-                    //    }
-                    //    if ((rightTotal == 1) && (rightTimeDelay < .5))
-                    //    {
-                    //        rightTimeDelay += Time.deltaTime;
-                    //    }
-                    //    if ((rightTotal == 1) && (rightTimeDelay >= .5))
-                    //    {
-                    //        rightTimeDelay = 0;
-                    //        rightTotal = 0;
-                    //    }
-                    //    if ((rightTotal == 2) && (rightTimeDelay < .5))
-                    //    {
-                    //        Debug.Log("isdashing");
-                    //        xVel = 2;
-                    //        rightTotal = 0;
-                    //        animator.SetTrigger("isDash");
-                    //        isDashing = true;
+                        //    }
+                        //    if ((rightTotal == 1) && (rightTimeDelay < .5))
+                        //    {
+                        //        rightTimeDelay += Time.deltaTime;
+                        //    }
+                        //    if ((rightTotal == 1) && (rightTimeDelay >= .5))
+                        //    {
+                        //        rightTimeDelay = 0;
+                        //        rightTotal = 0;
+                        //    }
+                        //    if ((rightTotal == 2) && (rightTimeDelay < .5))
+                        //    {
+                        //        Debug.Log("isdashing");
+                        //        xVel = 2;
+                        //        rightTotal = 0;
+                        //        animator.SetTrigger("isDash");
+                        //        isDashing = true;
 
-                    //    }
-                    //    if ((rightTotal == 2) && (rightTimeDelay >= .5))
-                    //    {
-                    //        xVel = 0;
-                    //        rightTotal = 0;
-                    //        rightTimeDelay = 0;
-                    //    }
-                    //    if (xVel == 2)
-                    //    {
-                    //        dashDuration += Time.deltaTime;
-                    //    }
-                    //    if (dashDuration > 1)
-                    //    {
-                    //        xVel = 0;
-                    //        dashDuration = 0;
-                    //        rightTotal = 0;
-                    //        rightTimeDelay = 0;
-                    //    }
-                    //}
-
-
-                    //if (movX < 0)
-                    //{
-                    //    if (Input.GetKey(tapLeft))
-                    //    {
-                    //        Debug.Log("get");
-                    //        //rigidbody2D.velocity = new Vector3(2 + xVel, 0, 0);
-                    //        isRunning = true;
-                    //        isRunningRight = false;
-                    //        isRunningLeft = true;
-                    //        isDashing = false;
+                        //    }
+                        //    if ((rightTotal == 2) && (rightTimeDelay >= .5))
+                        //    {
+                        //        xVel = 0;
+                        //        rightTotal = 0;
+                        //        rightTimeDelay = 0;
+                        //    }
+                        //    if (xVel == 2)
+                        //    {
+                        //        dashDuration += Time.deltaTime;
+                        //    }
+                        //    if (dashDuration > 1)
+                        //    {
+                        //        xVel = 0;
+                        //        dashDuration = 0;
+                        //        rightTotal = 0;
+                        //        rightTimeDelay = 0;
+                        //    }
+                        //}
 
 
-                    //        animator.SetBool("isRunLeft", true);
-                    //        playerTransform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
-                    //        Debug.Log("isrunningright" + isRunning);
-                    //    }
+                        //if (movX < 0)
+                        //{
+                        //    if (Input.GetKey(tapLeft))
+                        //    {
+                        //        Debug.Log("get");
+                        //        //rigidbody2D.velocity = new Vector3(2 + xVel, 0, 0);
+                        //        isRunning = true;
+                        //        isRunningRight = false;
+                        //        isRunningLeft = true;
+                        //        isDashing = false;
 
-                    //    if (Input.GetKeyDown(tapLeft))
-                    //    {
 
-                    //        leftTotal += 1;
-                    //    }
-                    //    if (Input.GetKeyUp(tapLeft))
-                    //    {
-                    //        Debug.Log("get up");
-                    //        //xVel = 0;
-                    //        //rigidbody2D.velocity = new Vector3(0, 0, 0);
+                        //        animator.SetBool("isRunLeft", true);
+                        //        playerTransform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
+                        //        Debug.Log("isrunningright" + isRunning);
+                        //    }
 
-                    //    }
-                    //    if ((leftTotal == 1) && (leftTimeDelay < .5))
-                    //    {
-                    //        leftTimeDelay += Time.deltaTime;
-                    //    }
-                    //    if ((leftTotal == 1) && (leftTimeDelay >= .5))
-                    //    {
-                    //        leftTimeDelay = 0;
-                    //        leftTotal = 0;
-                    //    }
-                    //    if ((leftTotal == 2) && (leftTimeDelay < .5))
-                    //    {
-                    //        Debug.Log("isdashing");
-                    //        xVel = 2;
-                    //        rightTotal = 0;
-                    //        animator.SetTrigger("isDash");
-                    //        isDashing = true;
+                        //    if (Input.GetKeyDown(tapLeft))
+                        //    {
 
-                    //    }
-                    //    if ((leftTotal == 2) && (leftTimeDelay >= .5))
-                    //    {
-                    //        xVel = 0;
-                    //        leftTotal = 0;
-                    //        leftTimeDelay = 0;
-                    //    }
-                    //    if (xVel == 2)
-                    //    {
-                    //        dashDuration += Time.deltaTime;
-                    //    }
-                    //    if (dashDuration > 1)
-                    //    {
-                    //        xVel = 0;
-                    //        dashDuration = 0;
-                    //        leftTotal = 0;
-                    //        leftTimeDelay = 0;
-                    //    }
+                        //        leftTotal += 1;
+                        //    }
+                        //    if (Input.GetKeyUp(tapLeft))
+                        //    {
+                        //        Debug.Log("get up");
+                        //        //xVel = 0;
+                        //        //rigidbody2D.velocity = new Vector3(0, 0, 0);
 
-                    //}
+                        //    }
+                        //    if ((leftTotal == 1) && (leftTimeDelay < .5))
+                        //    {
+                        //        leftTimeDelay += Time.deltaTime;
+                        //    }
+                        //    if ((leftTotal == 1) && (leftTimeDelay >= .5))
+                        //    {
+                        //        leftTimeDelay = 0;
+                        //        leftTotal = 0;
+                        //    }
+                        //    if ((leftTotal == 2) && (leftTimeDelay < .5))
+                        //    {
+                        //        Debug.Log("isdashing");
+                        //        xVel = 2;
+                        //        rightTotal = 0;
+                        //        animator.SetTrigger("isDash");
+                        //        isDashing = true;
 
-                    if (Input.GetMouseButtonDown(1) && movX != 0 && isRunning)
-                    {
-                        Debug.Log("mousedown ready to dash");
-                        isDashing = true;
+                        //    }
+                        //    if ((leftTotal == 2) && (leftTimeDelay >= .5))
+                        //    {
+                        //        xVel = 0;
+                        //        leftTotal = 0;
+                        //        leftTimeDelay = 0;
+                        //    }
+                        //    if (xVel == 2)
+                        //    {
+                        //        dashDuration += Time.deltaTime;
+                        //    }
+                        //    if (dashDuration > 1)
+                        //    {
+                        //        xVel = 0;
+                        //        dashDuration = 0;
+                        //        leftTotal = 0;
+                        //        leftTimeDelay = 0;
+                        //    }
 
-                        //playerTransform.Translate((Vector3.right * 10) * Time.deltaTime * dashingSpeed);
-                        currentDashTimer = startDashTimer;
-                        rigidbody2D.velocity = Vector2.zero;
+                        //}
+
+                        //if (Input.GetMouseButtonDown(1) && movX != 0 && !isDashing)
+                        //{
+                        //    Debug.Log("mousedown ready to dash");
+                        //    isDashing = true;
+
+                        //    //playerTransform.Translate((Vector3.right * 10) * Time.deltaTime * dashingSpeed);
+                        //    currentDashTimer = startDashTimer;
+                        //    rigidbody2D.velocity = Vector2.zero;
                         dashDirection = (int)movX;
 
 
-                    }
-                    if (isDashing)
-                    {
-                        Debug.Log("dashing");
-                        animator.SetTrigger("isDash");
-                        rigidbody2D.velocity = transform.right * dashDirection * dashForce;
-                        currentDashTimer -= Time.deltaTime;
-                        if (currentDashTimer <= 0)
+                        //}
+                        //if (isDashing)
+                        //{
+                        //    Debug.Log("dashing");
+                        //    animator.SetTrigger("isDash");
+                        //    rigidbody2D.velocity = transform.right * dashDirection * dashForce;
+                        //    currentDashTimer -= Time.deltaTime;
+                        //    if (currentDashTimer <= 0)
+                        //    {
+                        //        Debug.Log("isdashing false");
+                        //        isDashing = false;
+                        //    }
+                        //}
+
+                        if (Input.GetMouseButtonDown(1) && !isDashing)
                         {
-                            Debug.Log("isdashing false");
-                            isDashing = false;
+                            if (Time.time >= (lastDash + dashCoolDown))
+                            {
+                                AttemptToDash();
+                            }
                         }
-                    }
-                    if (Input.GetAxis("Horizontal") == 0)
-                    {
-                        isRunningLeft = false;
-                        isRunningRight = false;
-                        isDashing = false;
-                        isRunning = false;
-                        animator.SetBool("isRunRight", false);
-                        animator.SetBool("isRunLeft", false);
+                        if (Input.GetAxis("Horizontal") == 0)
+                        {
+                            isRunningLeft = false;
+                            isRunningRight = false;
+                            isDashing = false;
+                            isRunning = false;
+                            animator.SetBool("isRunRight", false);
+                            animator.SetBool("isRunLeft", false);
 
-                    }
-                    if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() == true)
-                    {
-                        //jump
-                        Debug.Log("jump");
-                        rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, jumpForce);
+                        }
+                        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() == true)
+                        {
+                            //jump
+                            Debug.Log("jump");
+                            rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, jumpForce);
 
-                        StartCoroutine(ResetJumpNeededRoutine());
+                            StartCoroutine(ResetJumpNeededRoutine());
+                        }
+
+                        CheckDash();
                     }
+
+
+
+
+
+
+                    // send event to any listeners for player movement input
+
+
+
                 }
-
-
-
-
-
-
-                // send event to any listeners for player movement input
-
-
-
             }
+
+
 
 
 
@@ -464,57 +508,58 @@ namespace Yushan.movement
             //Debug.Log(time);
 
         }
+        private void AttemptToDash()
+        {
+            isDashing = true;
+            canMove = false;
+            canFlip = false;
+            dashTimeLeft = dashTime;
+            lastDash = Time.time;
 
+            PlayerAfterImagePool.Instance.GetFromPool();
+            lastImageXpos = transform.position.x;
+        }
+        private void CheckDash()
+        {
+            if (isDashing)
+            {
+                if (dashTimeLeft > 0)
+                {
+                    animator.SetTrigger("isDash");
+                    rigidbody2D.velocity = new Vector2(dashSpeed * dashDirection, rigidbody2D.velocity.y);
+
+                    dashTimeLeft -= Time.deltaTime;
+                    if (Mathf.Abs(transform.position.x - lastImageXpos) > distanceBetweenImages)
+                    {
+                        PlayerAfterImagePool.Instance.GetFromPool();
+                        lastImageXpos = transform.position.x;
+                    }
+                }
+                if (dashTimeLeft <= 0)
+                {
+                    // || isTouchingWall
+                    isDashing = false;
+                    canMove = true;
+                    canFlip = true;
+                }
+            }
+        }
         void FixedUpdate()
         {
 
 
         }
-        // Update is called once per frame
-
         private void LateUpdate()
         {
-            if (animator != null)
+            if (animatorStateInfo.IsName("dash") && animatorStateInfo.normalizedTime == 1f)
             {
-                animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-
-                Debug.Log(animatorStateInfo.IsName(Tags.DemonPunch) + "demon punch");
-                if (animatorStateInfo.normalizedTime <= 0.1f && animatorStateInfo.IsName(Tags.DemonTransform))
-                {
-                    Debug.Log("demon transform");
-
-                    ShakeCamera.Instance.Shake(5f, 3f);
-                }
-                if (animatorStateInfo.normalizedTime >= 1.0f && animatorStateInfo.IsName(Tags.DemonTransform))
-                {
-                    ShakeCamera.Instance.Shake(5f, 0f);
-                    Debug.Log("end");
-                }
-                if (animatorStateInfo.normalizedTime >= 1.0f && animatorStateInfo.IsName(Tags.DemonTransform))
-                {
-
-
-                    isDemon = true;
-                    animator.SetBool("isDemon", true);
-                    Debug.Log("while" + isDemonTransform + isDemon);
-
-                }
-
-                //if (animatorStateInfo.IsName("dash") && animatorStateInfo.normalizedTime == 1.0f)
-                //{
-
-                //    isDashing = false;
-                //    if (!isDashing)
-                //    {
-                //        Debug.Log("movx = 0");
-                //        movX = 0;
-                //        //this.rigidbody2D.velocity = Vector2.zero;
-
-                //    }
-                //    Debug.Log("isdashing is false");
-                //}
+                Debug.Log("stop dash");
+                rigidbody2D.velocity = Vector2.zero;
             }
         }
+        // Update is called once per frame
+
+
         public void InputDashLeft()
         {
 
@@ -669,6 +714,7 @@ namespace Yushan.movement
 
         public void CameraPlayerPosition()
         {
+
             //cinemachineTransposer = cinemachineVirtualCamera.AddCinemachineComponent<CinemachineTransposer>();
             while (playerDirection == Direction.left && cinemachineTransposer.m_FollowOffset.x >= -10f)
             {
@@ -686,7 +732,31 @@ namespace Yushan.movement
 
 
             }
+            if (isRunning)
+            {
+
+                Debug.Log("if dashing");
+                while (orthoSize <= 14f)
+                {
+
+                    orthoSize += 0.1f;
+                    if (orthoSize >= 13f)
+                    {
+
+                        cinemachineVirtualCamera.m_Lens.OrthographicSize = 13f;
+                        break;
+                    }
+                }
+            }
+            if (!isRunning)
+            {
+
+                cinemachineVirtualCamera.m_Lens.OrthographicSize = 8.345f;
+
+            }
         }
+
+
 
 
         public bool IsGrounded()

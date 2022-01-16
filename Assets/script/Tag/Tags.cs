@@ -35,4 +35,5 @@ public static class Tags
     public const string DarkDoubleSpearKick = "dark double spear kick";
     public const string DarkKneeKick = "dark knee kick";
     public const string DarkCrossKick = "dark cross kick";
+    public const string Dash = "dash";
 }

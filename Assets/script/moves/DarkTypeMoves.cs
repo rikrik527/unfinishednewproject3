@@ -75,13 +75,13 @@ namespace Yushan.DarkType
                 {
                     Debug.Log("mousedown" + Player.Instance.isDashing);
 
-                    if (actived)
+                    if (Input.GetMouseButtonDown(0) && actived)
                     {
 
 
                         //Player.Instance.rigidbody2D.velocity = Vector2.zero;
                         //Player.Instance.dashDirection = (int)Player.Instance.movX;
-                        StartCoroutine(DarkKneeKick());
+                        DarkKneeKick();
 
                         Debug.Log(actived + "actived");
                     }
@@ -101,7 +101,7 @@ namespace Yushan.DarkType
                         if (timeRemaining > 0f)
                         {
                             startTime += Time.deltaTime;
-                            Debug.Log("time is running" + startTime);
+
                             if (startTime >= timeRemaining)
                             {
                                 readyToKick = true;
@@ -132,7 +132,7 @@ namespace Yushan.DarkType
                         if (timeRemaining > 0f)
                         {
                             startTime += Time.deltaTime;
-                            Debug.Log("time is running" + startTime);
+
                             if (startTime >= timeRemaining)
                             {
 
@@ -168,23 +168,32 @@ namespace Yushan.DarkType
                 if (animatorStateInfo.IsName(Tags.DarkDoubleSpearKick) && animatorStateInfo.normalizedTime >= 0.9f)
                 {
                     Debug.Log("darkdoublespearkick finished stop");
-                    Player.Instance.rigidbody2D.velocity = Vector2.zero;
+                    Stop();
 
                 }
-                Debug.Log("isrunning" + Player.Instance.isRunning + "isdashing" + Player.Instance.isDashing);
-                MoveToStop("DarkKneeKick");
+
+
+
+                if (animatorStateInfo.IsName(Tags.DarkKneeKick) && animatorStateInfo.normalizedTime >= 0.9f)
+                {
+                    Debug.Log("stop darkknee kick");
+                    Stop();
+                }
             }
-        }
-        public void MoveToStop(string moveName)
-        {
-            string Tags = "Tags.";
-            //use this in lateupdate
-            if (animatorStateInfo.IsName(Tags + moveName) && animatorStateInfo.normalizedTime >= 0.9f)
+            if (animatorStateInfo.IsName(Tags.Dash) && animatorStateInfo.normalizedTime >= 0.9f)
             {
-                Debug.Log("stoped" + moveName + animatorStateInfo.IsName("Tags" + moveName));
-                Player.Instance.rigidbody2D.velocity = Vector2.zero;
+                Debug.Log("dash stops");
+                Stop();
             }
 
+
+
+        }
+
+        public void Stop()
+        {
+            Debug.Log("stop");
+            Player.Instance.rigidbody2D.velocity = Vector2.zero;
         }
         public void ActivedAttack()
         {
@@ -195,13 +204,15 @@ namespace Yushan.DarkType
         {
             actived = false;
         }
-        private IEnumerator DarkKneeKick()
+        private void DarkKneeKick()
         {
             Debug.Log("darkkneekick");
 
+
             animator.SetTrigger("isDarkKneeKick");
             Player.Instance.rigidbody2D.velocity = transform.right * Player.Instance.dashDirection * darkKneeKickForce;
-            yield return new WaitForSeconds(1f);
+
+
 
 
 

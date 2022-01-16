@@ -2,12 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Yushan.Enums;
-
+using Yushan.movement;
 public class UiInventoryBar : MonoBehaviour
 {
+    public Transform playerTransform;
+    public RectTransform rectTransform;
     [SerializeField] private Sprite transparent64 = null;
     [SerializeField] private UiInventorySlot[] inventorySlot = null;
     public GameObject inventoryBarDraggedItem;
+
+    private void Awake()
+    {
+        playerTransform = GameObject.FindGameObjectWithTag(Tags.Player).transform;
+        rectTransform = GetComponent<RectTransform>();
+    }
     private void OnDisable()
     {
         EventHandler.InventoryUpdatedEvent -= InventoryUpdated;
@@ -16,7 +24,11 @@ public class UiInventoryBar : MonoBehaviour
     {
         EventHandler.InventoryUpdatedEvent += InventoryUpdated;
     }
-
+    private void Update()
+    {
+        //rectTransform.sizeDelta = new Vector2(playerTransform.position.x + 10f, playerTransform.position.y + 10f);
+        rectTransform.anchoredPosition = new Vector2(playerTransform.position.x - 100f, playerTransform.position.y);
+    }
     private void ClearInventorySlots()
     {
         if (inventorySlot.Length > 0)
