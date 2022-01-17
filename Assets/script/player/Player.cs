@@ -28,6 +28,7 @@ namespace Yushan.movement
         private Vector3 change;
 
         public float runningSpeed = 10f;
+        public float sprintingSpeed = 15f;
         public float dashForce = 3f;
         public float startDashTimer = 0.24f;
         public float currentDashTimer;
@@ -106,6 +107,7 @@ namespace Yushan.movement
         public float dashCoolDown;
         public bool canMove;
         public bool canFlip;
+        public bool dash;
         //movement parameters
         private float inputX;
         private bool isIdle;
@@ -144,6 +146,7 @@ namespace Yushan.movement
         private float jumpForce = 5.0f;
 
 
+        [SerializeField] private GameObject followCameraLeft;
 
         [SerializeField]
         private LayerMask groundLayer;
@@ -231,6 +234,7 @@ namespace Yushan.movement
             animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
             if (yushanType == Yushan_Type.darkenType)
             {
+                CheckDash();
                 if (!PlayerInputIsDisabled)
                 {
 
@@ -264,6 +268,15 @@ namespace Yushan.movement
                                     }
 
                                 }
+                                if (dash == true)
+                                {
+                                    if (Input.GetKeyDown(tapRight))
+                                    {
+                                        isSprinting = true;
+                                        animator.SetBool("isSprintRight", true);
+                                        playerTransform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
+                                    }
+                                }
                             }
 
                         }
@@ -288,6 +301,16 @@ namespace Yushan.movement
                                     if (canFlip)
                                     {
                                         spriteRenderer.flipX = true;
+                                    }
+
+                                }
+                                if (dash == true)
+                                {
+                                    if (Input.GetKeyDown(tapLeft))
+                                    {
+                                        isSprinting = true;
+                                        animator.SetBool("isSprintLeft", true);
+                                        playerTransform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
                                     }
 
                                 }
@@ -478,7 +501,7 @@ namespace Yushan.movement
                             StartCoroutine(ResetJumpNeededRoutine());
                         }
 
-                        CheckDash();
+
                     }
 
 
@@ -523,10 +546,10 @@ namespace Yushan.movement
         {
             if (isDashing)
             {
+                Debug.Log("isdashing");
                 if (dashTimeLeft > 0)
                 {
-                    animator.SetTrigger("isDash");
-                    rigidbody2D.velocity = new Vector2(dashSpeed * dashDirection, rigidbody2D.velocity.y);
+                    Dash();
 
                     dashTimeLeft -= Time.deltaTime;
                     if (Mathf.Abs(transform.position.x - lastImageXpos) > distanceBetweenImages)
@@ -554,12 +577,19 @@ namespace Yushan.movement
             if (animatorStateInfo.IsName("dash") && animatorStateInfo.normalizedTime == 1f)
             {
                 Debug.Log("stop dash");
+                dash = false;
                 rigidbody2D.velocity = Vector2.zero;
             }
         }
         // Update is called once per frame
 
-
+        public void Dash()
+        {
+            dash = true;
+            Debug.Log("dash");
+            animator.SetTrigger("isDash");
+            rigidbody2D.velocity = new Vector2(dashSpeed * dashDirection, rigidbody2D.velocity.y);
+        }
         public void InputDashLeft()
         {
 
@@ -716,43 +746,40 @@ namespace Yushan.movement
         {
 
             //cinemachineTransposer = cinemachineVirtualCamera.AddCinemachineComponent<CinemachineTransposer>();
-            while (playerDirection == Direction.left && cinemachineTransposer.m_FollowOffset.x >= -10f)
+            //while (playerDirection == Direction.left && cinemachineTransposer.m_FollowOffset.x >= -10f)
+            //{
+            //    Debug.Log("left");
+            //    cinemachineTransposer.m_FollowOffset.x -= leftOffsetX;
+            //    break;
+
+
+            //}
+            //while (playerDirection == Direction.right && cinemachineTransposer.m_FollowOffset.x <= 11.8f)
+            //{
+            //    Debug.Log("right");
+            //    cinemachineTransposer.m_FollowOffset.x += rightOffsetX;
+            //    break;
+
+
+            //}
+            //while (playerDirection == Direction.left && isRunning == true)
+            //{
+            //    cinemachineTransposer.m_FollowOffset.x += 10f;
+            //    break;
+            //}
+
+            if (isRunning == true && orthoSize <= 14f)
             {
-                Debug.Log("left");
-                cinemachineTransposer.m_FollowOffset.x -= leftOffsetX;
-                break;
+                followCamera.SetActive(false);
+                followCameraLeft.SetActive(true);
 
 
             }
-            while (playerDirection == Direction.right && cinemachineTransposer.m_FollowOffset.x <= 11.8f)
+
+            else if (isRunning == false && orthoSize >= 8.345f)
             {
-                Debug.Log("right");
-                cinemachineTransposer.m_FollowOffset.x += rightOffsetX;
-                break;
-
-
-            }
-            if (isRunning)
-            {
-
-                Debug.Log("if dashing");
-                while (orthoSize <= 14f)
-                {
-
-                    orthoSize += 0.1f;
-                    if (orthoSize >= 13f)
-                    {
-
-                        cinemachineVirtualCamera.m_Lens.OrthographicSize = 13f;
-                        break;
-                    }
-                }
-            }
-            if (!isRunning)
-            {
-
-                cinemachineVirtualCamera.m_Lens.OrthographicSize = 8.345f;
-
+                followCamera.SetActive(true);
+                followCameraLeft.SetActive(false);
             }
         }
 

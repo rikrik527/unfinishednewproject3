@@ -59,11 +59,7 @@ namespace Yushan.DarkType
         private void Update()
         {
             animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-            for (int i = 0; i < animatorStateInfo.length; i++)
-            {
-                arrayStateInfo[i] = animator.GetCurrentAnimatorStateInfo(0);
-                Debug.Log(arrayStateInfo[i].length + "ddddkdkdkdk");
-            }
+
         }
         private void FixedUpdate()
         {

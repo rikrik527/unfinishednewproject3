@@ -3,18 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using Yushan.Enums;
 using Yushan.movement;
+using UnityEngine.UI;
 public class UiInventoryBar : MonoBehaviour
 {
     public Transform playerTransform;
     public RectTransform rectTransform;
+    public RectTransform canvasRect;
     [SerializeField] private Sprite transparent64 = null;
     [SerializeField] private UiInventorySlot[] inventorySlot = null;
     public GameObject inventoryBarDraggedItem;
+    [SerializeField] private Camera camera;
+    public Vector3 screenPos;
+    public Vector2 screenPos2D;
+    public Vector2 anchoredPos;
+    public Vector2 pivotPos;
+    public Vector2 anchorPos;
 
+    public Rect rect = new Rect(0, 0, 0, 0);
     private void Awake()
     {
         playerTransform = GameObject.FindGameObjectWithTag(Tags.Player).transform;
         rectTransform = GetComponent<RectTransform>();
+        screenPos = camera.ScreenToWorldPoint(playerTransform.position);
+        screenPos2D = new Vector2(screenPos.x, screenPos.y);
+        pivotPos = camera.ScreenToWorldPoint(rectTransform.anchoredPosition);
+        anchoredPos = new Vector2(pivotPos.x, pivotPos.y);
+    }
+    private void Start()
+    {
+
+        rect = rectTransform.GetComponent<Rect>();
+
     }
     private void OnDisable()
     {
@@ -27,7 +46,16 @@ public class UiInventoryBar : MonoBehaviour
     private void Update()
     {
         //rectTransform.sizeDelta = new Vector2(playerTransform.position.x + 10f, playerTransform.position.y + 10f);
-        rectTransform.anchoredPosition = new Vector2(playerTransform.position.x - 100f, playerTransform.position.y);
+
+
+        rect.width = 488f;
+        rect.height = 105f;
+
+        rectTransform.pivot = camera.ScreenToWorldPoint(playerTransform.position);
+
+        Debug.Log(rect.x + "" + rect.y + "" + rect.position.x + "" + playerTransform.position.x + "" + rect.left + rect.right);
+
+
     }
     private void ClearInventorySlots()
     {
