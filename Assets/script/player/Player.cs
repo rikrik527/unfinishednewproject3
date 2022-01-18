@@ -58,7 +58,7 @@ namespace Yushan.movement
         [SerializeField] private float leftOffsetX;
         [SerializeField] private float rightOffsetX;
 
-
+        private bool funcExcuted;
 
         private SpriteRenderer spriteRenderer;
 
@@ -203,6 +203,8 @@ namespace Yushan.movement
 
         private void Update()
         {
+
+
             animatorClipInfo = animator.GetCurrentAnimatorClipInfo(0);
 
 
@@ -244,7 +246,7 @@ namespace Yushan.movement
                     if (animatorStateInfo.IsTag("motion"))
                     {
                         movX = Input.GetAxis("Horizontal");
-                        CheckDash();
+
                         Debug.Log("motion");
                         if (movX > 0)
                         {
@@ -256,8 +258,15 @@ namespace Yushan.movement
                                 isRunningLeft = false;
 
 
+                                if (IsGrounded() == true)
+                                {
+                                    animator.SetBool("isRunRight", true);
+                                }
+                                else if (IsGrounded() == false)
+                                {
+                                    animator.SetBool("isRunRight", false);
+                                }
 
-                                animator.SetBool("isRunRight", true);
                                 playerTransform.Translate(runningSpeed * Time.deltaTime, 0, 0);
                                 Debug.Log("isrunningright" + isRunning);
                                 playerDirection = Direction.right;
@@ -284,8 +293,15 @@ namespace Yushan.movement
                                 isRunningLeft = true;
 
 
+                                if (IsGrounded() == true)
+                                {
+                                    animator.SetBool("isRunLeft", true);
+                                }
+                                else if (IsGrounded() == false)
+                                {
+                                    animator.SetBool("isRunLeft", false);
+                                }
 
-                                animator.SetBool("isRunLeft", true);
                                 playerTransform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
                                 Debug.Log("isrunningright" + isRunning);
                                 playerDirection = Direction.left;
@@ -462,13 +478,16 @@ namespace Yushan.movement
                         //    }
                         //}
 
-                        if (Input.GetMouseButtonDown(1) && !isDashing)
+                        if (Input.GetMouseButtonDown(1) && canMove == false)
                         {
                             if (Time.time >= (lastDash + dashCoolDown))
                             {
                                 AttemptToDash();
+
+
                             }
                         }
+
                         if (Input.GetAxis("Horizontal") == 0)
                         {
                             isRunningLeft = false;
@@ -523,6 +542,7 @@ namespace Yushan.movement
         }
         private void AttemptToDash()
         {
+            funcExcuted = false;
             isDashing = true;
             canMove = false;
             canFlip = false;
@@ -531,9 +551,11 @@ namespace Yushan.movement
 
             PlayerAfterImagePool.Instance.GetFromPool();
             lastImageXpos = transform.position.x;
+            funcExcuted = true;
         }
         private void CheckDash()
         {
+            Debug.Log("check dash is excute");
             if (isDashing)
             {
                 Debug.Log("isdashing");
@@ -557,28 +579,14 @@ namespace Yushan.movement
                 }
             }
         }
-        void FixedUpdate()
-        {
-
-
-        }
-        private void LateUpdate()
-        {
-            if (animatorStateInfo.IsName("dash") && animatorStateInfo.normalizedTime == 1f)
-            {
-                Debug.Log("stop dash");
-
-                rigidbody2D.velocity = Vector2.zero;
-            }
-        }
-        // Update is called once per frame
-
         public void Dash()
         {
+
             dash = true;
             Debug.Log("dash");
             animator.SetTrigger("isDash");
             rigidbody2D.velocity = new Vector2(dashSpeed * dashDirection, rigidbody2D.velocity.y);
+
             if (dash = true && isRunning)
             {
                 if (movX > 0)
@@ -605,6 +613,34 @@ namespace Yushan.movement
                 }
             }
         }
+        void FixedUpdate()
+        {
+
+
+        }
+        private void LateUpdate()
+        {
+            if (animatorStateInfo.IsTag("motion") && yushanType == Yushan_Type.darkenType)
+            {
+                if (funcExcuted)
+                {
+                    CheckDash();
+                }
+
+
+                if (animatorStateInfo.IsName("dash") && animatorStateInfo.normalizedTime == 1f)
+                {
+                    Debug.Log("stop dash");
+
+                    rigidbody2D.velocity = Vector2.zero;
+                }
+            }
+
+
+        }
+        // Update is called once per frame
+
+
         public void InputDashLeft()
         {
 
