@@ -46,7 +46,7 @@ namespace Yushan.movement
         public int xVel = 0;
 
         private AnimatorClipInfo[] animatorClipInfo;
-
+        public Camera mainCamera;
 
         public AnimationClip darkDoubleSpearKickClip;
         public const string attackingLayer = "Attacking";
@@ -178,6 +178,7 @@ namespace Yushan.movement
             playerTransform = GetComponent<Transform>();
             point = GameObject.FindGameObjectWithTag(Tags.Point).GetComponent<Transform>();
             hashToClip.Add(darkDoubleSpearHash, darkDoubleSpearKickClip);
+            mainCamera = Camera.main;
             base.Awake();
 
         }
@@ -234,7 +235,7 @@ namespace Yushan.movement
             animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
             if (yushanType == Yushan_Type.darkenType)
             {
-                CheckDash();
+
                 if (!PlayerInputIsDisabled)
                 {
 
@@ -243,6 +244,7 @@ namespace Yushan.movement
                     if (animatorStateInfo.IsTag("motion"))
                     {
                         movX = Input.GetAxis("Horizontal");
+                        CheckDash();
                         Debug.Log("motion");
                         if (movX > 0)
                         {
@@ -268,15 +270,7 @@ namespace Yushan.movement
                                     }
 
                                 }
-                                if (dash == true)
-                                {
-                                    if (Input.GetKeyDown(tapRight))
-                                    {
-                                        isSprinting = true;
-                                        animator.SetBool("isSprintRight", true);
-                                        playerTransform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
-                                    }
-                                }
+
                             }
 
                         }
@@ -304,19 +298,12 @@ namespace Yushan.movement
                                     }
 
                                 }
-                                if (dash == true)
-                                {
-                                    if (Input.GetKeyDown(tapLeft))
-                                    {
-                                        isSprinting = true;
-                                        animator.SetBool("isSprintLeft", true);
-                                        playerTransform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
-                                    }
 
-                                }
+
                             }
-
                         }
+
+
                         //if (movX > 0)
                         //{
                         //    if (Input.GetKey(tapRight))
@@ -488,6 +475,9 @@ namespace Yushan.movement
                             isRunningRight = false;
                             isDashing = false;
                             isRunning = false;
+                            isSprinting = false;
+                            dash = false;
+                            animator.SetBool("isSprinting", false);
                             animator.SetBool("isRunRight", false);
                             animator.SetBool("isRunLeft", false);
 
@@ -577,7 +567,7 @@ namespace Yushan.movement
             if (animatorStateInfo.IsName("dash") && animatorStateInfo.normalizedTime == 1f)
             {
                 Debug.Log("stop dash");
-                dash = false;
+
                 rigidbody2D.velocity = Vector2.zero;
             }
         }
@@ -589,6 +579,31 @@ namespace Yushan.movement
             Debug.Log("dash");
             animator.SetTrigger("isDash");
             rigidbody2D.velocity = new Vector2(dashSpeed * dashDirection, rigidbody2D.velocity.y);
+            if (dash = true && isRunning)
+            {
+                if (movX > 0)
+                {
+                    isSprinting = true;
+                    if (isSprinting)
+                    {
+                        Debug.Log("isspritnt");
+                        animator.SetBool("isSprintRight", true);
+                        playerTransform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
+                    }
+
+                }
+                if (movX < 0 && isRunning)
+                {
+                    isSprinting = true;
+                    if (isSprinting)
+                    {
+                        Debug.Log("issprint");
+                        animator.SetBool("isSprintLeft", true);
+                        playerTransform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
+                    }
+
+                }
+            }
         }
         public void InputDashLeft()
         {
@@ -829,7 +844,11 @@ namespace Yushan.movement
             cinemachineVirtualCamera.LookAt = playerTransform;
             gameStart = true;
         }
-
+        public Vector3 GetPlayerViewPortPosition()
+        {
+            //vector3 viewport position for player viewport
+            return mainCamera.WorldToViewportPoint(transform.position);
+        }
         //combo
         //public void ComboPossible()
         //{

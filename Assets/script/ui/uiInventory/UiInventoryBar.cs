@@ -18,22 +18,28 @@ public class UiInventoryBar : MonoBehaviour
     public Vector2 anchoredPos;
     public Vector2 pivotPos;
     public Vector2 anchorPos;
-
+    public Vector2 anchorPos2d;
     public Rect rect = new Rect(0, 0, 0, 0);
+
+    private bool isRectransformShowsUp;
+    public bool IsRectransformShowsUp { get => isRectransformShowsUp; set => isRectransformShowsUp = value; }
     private void Awake()
     {
         playerTransform = GameObject.FindGameObjectWithTag(Tags.Player).transform;
         rectTransform = GetComponent<RectTransform>();
-        screenPos = camera.ScreenToWorldPoint(playerTransform.position);
+        screenPos = camera.WorldToViewportPoint(playerTransform.position);
         screenPos2D = new Vector2(screenPos.x, screenPos.y);
-        pivotPos = camera.ScreenToWorldPoint(rectTransform.anchoredPosition);
-        anchoredPos = new Vector2(pivotPos.x, pivotPos.y);
+        pivotPos = camera.WorldToViewportPoint(rectTransform.anchoredPosition);
+
+
     }
     private void Start()
     {
-
-        rect = rectTransform.GetComponent<Rect>();
-
+        float py = Player.Instance.transform.position.y;
+        float px = Player.Instance.transform.position.x;
+        anchoredPos = rectTransform.anchoredPosition;
+        anchorPos2d = new Vector2(anchoredPos.x, anchoredPos.y);
+        Debug.Log(anchorPos2d + "" + px + "" + py);
     }
     private void OnDisable()
     {
@@ -48,15 +54,10 @@ public class UiInventoryBar : MonoBehaviour
         //rectTransform.sizeDelta = new Vector2(playerTransform.position.x + 10f, playerTransform.position.y + 10f);
 
 
-        rect.width = 488f;
-        rect.height = 105f;
-
-        rectTransform.pivot = camera.ScreenToWorldPoint(playerTransform.position);
-
-        Debug.Log(rect.x + "" + rect.y + "" + rect.position.x + "" + playerTransform.position.x + "" + rect.left + rect.right);
 
 
     }
+
     private void ClearInventorySlots()
     {
         if (inventorySlot.Length > 0)
