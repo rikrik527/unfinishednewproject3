@@ -36,4 +36,11 @@ public static class Tags
     public const string DarkKneeKick = "dark knee kick";
     public const string DarkCrossKick = "dark cross kick";
     public const string Dash = "dash";
+
+    // combo system darktype
+    public const string DarkSpinKick = "dark spin kick";
+    public const string DarkWhirlWindKick = "dark whirlwind kick";
+    public const string DarkSweepKick = "dark sweep kick";
+    public const string DarkDoubleSweepKick = "dark double sweep kick";
+    public const string DarkSpinHeadKick = "dark spin head kick";
 }

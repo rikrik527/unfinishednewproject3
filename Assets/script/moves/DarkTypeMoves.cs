@@ -24,11 +24,11 @@ namespace Yushan.DarkType
         private Animator animator;
         public static DarkTypeMoves Instance { get; private set; }
 
-
+        public Yushan_Type yushan_Type;
 
         private AnimatorStateInfo animatorStateInfo;
         public AnimatorStateInfo[] arrayStateInfo;
-        private Player player;
+
         private Transform playerTransform;
         private BoxCollider2D boxCollider2D;//player boxcollider2d
         //get the animation state hash for each Animation state
@@ -55,34 +55,39 @@ namespace Yushan.DarkType
             hashToClip.Add(darkDoubleSpearKickAnimHash, darkDoubleSpearKickClip);
             hashToClip.Add(darkKneeKickAnimHash, darkKneeKickClip);
             hashToClip.Add(darkCrossKickAnimHash, darkCrossKickClip);
+            yushan_Type = Yushan_Type.darkenType;
         }
+
         private void Update()
         {
             animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-
-        }
-        private void FixedUpdate()
-        {
             if (animatorStateInfo.IsTag("motion"))
             {
-                Debug.Log("lateupdatemotion");
-
-                if (Input.GetMouseButtonDown(0) && Player.Instance.isDashing)
+                if (yushan_Type == Yushan_Type.darkenType)
                 {
-                    Debug.Log("mousedown" + Player.Instance.isDashing);
-
-                    if (Input.GetMouseButtonDown(0) && actived)
+                    Debug.Log("lateupdatemotion");
+                    if (Player.Instance.dash)
                     {
+                        if (Input.GetMouseButtonDown(0))
+                        {
 
 
-                        //Player.Instance.rigidbody2D.velocity = Vector2.zero;
-                        //Player.Instance.dashDirection = (int)Player.Instance.movX;
-                        DarkKneeKick();
 
-                        Debug.Log(actived + "actived");
+
+
+
+                            //Player.Instance.rigidbody2D.velocity = Vector2.zero;
+                            //Player.Instance.dashDirection = (int)Player.Instance.movX;
+                            DarkKneeKick();
+
+
+
+
+                        }
                     }
 
                 }
+
 
 
                 if (Input.GetMouseButtonDown(0) && Player.Instance.isRunning)

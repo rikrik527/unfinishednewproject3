@@ -44,13 +44,18 @@ public class MovingRectransform : MonoBehaviour
         Debug.Log(distance);
         if (Vector2.Distance(screenPos2dObj, screenPos2d) > 210)
         {
-            objectToMove.gameObject.transform.LeanSetPosX((targetObject.gameObject.transform.position.x + 150) - 219);
+            objectToMove.gameObject.transform.LeanSetPosX(targetObject.gameObject.transform.position.x + 150);
             objectToMove.gameObject.transform.LeanSetPosY(targetObject.gameObject.transform.position.y + 150);
         }
         if (followCameraLeft.active)
         {
-            objectToMove.gameObject.transform.LeanSetPosX(targetObject.gameObject.transform.position.x);
+            objectToMove.gameObject.transform.LeanSetPosX(targetObject.gameObject.transform.position.x + 150);
             objectToMove.gameObject.transform.LeanSetPosY(targetObject.gameObject.transform.position.y + 150);
+            if (Vector2.Distance(screenPos2dObj, screenPos2d) > 210)
+            {
+                objectToMove.gameObject.transform.LeanSetPosX(targetObject.gameObject.transform.position.x + 150);
+                objectToMove.gameObject.transform.LeanSetPosY(targetObject.gameObject.transform.position.y + 150);
+            }
         }
 
         //objectToMove.gameObject.transform.position = new Vector2(screenPos.x, screenPos.y + 80);

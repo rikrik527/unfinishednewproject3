@@ -630,19 +630,19 @@ namespace Yushan.movement
         }
         private void LateUpdate()
         {
-            if (animatorStateInfo.IsTag("motion") && yushanType == Yushan_Type.darkenType)
+            if (animator != null)
             {
-                Debug.Log("excuted motion yushan type dark");
-
-
-
-                if (animatorStateInfo.IsName("dash") && animatorStateInfo.normalizedTime == 1f)
+                if (yushanType == Yushan_Type.darkenType)
                 {
-                    Debug.Log("stop dash");
-                    dash = false;
-                    isDashing = false;
-                    rigidbody2D.velocity = Vector2.zero;
+                    if (animatorStateInfo.IsName("dash") && animatorStateInfo.normalizedTime >= 0.99f)
+                    {
+                        Debug.Log("stop dash");
+                        dash = false;
+                        isDashing = false;
+                        rigidbody2D.velocity = Vector2.zero;
+                    }
                 }
+
             }
 
 
