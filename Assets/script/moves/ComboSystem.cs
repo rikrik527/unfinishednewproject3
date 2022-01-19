@@ -28,20 +28,19 @@ namespace Yushan.combo
         private void Update()
         {
             animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-            if (animatorStateInfo.IsTag("motion"))
+
+            if (yushanType == Yushan_Type.darkenType)
             {
-                if (yushanType == Yushan_Type.darkenType)
+                Debug.Log("combosystem");
+                if (Input.GetMouseButtonDown(0))
                 {
-                    Debug.Log("combosystem");
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        NormalAttack();
-                    }
-                    if (Input.GetMouseButtonDown(1))
-                    {
-                        SmashAttack();
-                    }
+                    NormalAttack();
                 }
+                if (Input.GetMouseButtonDown(1))
+                {
+                    SmashAttack();
+                }
+
             }
 
         }

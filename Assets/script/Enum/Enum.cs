@@ -15,6 +15,16 @@ namespace Yushan.Enums
 
 
     }
+    public enum Stats
+    {
+        isRunningRight,
+        isRunningLeft,
+        isWalkingRight,
+        isWalkingLeft,
+        isSprintingRight,
+        isSprintingLeft,
+        isIdle
+    }
     public enum Yushan_Type
     {
         fatType,
