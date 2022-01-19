@@ -478,11 +478,12 @@ namespace Yushan.movement
                         //    }
                         //}
 
-                        if (Input.GetMouseButtonDown(1) && canMove == false)
+                        if (Input.GetMouseButtonDown(1) && movX != 0 && (IsGrounded() == true || IsGrounded() == false))
                         {
+                            Debug.Log("ready to attempdash is grounded or on air");
                             if (Time.time >= (lastDash + dashCoolDown))
                             {
-                                AttemptToDash();
+                                StartCoroutine(AttemptToDash());
 
 
                             }
@@ -540,8 +541,9 @@ namespace Yushan.movement
             //Debug.Log(time);
 
         }
-        private void AttemptToDash()
+        IEnumerator AttemptToDash()
         {
+            Debug.Log("attemptodash");
             funcExcuted = false;
             isDashing = true;
             canMove = false;
@@ -552,6 +554,13 @@ namespace Yushan.movement
             PlayerAfterImagePool.Instance.GetFromPool();
             lastImageXpos = transform.position.x;
             funcExcuted = true;
+            yield return new WaitForSeconds(0.1f);
+            if (funcExcuted == true)
+            {
+
+                Debug.Log("attempdash is excuted");
+                CheckDash();
+            }
         }
         private void CheckDash()
         {
@@ -559,9 +568,10 @@ namespace Yushan.movement
             if (isDashing)
             {
                 Debug.Log("isdashing");
+                Dash();
                 if (dashTimeLeft > 0)
                 {
-                    Dash();
+
 
                     dashTimeLeft -= Time.deltaTime;
                     if (Mathf.Abs(transform.position.x - lastImageXpos) > distanceBetweenImages)
@@ -582,11 +592,11 @@ namespace Yushan.movement
         public void Dash()
         {
 
-            dash = true;
-            Debug.Log("dash");
+
             animator.SetTrigger("isDash");
             rigidbody2D.velocity = new Vector2(dashSpeed * dashDirection, rigidbody2D.velocity.y);
-
+            dash = true;
+            Debug.Log("dash");
             if (dash = true && isRunning)
             {
                 if (movX > 0)
@@ -622,16 +632,15 @@ namespace Yushan.movement
         {
             if (animatorStateInfo.IsTag("motion") && yushanType == Yushan_Type.darkenType)
             {
-                if (funcExcuted)
-                {
-                    CheckDash();
-                }
+                Debug.Log("excuted motion yushan type dark");
+
 
 
                 if (animatorStateInfo.IsName("dash") && animatorStateInfo.normalizedTime == 1f)
                 {
                     Debug.Log("stop dash");
-
+                    dash = false;
+                    isDashing = false;
                     rigidbody2D.velocity = Vector2.zero;
                 }
             }
