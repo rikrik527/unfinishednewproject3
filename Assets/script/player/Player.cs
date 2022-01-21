@@ -8,6 +8,7 @@ using Yushan.abilities;
 using Yushan.DemonType;
 using Yushan.combo;
 using Yushan.DarkType;
+
 namespace Yushan.movement
 {
     public class Player : SingletonMonobehaviour<Player>
@@ -115,7 +116,7 @@ namespace Yushan.movement
         public bool isRunning;
         public bool isDashingRight;
         public bool isDashingLeft;
-        private bool isSprinting;
+        public bool isSprinting;
         private bool isDemonTransform;
         public bool isDemonPowerCharge;
         private bool isDemonPunch;
@@ -248,7 +249,7 @@ namespace Yushan.movement
                         movX = Input.GetAxis("Horizontal");
 
                         Debug.Log("motion");
-                        if (movX > 0)
+                        if (movX > 0 && !ComboSystem.Instance.isAttacking)
                         {
                             canMove = true;
                             if (canMove)
@@ -283,7 +284,7 @@ namespace Yushan.movement
                             }
 
                         }
-                        else if (movX < 0)
+                        else if (movX < 0 && !ComboSystem.Instance.isAttacking)
                         {
                             canMove = true;
                             if (canMove)
@@ -317,6 +318,28 @@ namespace Yushan.movement
 
 
                             }
+                        }
+                        if (movX > 0 && isRunning && Input.GetKey(KeyCode.LeftShift) && !ComboSystem.Instance.isAttacking)
+                        {
+                            isSprinting = true;
+                            if (isSprinting)
+                            {
+                                Debug.Log("isspritnt");
+                                animator.SetBool("isSprintRight", true);
+                                playerTransform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
+                            }
+
+                        }
+                        if (movX < 0 && isRunning && Input.GetKey(KeyCode.LeftShift) && !ComboSystem.Instance.isAttacking)
+                        {
+                            isSprinting = true;
+                            if (isSprinting)
+                            {
+                                Debug.Log("issprint");
+                                animator.SetBool("isSprintLeft", true);
+                                playerTransform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
+                            }
+
                         }
 
 
@@ -478,7 +501,7 @@ namespace Yushan.movement
                         //    }
                         //}
 
-                        if (Input.GetMouseButtonDown(1) && movX != 0 && (IsGrounded() == true || IsGrounded() == false))
+                        if (Input.GetKeyDown(KeyCode.Space) && movX != 0 && (IsGrounded() == true || IsGrounded() == false))
                         {
                             Debug.Log("ready to attempdash is grounded or on air");
                             if (Time.time >= (lastDash + dashCoolDown))
@@ -502,7 +525,7 @@ namespace Yushan.movement
                             animator.SetBool("isRunLeft", false);
 
                         }
-                        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() == true)
+                        if (Input.GetKeyDown(KeyCode.W) && IsGrounded() == true && !ComboSystem.Instance.isAttacking)
                         {
                             //jump
                             Debug.Log("jump");
@@ -597,31 +620,8 @@ namespace Yushan.movement
             rigidbody2D.velocity = new Vector2(dashSpeed * dashDirection, rigidbody2D.velocity.y);
             dash = true;
             Debug.Log("dash");
-            if (dash = true && isRunning)
-            {
-                if (movX > 0)
-                {
-                    isSprinting = true;
-                    if (isSprinting)
-                    {
-                        Debug.Log("isspritnt");
-                        animator.SetBool("isSprintRight", true);
-                        playerTransform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
-                    }
 
-                }
-                if (movX < 0 && isRunning)
-                {
-                    isSprinting = true;
-                    if (isSprinting)
-                    {
-                        Debug.Log("issprint");
-                        animator.SetBool("isSprintLeft", true);
-                        playerTransform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
-                    }
 
-                }
-            }
         }
         void FixedUpdate()
         {
@@ -828,7 +828,7 @@ namespace Yushan.movement
             //    break;
             //}
 
-            if (isRunning == true && orthoSize <= 14f)
+            if (isSprinting == true && orthoSize <= 14f)
             {
                 followCamera.SetActive(false);
                 followCameraLeft.SetActive(true);
@@ -836,7 +836,7 @@ namespace Yushan.movement
 
             }
 
-            else if (isRunning == false && orthoSize >= 8.345f)
+            else if (isSprinting == false && orthoSize >= 8.345f)
             {
                 followCamera.SetActive(true);
                 followCameraLeft.SetActive(false);

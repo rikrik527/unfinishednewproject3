@@ -66,31 +66,30 @@ namespace Yushan.DarkType
                 if (yushan_Type == Yushan_Type.darkenType)
                 {
                     Debug.Log("lateupdatemotion");
-                    if (Player.Instance.dash)
+
+                    if (Input.GetKeyDown(KeyCode.H) && Player.Instance.dash)
                     {
-                        if (Input.GetMouseButtonDown(0))
-                        {
 
 
 
 
 
 
-                            //Player.Instance.rigidbody2D.velocity = Vector2.zero;
-                            //Player.Instance.dashDirection = (int)Player.Instance.movX;
-                            DarkKneeKick();
+                        //Player.Instance.rigidbody2D.velocity = Vector2.zero;
+                        //Player.Instance.dashDirection = (int)Player.Instance.movX;
+                        DarkKneeKick();
 
 
 
 
-                        }
                     }
+
 
                 }
 
 
 
-                if (Input.GetMouseButtonDown(0) && Player.Instance.isRunning)
+                if (Input.GetKeyDown(KeyCode.J) && Player.Instance.isSprinting && !Player.Instance.dash)
                 {
                     Debug.Log("mousedown isrunning" + Player.Instance.isRunning);
 
@@ -112,6 +111,7 @@ namespace Yushan.DarkType
                                     StartCoroutine(AttackCo());
                                     startTime = 0;
                                     timerIsRunniing = false;
+                                    readyToKick = false;
                                     break;
                                 }
 
@@ -126,7 +126,7 @@ namespace Yushan.DarkType
 
                 }
 
-                if (Input.GetMouseButtonDown(0) && Player.Instance.isRunning)
+                if (Input.GetKeyDown(KeyCode.J) && Player.Instance.isSprinting && !Player.Instance.dash)
                 {
                     Debug.Log("mousedown" + Player.Instance.isRunning);
                     timerIsRunniing = true;
@@ -148,6 +148,7 @@ namespace Yushan.DarkType
                                     StartCoroutine(AttackCo());
                                     startTime = 0;
                                     timerIsRunniing = false;
+                                    readyToKick = false;
                                     break;
                                 }
 
@@ -234,7 +235,7 @@ namespace Yushan.DarkType
 
         public void DarkDoubleSpearKick()
         {
-            if (Player.Instance.isRunning && readyToKick)
+            if (Player.Instance.isSprinting)
             {
                 Debug.Log("darkdoublespearkick");
                 //animator.SetBool("isAttacking", true);

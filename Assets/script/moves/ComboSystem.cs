@@ -16,6 +16,7 @@ namespace Yushan.combo
         public bool inputSmash;
         public AnimatorStateInfo animatorStateInfo;
         public Yushan_Type yushanType;
+        public bool isAttacking;
         private void Awake()
         {
             Instance = this;
@@ -32,11 +33,11 @@ namespace Yushan.combo
             if (yushanType == Yushan_Type.darkenType)
             {
                 Debug.Log("combosystem");
-                if (Input.GetMouseButtonDown(0))
+                if (Input.GetKeyDown(KeyCode.K))
                 {
                     NormalAttack();
                 }
-                if (Input.GetMouseButtonDown(1))
+                if (Input.GetKeyDown(KeyCode.L))
                 {
                     SmashAttack();
                 }
@@ -96,11 +97,13 @@ namespace Yushan.combo
             Debug.Log("resetcombo");
             comboPossible = false;
             inputSmash = false;
+            isAttacking = false;
             comboStep = 0;
         }
 
         public void NormalAttack()
         {
+            isAttacking = true;
             Debug.Log("normal attack");
             if (comboStep == 0)
             {
@@ -126,6 +129,7 @@ namespace Yushan.combo
         }
         public void SmashAttack()
         {
+            isAttacking = true;
             Debug.Log("smash attack");
             if (comboPossible)
             {
