@@ -90,10 +90,7 @@ namespace Yushan.movement
         //running bool
         public bool isRunningRight;
         public bool isRunningLeft;
-        public bool isSprintingRight;
-        public bool isSprintingLeft;
-        public bool isWalkingRight;
-        public bool isWalkingLeft;
+
 
         public float movX;
         public Camera camera;
@@ -118,7 +115,7 @@ namespace Yushan.movement
         public bool isRunning;
         public bool isDashingRight;
         public bool isDashingLeft;
-        public bool isSprinting;
+        private bool isSprinting;
         private bool isDemonTransform;
         public bool isDemonPowerCharge;
         private bool isDemonPunch;
@@ -163,7 +160,7 @@ namespace Yushan.movement
 
         public bool canRun = false;
         public bool canSprint = false;
-        public Stats stats;
+
 
 
         ToolEffect toolEffect = ToolEffect.none;
@@ -210,42 +207,7 @@ namespace Yushan.movement
 
             animatorClipInfo = animator.GetCurrentAnimatorClipInfo(0);
 
-            switch (stats)
-            {
-                case Stats.isRunningRight:
-                    isRunningRight = true;
-                    isRunningLeft = false;
-                    isSprintingLeft = false;
-                    isSprintingRight = false;
-                    animator.SetBool("isRunRight", true);
-                    break;
 
-                case Stats.isRunningLeft:
-                    isRunningRight = false;
-                    isRunningLeft = true;
-                    isSprintingLeft = false;
-                    isSprintingRight = false;
-                    animator.SetBool("isRunLeft", true);
-                    break;
-                case Stats.isSprintingRight:
-                    isRunningRight = false;
-                    isRunningLeft = false;
-                    isSprintingLeft = false;
-                    isSprintingRight = true;
-                    animator.SetBool("isSprintRight", true);
-                    break;
-                case Stats.isSprintingLeft:
-                    isRunningRight = false;
-                    isRunningLeft = false;
-                    isSprintingLeft = true;
-                    isSprintingRight = false;
-                    animator.SetBool("isSprintLeft", true);
-                    break;
-                default:
-                    Debug.Log("stats" + stats);
-                    break;
-
-            }
 
 
             switch (yushanType)
@@ -288,86 +250,74 @@ namespace Yushan.movement
                         Debug.Log("motion");
                         if (movX > 0)
                         {
-                            isRunningRight = true;
-                            isRunningLeft = false;
-
-
-
-                            if (isRunningRight)
+                            canMove = true;
+                            if (canMove)
                             {
-                                stats = Stats.isRunningRight;
-                                if (stats == Stats.isRunningRight)
+                                isRunning = true;
+                                isRunningRight = true;
+                                isRunningLeft = false;
+
+
+                                if (IsGrounded() == true)
                                 {
                                     animator.SetBool("isRunRight", true);
-                                    playerTransform.Translate(runningSpeed * Time.deltaTime, 0, 0);
-
-                                    playerDirection = Direction.right;
-                                    if (playerDirection == Direction.right)
-                                    {
-                                        canFlip = true;
-                                        if (canFlip)
-                                        {
-                                            spriteRenderer.flipX = false;
-                                        }
-
-                                    }
-                                    if (!IsGrounded() == false)
-                                    {
-                                        animator.SetBool("isRunRight", false);
-                                    }
                                 }
+                                else if (IsGrounded() == false)
+                                {
+                                    animator.SetBool("isRunRight", false);
+                                }
+
+                                playerTransform.Translate(runningSpeed * Time.deltaTime, 0, 0);
+                                Debug.Log("isrunningright" + isRunning);
+                                playerDirection = Direction.right;
+                                if (playerDirection == Direction.right)
+                                {
+                                    canFlip = true;
+                                    if (canFlip)
+                                    {
+                                        spriteRenderer.flipX = false;
+                                    }
+
+                                }
+
                             }
-
-
-
-
-
-
-
-
-
-
 
                         }
                         else if (movX < 0)
                         {
-                            isRunningRight = false;
-                            isRunningLeft = true;
-
-
-
-                            if (isRunningLeft)
+                            canMove = true;
+                            if (canMove)
                             {
-                                stats = Stats.isRunningLeft;
-                                if (stats == Stats.isRunningLeft)
+                                isRunning = true;
+                                isRunningRight = false;
+                                isRunningLeft = true;
+
+
+                                if (IsGrounded() == true)
                                 {
                                     animator.SetBool("isRunLeft", true);
-                                    playerTransform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
-                                    playerDirection = Direction.left;
-                                    if (playerDirection == Direction.left)
-                                    {
-                                        canFlip = true;
-                                        if (canFlip)
-                                        {
-                                            spriteRenderer.flipX = true;
-                                        }
-
-                                    }
-                                    if (IsGrounded() == false)
-                                    {
-                                        animator.SetBool("isRunLeft", false);
-                                    }
                                 }
+                                else if (IsGrounded() == false)
+                                {
+                                    animator.SetBool("isRunLeft", false);
+                                }
+
+                                playerTransform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
+                                Debug.Log("isrunningright" + isRunning);
+                                playerDirection = Direction.left;
+                                if (playerDirection == Direction.left)
+                                {
+                                    canFlip = true;
+                                    if (canFlip)
+                                    {
+                                        spriteRenderer.flipX = true;
+                                    }
+
+                                }
+
+
                             }
-
-
-
-
-
-
-
                         }
-
 
 
                         //if (movX > 0)
@@ -541,22 +491,15 @@ namespace Yushan.movement
 
                         if (Input.GetAxis("Horizontal") == 0)
                         {
-                            stats = Stats.isIdle;
-                            if (stats == Stats.isIdle)
-                            {
-                                Debug.Log("stats" + stats);
-                                isRunningLeft = false;
-                                isRunningRight = false;
-                                isDashing = false;
-                                isRunning = false;
-                                isSprinting = false;
-                                dash = false;
-                                animator.SetBool("isSprintLeft", false);
-                                animator.SetBool("isSprintRight", false);
-                                animator.SetBool("isRunRight", false);
-                                animator.SetBool("isRunLeft", false);
-                            }
-
+                            isRunningLeft = false;
+                            isRunningRight = false;
+                            isDashing = false;
+                            isRunning = false;
+                            isSprinting = false;
+                            dash = false;
+                            animator.SetBool("isSprinting", false);
+                            animator.SetBool("isRunRight", false);
+                            animator.SetBool("isRunLeft", false);
 
                         }
                         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() == true)
@@ -654,39 +597,30 @@ namespace Yushan.movement
             rigidbody2D.velocity = new Vector2(dashSpeed * dashDirection, rigidbody2D.velocity.y);
             dash = true;
             Debug.Log("dash");
-            if (dash = true)
+            if (dash = true && isRunning)
             {
                 if (movX > 0)
                 {
-                    isSprintingRight = true;
-
-                    if (isSprintingRight)
+                    isSprinting = true;
+                    if (isSprinting)
                     {
-                        stats = Stats.isSprintingRight;
-                        dash = false;
-                        animator.SetBool("isRunRight", false);
                         Debug.Log("isspritnt");
                         animator.SetBool("isSprintRight", true);
                         playerTransform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
-
                     }
 
                 }
-                if (movX < 0)
+                if (movX < 0 && isRunning)
                 {
-                    isSprintingLeft = true;
-                    if (isSprintingLeft)
+                    isSprinting = true;
+                    if (isSprinting)
                     {
-                        stats = Stats.isSprintingLeft;
-                        dash = false;
-                        animator.SetBool("isRunLeft", false);
-                        Debug.Log("isspritnt");
+                        Debug.Log("issprint");
                         animator.SetBool("isSprintLeft", true);
                         playerTransform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
                     }
 
                 }
-                Debug.Log("issprinting dash" + stats);
             }
         }
         void FixedUpdate()
@@ -703,7 +637,7 @@ namespace Yushan.movement
                     if (animatorStateInfo.IsName("dash") && animatorStateInfo.normalizedTime >= 0.99f)
                     {
                         Debug.Log("stop dash");
-
+                        dash = false;
                         isDashing = false;
                         rigidbody2D.velocity = Vector2.zero;
                     }
@@ -894,7 +828,7 @@ namespace Yushan.movement
             //    break;
             //}
 
-            if (stats == Stats.isSprintingLeft || stats == Stats.isSprintingRight)
+            if (isRunning == true && orthoSize <= 14f)
             {
                 followCamera.SetActive(false);
                 followCameraLeft.SetActive(true);
@@ -902,7 +836,7 @@ namespace Yushan.movement
 
             }
 
-            else if (stats == Stats.isRunningLeft || stats == Stats.isRunningRight)
+            else if (isRunning == false && orthoSize >= 8.345f)
             {
                 followCamera.SetActive(true);
                 followCameraLeft.SetActive(false);

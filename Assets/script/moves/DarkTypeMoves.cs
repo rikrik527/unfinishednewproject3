@@ -14,7 +14,7 @@ namespace Yushan.DarkType
         public float darkKneeKickForce = 20f;
         public float kickDirection;
         public bool readyToKick;
-        public bool readyToDashKneeKick;
+
         [SerializeField] private float curSpeed = 0.0f;
         [SerializeField] private float maxSpeed = 10f;
         [SerializeField] private float accelertation = 5.0f;
@@ -68,21 +68,17 @@ namespace Yushan.DarkType
                     Debug.Log("lateupdatemotion");
                     if (Player.Instance.dash)
                     {
-                        readyToDashKneeKick = true;
                         if (Input.GetMouseButtonDown(0))
                         {
 
 
-                            if (readyToDashKneeKick)
-                            {
-                                DarkKneeKick();
-                            }
+
 
 
 
                             //Player.Instance.rigidbody2D.velocity = Vector2.zero;
                             //Player.Instance.dashDirection = (int)Player.Instance.movX;
-
+                            DarkKneeKick();
 
 
 
@@ -94,9 +90,9 @@ namespace Yushan.DarkType
 
 
 
-                if (Input.GetMouseButtonDown(0) && Player.Instance.isSprinting)
+                if (Input.GetMouseButtonDown(0) && Player.Instance.isRunning)
                 {
-                    Debug.Log("mousedown isrunning" + Player.Instance.isSprinting);
+                    Debug.Log("mousedown isrunning" + Player.Instance.isRunning);
 
 
                     Debug.Log("player isruun right");
@@ -110,6 +106,7 @@ namespace Yushan.DarkType
                             if (startTime >= timeRemaining)
                             {
                                 readyToKick = true;
+
                                 if (readyToKick)
                                 {
                                     StartCoroutine(AttackCo());
@@ -129,9 +126,9 @@ namespace Yushan.DarkType
 
                 }
 
-                if (Input.GetMouseButtonDown(0) && Player.Instance.isSprinting)
+                if (Input.GetMouseButtonDown(0) && Player.Instance.isRunning)
                 {
-
+                    Debug.Log("mousedown" + Player.Instance.isRunning);
                     timerIsRunniing = true;
 
                     Debug.Log("playerrunningleft");
