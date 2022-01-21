@@ -22,12 +22,12 @@ namespace Yushan.movement
         public float slowMotionTimeScale;
 
 
-
+        public bool isJumping;
         public bool isAttacking = false;
 
         public PlayerState currentStat;
         private Vector3 change;
-
+        public Transform dashPosition;
         public float runningSpeed = 10f;
         public float sprintingSpeed = 15f;
         public float dashForce = 3f;
@@ -83,7 +83,7 @@ namespace Yushan.movement
 
         private AnimatorStateInfo animatorStateInfo;
 
-
+        public float dashLerpSpeed;
 
         private bool switchDemon;
 
@@ -117,6 +117,7 @@ namespace Yushan.movement
         public bool isDashingRight;
         public bool isDashingLeft;
         public bool isSprinting;
+        public bool isSlowingDown;
         private bool isDemonTransform;
         public bool isDemonPowerCharge;
         private bool isDemonPunch;
@@ -257,7 +258,10 @@ namespace Yushan.movement
                                 isRunning = true;
                                 isRunningRight = true;
                                 isRunningLeft = false;
-
+                                if (isRunning)
+                                {
+                                    isSprinting = false;
+                                }
 
                                 if (IsGrounded() == true)
                                 {
@@ -293,7 +297,10 @@ namespace Yushan.movement
                                 isRunningRight = false;
                                 isRunningLeft = true;
 
-
+                                if (isRunning)
+                                {
+                                    isSprinting = false;
+                                }
                                 if (IsGrounded() == true)
                                 {
                                     animator.SetBool("isRunLeft", true);
@@ -319,198 +326,70 @@ namespace Yushan.movement
 
                             }
                         }
-                        if (movX > 0 && isRunning && Input.GetKey(KeyCode.LeftShift) && !ComboSystem.Instance.isAttacking)
+                        if (movX > 0 && isRunning && Input.GetKey(KeyCode.M) && !ComboSystem.Instance.isAttacking)
                         {
                             isSprinting = true;
                             if (isSprinting)
                             {
+                                isRunning = false;
+                                isRunningRight = false;
+                                isRunningLeft = false;
                                 Debug.Log("isspritnt");
-                                animator.SetBool("isSprintRight", true);
-                                playerTransform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
+                                if (Input.GetKey(KeyCode.D))
+                                {
+                                    animator.SetBool("isRunRight", false);
+                                    animator.SetBool("isRunning", false);
+                                    animator.SetBool("isSprintRight", true);
+                                    playerTransform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
+                                }
+                                if (Input.GetKeyUp(KeyCode.D))
+                                {
+                                    Debug.Log("keyupD");
+                                    isSprinting = false;
+                                    isSlowingDown = true;
+                                    animator.SetBool("isSpritingRight", false);
+                                    animator.SetTrigger("isSlowingDown");
+                                }
                             }
 
                         }
-                        if (movX < 0 && isRunning && Input.GetKey(KeyCode.LeftShift) && !ComboSystem.Instance.isAttacking)
+                        if (movX < 0 && isRunning && Input.GetKey(KeyCode.M) && !ComboSystem.Instance.isAttacking)
                         {
                             isSprinting = true;
                             if (isSprinting)
                             {
-                                Debug.Log("issprint");
-                                animator.SetBool("isSprintLeft", true);
-                                playerTransform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
+
+                                isRunning = false;
+                                Debug.Log("issprintleft");
+                                isRunningRight = false;
+                                isRunningLeft = false;
+                                if (Input.GetKey(KeyCode.A))
+                                {
+                                    animator.SetBool("isRunning", false);
+                                    animator.SetBool("isRunLeft", false);
+                                    animator.SetBool("isSprintLeft", true);
+                                    playerTransform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
+                                }
+                                if (Input.GetKeyUp(KeyCode.A))
+                                {
+                                    Debug.Log("keyup left sprint");
+                                    isSprinting = false;
+                                    isSlowingDown = true;
+                                    animator.SetBool("isSprintingLeft", false);
+                                    animator.SetBool("isSlowingDown", true);
+                                }
                             }
+
 
                         }
 
 
-                        //if (movX > 0)
-                        //{
-                        //    if (Input.GetKey(tapRight))
-                        //    {
-                        //        Debug.Log("get");
-                        //        //rigidbody2D.velocity = new Vector3(2 + xVel, 0, 0);
-                        //        isRunning = true;
-                        //        isRunningRight = true;
-                        //        isRunningLeft = false;
-                        //        isDashing = false;
-
-
-                        //        animator.SetBool("isRunRight", true);
-                        //        playerTransform.Translate(runningSpeed * Time.deltaTime, 0, 0);
-                        //        Debug.Log("isrunningright" + isRunning);
-                        //    }
-                        //    if (Input.GetKeyDown(tapRight))
-                        //    {
-
-                        //        rightTotal += 1;
-                        //    }
-                        //    if (Input.GetKeyUp(tapRight))
-                        //    {
-                        //        Debug.Log("get up");
-                        //        //xVel = 0;
-                        //        //rigidbody2D.velocity = new Vector3(0, 0, 0);
-
-                        //    }
-                        //    if ((rightTotal == 1) && (rightTimeDelay < .5))
-                        //    {
-                        //        rightTimeDelay += Time.deltaTime;
-                        //    }
-                        //    if ((rightTotal == 1) && (rightTimeDelay >= .5))
-                        //    {
-                        //        rightTimeDelay = 0;
-                        //        rightTotal = 0;
-                        //    }
-                        //    if ((rightTotal == 2) && (rightTimeDelay < .5))
-                        //    {
-                        //        Debug.Log("isdashing");
-                        //        xVel = 2;
-                        //        rightTotal = 0;
-                        //        animator.SetTrigger("isDash");
-                        //        isDashing = true;
-
-                        //    }
-                        //    if ((rightTotal == 2) && (rightTimeDelay >= .5))
-                        //    {
-                        //        xVel = 0;
-                        //        rightTotal = 0;
-                        //        rightTimeDelay = 0;
-                        //    }
-                        //    if (xVel == 2)
-                        //    {
-                        //        dashDuration += Time.deltaTime;
-                        //    }
-                        //    if (dashDuration > 1)
-                        //    {
-                        //        xVel = 0;
-                        //        dashDuration = 0;
-                        //        rightTotal = 0;
-                        //        rightTimeDelay = 0;
-                        //    }
-                        //}
-
-
-                        //if (movX < 0)
-                        //{
-                        //    if (Input.GetKey(tapLeft))
-                        //    {
-                        //        Debug.Log("get");
-                        //        //rigidbody2D.velocity = new Vector3(2 + xVel, 0, 0);
-                        //        isRunning = true;
-                        //        isRunningRight = false;
-                        //        isRunningLeft = true;
-                        //        isDashing = false;
-
-
-                        //        animator.SetBool("isRunLeft", true);
-                        //        playerTransform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
-                        //        Debug.Log("isrunningright" + isRunning);
-                        //    }
-
-                        //    if (Input.GetKeyDown(tapLeft))
-                        //    {
-
-                        //        leftTotal += 1;
-                        //    }
-                        //    if (Input.GetKeyUp(tapLeft))
-                        //    {
-                        //        Debug.Log("get up");
-                        //        //xVel = 0;
-                        //        //rigidbody2D.velocity = new Vector3(0, 0, 0);
-
-                        //    }
-                        //    if ((leftTotal == 1) && (leftTimeDelay < .5))
-                        //    {
-                        //        leftTimeDelay += Time.deltaTime;
-                        //    }
-                        //    if ((leftTotal == 1) && (leftTimeDelay >= .5))
-                        //    {
-                        //        leftTimeDelay = 0;
-                        //        leftTotal = 0;
-                        //    }
-                        //    if ((leftTotal == 2) && (leftTimeDelay < .5))
-                        //    {
-                        //        Debug.Log("isdashing");
-                        //        xVel = 2;
-                        //        rightTotal = 0;
-                        //        animator.SetTrigger("isDash");
-                        //        isDashing = true;
-
-                        //    }
-                        //    if ((leftTotal == 2) && (leftTimeDelay >= .5))
-                        //    {
-                        //        xVel = 0;
-                        //        leftTotal = 0;
-                        //        leftTimeDelay = 0;
-                        //    }
-                        //    if (xVel == 2)
-                        //    {
-                        //        dashDuration += Time.deltaTime;
-                        //    }
-                        //    if (dashDuration > 1)
-                        //    {
-                        //        xVel = 0;
-                        //        dashDuration = 0;
-                        //        leftTotal = 0;
-                        //        leftTimeDelay = 0;
-                        //    }
-
-                        //}
-
-                        //if (Input.GetMouseButtonDown(1) && movX != 0 && !isDashing)
-                        //{
-                        //    Debug.Log("mousedown ready to dash");
-                        //    isDashing = true;
-
-                        //    //playerTransform.Translate((Vector3.right * 10) * Time.deltaTime * dashingSpeed);
-                        //    currentDashTimer = startDashTimer;
-                        //    rigidbody2D.velocity = Vector2.zero;
                         dashDirection = (int)movX;
 
 
-                        //}
-                        //if (isDashing)
-                        //{
-                        //    Debug.Log("dashing");
-                        //    animator.SetTrigger("isDash");
-                        //    rigidbody2D.velocity = transform.right * dashDirection * dashForce;
-                        //    currentDashTimer -= Time.deltaTime;
-                        //    if (currentDashTimer <= 0)
-                        //    {
-                        //        Debug.Log("isdashing false");
-                        //        isDashing = false;
-                        //    }
-                        //}
-
-                        if (Input.GetKeyDown(KeyCode.Space) && movX != 0 && (IsGrounded() == true || IsGrounded() == false))
-                        {
-                            Debug.Log("ready to attempdash is grounded or on air");
-                            if (Time.time >= (lastDash + dashCoolDown))
-                            {
-                                StartCoroutine(AttemptToDash());
 
 
-                            }
-                        }
+
 
                         if (Input.GetAxis("Horizontal") == 0)
                         {
@@ -523,12 +402,15 @@ namespace Yushan.movement
                             animator.SetBool("isSprinting", false);
                             animator.SetBool("isRunRight", false);
                             animator.SetBool("isRunLeft", false);
+                            animator.SetBool("isSprintRight", false);
+                            animator.SetBool("isSprintLeft", false);
 
                         }
-                        if (Input.GetKeyDown(KeyCode.W) && IsGrounded() == true && !ComboSystem.Instance.isAttacking)
+                        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() == true && !ComboSystem.Instance.isAttacking)
                         {
                             //jump
                             Debug.Log("jump");
+                            isJumping = true;
                             rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, jumpForce);
 
                             StartCoroutine(ResetJumpNeededRoutine());
@@ -562,6 +444,45 @@ namespace Yushan.movement
 
             //float time = GetCurrentAnimatorTime(animator, 0);
             //Debug.Log(time);
+
+        }
+        void FixedUpdate()
+        {
+            if (Input.GetKeyDown(KeyCode.J) && movX != 0 && (IsGrounded() == true || IsGrounded() == false))
+            {
+                Debug.Log("ready to attempdash is grounded or on air");
+                if (Time.time >= (lastDash + dashCoolDown))
+                {
+                    StartCoroutine(AttemptToDash());
+
+
+                }
+            }
+
+        }
+        private void LateUpdate()
+        {
+            if (animator != null)
+            {
+                if (yushanType == Yushan_Type.darkenType)
+                {
+                    if (animatorStateInfo.IsName("dash") && animatorStateInfo.normalizedTime >= 0.99f)
+                    {
+                        Debug.Log("stop dash");
+                        dash = false;
+                        isDashing = false;
+                        rigidbody2D.velocity = Vector2.zero;
+                        Debug.Log("dash" + dash);
+                    }
+                    if (animatorStateInfo.IsName(Tags.isSlowingDown) && animatorStateInfo.normalizedTime >= 0.9f)
+                    {
+                        isSlowingDown = false;
+                        animator.SetBool("isSlowingDown", false);
+                    }
+                }
+
+            }
+
 
         }
         IEnumerator AttemptToDash()
@@ -614,39 +535,27 @@ namespace Yushan.movement
         }
         public void Dash()
         {
-
+            Vector3 dashTargetPosition = dashPosition.position;
+            Vector3 playerPosition = playerTransform.position;
+            dash = true;
 
             animator.SetTrigger("isDash");
-            rigidbody2D.velocity = new Vector2(dashSpeed * dashDirection, rigidbody2D.velocity.y);
-            dash = true;
+            playerTransform.position = Vector3.MoveTowards(playerPosition, Vector3.Lerp(playerPosition, dashTargetPosition, dashLerpSpeed), dashSpeed * Time.deltaTime);
+            //rigidbody2D.velocity = new Vector2(dashSpeed * dashDirection, rigidbody2D.velocity.y);
+            if (playerDirection == Direction.right)
+            {
+                dashPosition.position = new Vector3(13f, 0, 0);
+            }
+
+            if (playerDirection == Direction.left)
+            {
+                dashPosition.position = new Vector3(-13f, 0, 0);
+            }
             Debug.Log("dash");
 
 
         }
-        void FixedUpdate()
-        {
 
-
-        }
-        private void LateUpdate()
-        {
-            if (animator != null)
-            {
-                if (yushanType == Yushan_Type.darkenType)
-                {
-                    if (animatorStateInfo.IsName("dash") && animatorStateInfo.normalizedTime >= 0.99f)
-                    {
-                        Debug.Log("stop dash");
-                        dash = false;
-                        isDashing = false;
-                        rigidbody2D.velocity = Vector2.zero;
-                    }
-                }
-
-            }
-
-
-        }
         // Update is called once per frame
 
 
@@ -857,11 +766,14 @@ namespace Yushan.movement
             {
                 if (resetJump == false)
                 {
+                    isJumping = false;
                     return true;
+
                 }
 
 
             }
+            isJumping = true;
             return false;
         }
         IEnumerator ResetJumpNeededRoutine()

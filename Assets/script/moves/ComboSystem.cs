@@ -15,7 +15,7 @@ namespace Yushan.combo
         public int comboStep;
         public bool inputSmash;
         public AnimatorStateInfo animatorStateInfo;
-        public Yushan_Type yushanType;
+
         public bool isAttacking;
         private void Awake()
         {
@@ -24,13 +24,13 @@ namespace Yushan.combo
         private void Start()
         {
             animator = GetComponent<Animator>();
-            yushanType = Yushan_Type.darkenType;
+
         }
         private void Update()
         {
             animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-            if (yushanType == Yushan_Type.darkenType)
+            if (Player.Instance.yushanType == Yushan_Type.darkenType)
             {
                 Debug.Log("combosystem");
                 if (Input.GetKeyDown(KeyCode.K))
@@ -52,44 +52,47 @@ namespace Yushan.combo
         }
         public void NxtAtk()
         {
-            Debug.Log("excuted");
-            if (!inputSmash)
+            if (!Player.Instance.dash && Player.Instance.isJumping == false)
             {
-                if (comboStep == 2)
+                if (!inputSmash)
                 {
-                    Debug.Log("combo2");
-                    // moves
-                    animator.Play(Tags.DarkWhirlWindKick);
+                    if (comboStep == 2)
+                    {
+                        Debug.Log("combo2");
+                        // moves
+                        animator.Play(Tags.DarkWhirlWindKick);
+                    }
+                    if (comboStep == 3)
+                    {
+                        // moves
+                        animator.Play(Tags.DarkSweepKick);
+                    }
+                    if (comboStep == 4)
+                    {
+                        animator.Play(Tags.DarkDoubleSweepKick);
+                    }
+                    if (comboStep == 5)
+                    {
+                        animator.Play(Tags.DarkSpinHeadKick);
+                    }
                 }
-                if (comboStep == 3)
+                if (inputSmash)
                 {
-                    // moves
-                    animator.Play(Tags.DarkSweepKick);
-                }
-                if (comboStep == 4)
-                {
-                    animator.Play(Tags.DarkDoubleSweepKick);
-                }
-                if (comboStep == 5)
-                {
-                    animator.Play(Tags.DarkSpinHeadKick);
+                    if (comboStep == 1)
+                    {
+                        //moves
+                    }
+                    if (comboStep == 2)
+                    {
+                        // moves
+                    }
+                    if (comboStep == 3)
+                    {
+                        //moves
+                    }
                 }
             }
-            if (inputSmash)
-            {
-                if (comboStep == 1)
-                {
-                    //moves
-                }
-                if (comboStep == 2)
-                {
-                    // moves
-                }
-                if (comboStep == 3)
-                {
-                    //moves
-                }
-            }
+
         }
 
         public void ResetCombo()

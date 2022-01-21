@@ -28,7 +28,7 @@ namespace Yushan.DarkType
 
         private AnimatorStateInfo animatorStateInfo;
         public AnimatorStateInfo[] arrayStateInfo;
-
+        public bool isDarkKneeKick;
         private Transform playerTransform;
         private BoxCollider2D boxCollider2D;//player boxcollider2d
         //get the animation state hash for each Animation state
@@ -67,12 +67,12 @@ namespace Yushan.DarkType
                 {
                     Debug.Log("lateupdatemotion");
 
-                    if (Input.GetKeyDown(KeyCode.H) && Player.Instance.dash)
+                    if (Input.GetKeyDown(KeyCode.K) && Player.Instance.dash)
                     {
 
 
 
-
+                        Debug.Log("k press is dash knee kick" + Player.Instance.dash);
 
 
                         //Player.Instance.rigidbody2D.velocity = Vector2.zero;
@@ -89,7 +89,7 @@ namespace Yushan.DarkType
 
 
 
-                if (Input.GetKeyDown(KeyCode.J) && Player.Instance.isSprinting && !Player.Instance.dash)
+                if (Input.GetKeyDown(KeyCode.K) && Player.Instance.isSprinting && !Player.Instance.dash)
                 {
                     Debug.Log("mousedown isrunning" + Player.Instance.isRunning);
 
@@ -126,9 +126,9 @@ namespace Yushan.DarkType
 
                 }
 
-                if (Input.GetKeyDown(KeyCode.J) && Player.Instance.isSprinting && !Player.Instance.dash)
+                if (Input.GetKeyDown(KeyCode.K) && Player.Instance.isSprinting && !Player.Instance.dash)
                 {
-                    Debug.Log("mousedown" + Player.Instance.isRunning);
+
                     timerIsRunniing = true;
 
                     Debug.Log("playerrunningleft");
@@ -219,9 +219,9 @@ namespace Yushan.DarkType
         {
             Debug.Log("darkkneekick");
 
-
+            isDarkKneeKick = true;
             animator.SetTrigger("isDarkKneeKick");
-            Player.Instance.rigidbody2D.velocity = transform.right * Player.Instance.dashDirection * darkKneeKickForce;
+            Player.Instance.transform.position = transform.right * Player.Instance.dashDirection * darkKneeKickForce;
 
 
 
@@ -235,21 +235,17 @@ namespace Yushan.DarkType
 
         public void DarkDoubleSpearKick()
         {
-            if (Player.Instance.isSprinting)
-            {
-                Debug.Log("darkdoublespearkick");
-                //animator.SetBool("isAttacking", true);
-                animator.SetTrigger("isDarkDoubleSpearKick");
-                //float time = GetCurrentAnimatorTime(animator, 1);
-                //Debug.Log(time);
-                kickDirection = (int)Player.Instance.movX;
-                Player.Instance.rigidbody2D.velocity = transform.right *
-                kickDirection * darkDoubleSpearKickForce;
-            }
-            else
-            {
-                Debug.Log("跑不夠多");
-            }
+
+            Debug.Log("darkdoublespearkick");
+            //animator.SetBool("isAttacking", true);
+            animator.SetTrigger("isDarkDoubleSpearKick");
+            //float time = GetCurrentAnimatorTime(animator, 1);
+            //Debug.Log(time);
+            kickDirection = (int)Player.Instance.movX;
+            Player.Instance.rigidbody2D.velocity = transform.right *
+            kickDirection * darkDoubleSpearKickForce;
+
+
 
 
 

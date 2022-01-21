@@ -43,4 +43,7 @@ public static class Tags
     public const string DarkSweepKick = "dark sweep kick";
     public const string DarkDoubleSweepKick = "dark double sweep kick";
     public const string DarkSpinHeadKick = "dark spin head kick";
+
+    //dark movement
+    public const string isSlowingDown = "is slowing down";
 }
