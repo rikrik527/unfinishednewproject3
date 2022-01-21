@@ -3,7 +3,20 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - follow-camera
+  - bounds-confiner
+  - point
+  - effect
+  - follow-camera-left
+  - building
+  - target
+  - triggers
+  - follow-camera-right
+  - player-sprite
+  - item-parent-transform
+  - inventory-bar
+  - moving-rec
   layers:
   - Default
   - TransparentFX
@@ -12,8 +25,8 @@ TagManager:
   - Water
   - UI
   - ground
-  - 
-  - 
+  - punch
+  - player
   - 
   - 
   - 
@@ -43,4 +56,7 @@ TagManager:
     locked: 0
   - name: instance
     uniqueID: 3808165997
+    locked: 0
+  - name: player
+    uniqueID: 2100609197
     locked: 0

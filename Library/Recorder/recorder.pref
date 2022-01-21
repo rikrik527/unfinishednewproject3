@@ -47,7 +47,7 @@ MonoBehaviour:
       m_ForceAssetFolder: 0
       m_AbsolutePath: 
     m_FileName: image_<Take>_<Frame>
-  outputFormat: 1
+  outputFormat: 0
   captureAlpha: 0
   m_ImageInputSelector:
     m_Selected: gameViewInputSettings
@@ -146,7 +146,7 @@ MonoBehaviour:
   m_Name: Movie
   m_EditorClassIdentifier: 
   enabled: 1
-  take: 3
+  take: 19
   captureEveryNthFrame: 1
   fileNameGenerator:
     m_Path:
@@ -172,7 +172,7 @@ MonoBehaviour:
       m_OutputResolution:
         m_CustomWidth: 1024
         m_CustomHeight: 1024
-        imageHeight: 0
+        imageHeight: 720
         maxSupportedHeight: 2160
         m_AspectRatio:
           m_CustomAspectX: 1

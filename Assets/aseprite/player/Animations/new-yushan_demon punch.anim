@@ -21,22 +21,18 @@ AnimationClip:
   - curve:
     - time: 0
       value: {fileID: 3081288978634938262, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
-    - time: 0.05
+    - time: 0.06
       value: {fileID: 2915678419747202403, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
-    - time: 0.09
+    - time: 0.11
       value: {fileID: 1516092920999070268, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
-    - time: 0.120000005
-      value: {fileID: -4720646262726904897, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
     - time: 0.15
+      value: {fileID: -4720646262726904897, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
+    - time: 0.18
       value: {fileID: 4167185939945622218, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
     - time: 0.21000001
       value: {fileID: -6224127868742960349, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
-    - time: 0.24000001
-      value: {fileID: -7703719161682030365, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
-    - time: 0.27
-      value: {fileID: -6584329793156929674, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
-    - time: 0.28333333
-      value: {fileID: -6584329793156929674, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
+    - time: 0.25333333
+      value: {fileID: -6224127868742960349, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -62,15 +58,13 @@ AnimationClip:
     - {fileID: -4720646262726904897, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
     - {fileID: 4167185939945622218, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
     - {fileID: -6224127868742960349, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
-    - {fileID: -7703719161682030365, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
-    - {fileID: -6584329793156929674, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
-    - {fileID: -6584329793156929674, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
+    - {fileID: -6224127868742960349, guid: 58123c7a5508a4cdab4091f1284a689b, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.3
+    m_StopTime: 0.27
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -90,22 +84,8 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events:
-  - time: 0.21666667
-    functionName: DemonPowerPunch
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 0.23333333
-    functionName: DemonPowerPunch
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 0.26666668
-    functionName: DemonPowerPunch
+  - time: 0.25
+    functionName: ComboPossible
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

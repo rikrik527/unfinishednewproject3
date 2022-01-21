@@ -155,7 +155,7 @@ namespace Yushan.movement
 
         private bool resetJump = false;
 
-
+        public Yushan_Move_type yushan_Move_Type;
         private Animator animator;
 
 
@@ -250,7 +250,7 @@ namespace Yushan.movement
                         movX = Input.GetAxis("Horizontal");
 
                         Debug.Log("motion");
-                        if (movX > 0 && !ComboSystem.Instance.isAttacking)
+                        if (movX > 0)
                         {
                             canMove = true;
                             if (canMove)
@@ -288,7 +288,7 @@ namespace Yushan.movement
                             }
 
                         }
-                        else if (movX < 0 && !ComboSystem.Instance.isAttacking)
+                        else if (movX < 0)
                         {
                             canMove = true;
                             if (canMove)
@@ -326,7 +326,7 @@ namespace Yushan.movement
 
                             }
                         }
-                        if (movX > 0 && isRunning && Input.GetKey(KeyCode.M) && !ComboSystem.Instance.isAttacking)
+                        if (movX > 0 && isRunning && Input.GetKey(KeyCode.M))
                         {
                             isSprinting = true;
                             if (isSprinting)
@@ -347,13 +347,13 @@ namespace Yushan.movement
                                     Debug.Log("keyupD");
                                     isSprinting = false;
                                     isSlowingDown = true;
-                                    animator.SetBool("isSpritingRight", false);
+                                    animator.SetBool("isSprintRight", false);
                                     animator.SetTrigger("isSlowingDown");
                                 }
                             }
 
                         }
-                        if (movX < 0 && isRunning && Input.GetKey(KeyCode.M) && !ComboSystem.Instance.isAttacking)
+                        if (movX < 0 && isRunning && Input.GetKey(KeyCode.M))
                         {
                             isSprinting = true;
                             if (isSprinting)
@@ -406,11 +406,13 @@ namespace Yushan.movement
                             animator.SetBool("isSprintLeft", false);
 
                         }
-                        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() == true && !ComboSystem.Instance.isAttacking)
+                        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() == true)
                         {
                             //jump
                             Debug.Log("jump");
                             isJumping = true;
+                            isSprinting = false;
+                            isRunning = false;
                             rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, jumpForce);
 
                             StartCoroutine(ResetJumpNeededRoutine());
@@ -445,6 +447,33 @@ namespace Yushan.movement
             //float time = GetCurrentAnimatorTime(animator, 0);
             //Debug.Log(time);
 
+        }
+        public void MoveYushanIsUsing()
+        {
+            if (isRunning)
+            {
+                yushan_Move_Type = Yushan_Move_type.runningType;
+                Debug.Log("runningtype" + yushan_Move_Type);
+            }
+            if (isSprinting)
+            {
+                yushan_Move_Type = Yushan_Move_type.sprintType;
+                Debug.Log("sprinttype" + Yushan_Move_type.sprintType);
+            }
+            if (isJumping)
+            {
+                yushan_Move_Type = Yushan_Move_type.jumpType;
+                Debug.Log("jumptype" + yushan_Move_Type);
+            }
+            if (dash)
+            {
+                yushan_Move_Type = Yushan_Move_type.dashType;
+            }
+            if (ComboSystem.Instance.isDarkComboSystem)
+            {
+                yushan_Move_Type = Yushan_Move_type.darkComboType;
+                Debug.Log("darkcombotype" + yushan_Move_Type);
+            }
         }
         void FixedUpdate()
         {

@@ -16,7 +16,15 @@ namespace Yushan.combo
         public bool inputSmash;
         public AnimatorStateInfo animatorStateInfo;
 
-        public bool isAttacking;
+        public bool isDarkComboSystem;
+
+        //combo system parameters
+        private bool isDarkSpinKick;
+        private bool isDarkWhirlWindKick;
+        private bool isDarkSweepKick;
+        private bool isDarkDoubleSweepKick;
+        private bool isDarkSpinHeadKick;
+
         private void Awake()
         {
             Instance = this;
@@ -25,23 +33,35 @@ namespace Yushan.combo
         {
             animator = GetComponent<Animator>();
 
+
         }
         private void Update()
         {
             animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            if (Player.Instance.yushan_Move_Type == Yushan_Move_type.darkComboType)
+            {
+                Debug.Log("isdarkcombosystem is true");
+                isDarkComboSystem = true;
+            }
+            else
+            {
+                Debug.Log("isdarkcombosystem" + isDarkComboSystem);
+                isDarkComboSystem = false;
+            }
 
             if (Player.Instance.yushanType == Yushan_Type.darkenType)
             {
+
                 Debug.Log("combosystem");
-                if (Input.GetKeyDown(KeyCode.K))
+                if (Input.GetKeyDown(KeyCode.K) && isDarkComboSystem)
                 {
                     NormalAttack();
                 }
-                if (Input.GetKeyDown(KeyCode.L))
+                if (Input.GetKeyDown(KeyCode.L) && isDarkComboSystem)
                 {
                     SmashAttack();
                 }
-
+                EventHandler.CallDarkComboEvent(isDarkSpinKick, isDarkWhirlWindKick, isDarkSweepKick, isDarkDoubleSweepKick, isDarkSpinHeadKick);
             }
 
         }
@@ -52,46 +72,45 @@ namespace Yushan.combo
         }
         public void NxtAtk()
         {
-            if (!Player.Instance.dash && Player.Instance.isJumping == false)
+
+            if (!inputSmash)
             {
-                if (!inputSmash)
+                if (comboStep == 2)
                 {
-                    if (comboStep == 2)
-                    {
-                        Debug.Log("combo2");
-                        // moves
-                        animator.Play(Tags.DarkWhirlWindKick);
-                    }
-                    if (comboStep == 3)
-                    {
-                        // moves
-                        animator.Play(Tags.DarkSweepKick);
-                    }
-                    if (comboStep == 4)
-                    {
-                        animator.Play(Tags.DarkDoubleSweepKick);
-                    }
-                    if (comboStep == 5)
-                    {
-                        animator.Play(Tags.DarkSpinHeadKick);
-                    }
+                    Debug.Log("combo2");
+                    // moves
+                    isDarkWhirlWindKick = true;
                 }
-                if (inputSmash)
+                if (comboStep == 3)
                 {
-                    if (comboStep == 1)
-                    {
-                        //moves
-                    }
-                    if (comboStep == 2)
-                    {
-                        // moves
-                    }
-                    if (comboStep == 3)
-                    {
-                        //moves
-                    }
+                    // moves
+                    isDarkSweepKick = true;
+                }
+                if (comboStep == 4)
+                {
+                    isDarkDoubleSweepKick = true;
+                }
+                if (comboStep == 5)
+                {
+                    isDarkSpinHeadKick = true;
                 }
             }
+            if (inputSmash)
+            {
+                if (comboStep == 1)
+                {
+                    //moves
+                }
+                if (comboStep == 2)
+                {
+                    // moves
+                }
+                if (comboStep == 3)
+                {
+                    //moves
+                }
+            }
+
 
         }
 
@@ -100,18 +119,24 @@ namespace Yushan.combo
             Debug.Log("resetcombo");
             comboPossible = false;
             inputSmash = false;
-            isAttacking = false;
+
             comboStep = 0;
+            //moves reset
+            isDarkSpinKick = false;
+            isDarkWhirlWindKick = false;
+            isDarkSweepKick = false;
+            isDarkDoubleSweepKick = false;
+            isDarkSpinHeadKick = false;
         }
 
         public void NormalAttack()
         {
-            isAttacking = true;
+
             Debug.Log("normal attack");
             if (comboStep == 0)
             {
                 //first normal move
-                animator.Play("dark spin kick");
+                isDarkSpinKick = true;
                 comboStep = 1;
                 Debug.Log("combostep" + comboStep);
                 return;
@@ -132,7 +157,7 @@ namespace Yushan.combo
         }
         public void SmashAttack()
         {
-            isAttacking = true;
+
             Debug.Log("smash attack");
             if (comboPossible)
             {

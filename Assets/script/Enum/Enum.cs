@@ -1,7 +1,14 @@
 namespace Yushan.Enums
 {
     public class Enum { }
-
+    public enum Yushan_Move_type
+    {
+        darkComboType,
+        runningType,
+        sprintType,
+        jumpType,
+        dashType
+    }
     public enum ItemType
     {
         devilItem,

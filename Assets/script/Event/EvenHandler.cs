@@ -3,7 +3,7 @@ using System;
 using Yushan.Enums;
 
 
-public delegate void MovementDelegate(float inputX, bool isWalking, bool isRunning, bool isSpringing, bool isDashing, bool isIdle, ToolEffect toolEffect, bool isDemonTransform, bool isDarkDoubleSpearKick);
+public delegate void DarkComboDelegate(bool isDarkSpinKick, bool isDarkWhirlWindKick, bool isDarkSweepKick, bool isDarkDoubleSweepKick, bool isDarkSpinHeadKick);
 
 public delegate void DemonDelegate(bool isDemon, bool isDemonIdle, bool isDemonPunch, bool isDemonPowerCharge, bool isDemonPowerPunch, bool isDemonSecondPunch, bool isDemonPowerCharge2, bool isDemonPowerPunch2);
 public static class EventHandler
@@ -20,7 +20,7 @@ public static class EventHandler
     }
     //movement event
 
-    public static event MovementDelegate MovementEvent;
+
     public static event DemonDelegate DemonEvent;
     //demon actions event call for publishers
     public static void CallDemonEvent(bool isDemon, bool isDemonIdle, bool isDemonPunch, bool isDemonPowerCharge, bool isDemonPowerPunch, bool isDemonSecondPunch, bool isDemonPowerCharge2, bool isDemonPowerPunch2)
@@ -31,15 +31,15 @@ public static class EventHandler
         }
     }
 
-    //movement event call for publishers
+    //dark combo system call for publishers
 
-    public static void CallMovementEvent(float inputX, bool isWalking, bool isRunning, bool isSprinting, bool isDashing, bool isIdle, ToolEffect toolEffect, bool isDemonTransform, bool isDarkDoubleSpearKick)
+    public static event DarkComboDelegate DarkComboEvent;
+    public static void CallDarkComboEvent(bool isDarkSpinKick, bool isDarkWhirlWindKick, bool isDarkSweepKick, bool isDarkDoubleSweepKick, bool isDarkSpinHeadKick)
     {
-        if (MovementEvent != null)
+        if (DarkComboEvent != null)
         {
-            MovementEvent(inputX, isWalking, isRunning, isSprinting, isDashing, isIdle, toolEffect, isDemonTransform, isDarkDoubleSpearKick);
+            DarkComboEvent(isDarkSpinKick, isDarkWhirlWindKick, isDarkSweepKick, isDarkDoubleSweepKick, isDarkSpinHeadKick);
         }
+
     }
-
-
 }

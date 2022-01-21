@@ -24,7 +24,7 @@ namespace Yushan.DarkType
         private Animator animator;
         public static DarkTypeMoves Instance { get; private set; }
 
-        public Yushan_Type yushan_Type;
+
 
         private AnimatorStateInfo animatorStateInfo;
         public AnimatorStateInfo[] arrayStateInfo;
@@ -55,7 +55,7 @@ namespace Yushan.DarkType
             hashToClip.Add(darkDoubleSpearKickAnimHash, darkDoubleSpearKickClip);
             hashToClip.Add(darkKneeKickAnimHash, darkKneeKickClip);
             hashToClip.Add(darkCrossKickAnimHash, darkCrossKickClip);
-            yushan_Type = Yushan_Type.darkenType;
+
         }
 
         private void Update()
@@ -63,11 +63,11 @@ namespace Yushan.DarkType
             animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
             if (animatorStateInfo.IsTag("motion"))
             {
-                if (yushan_Type == Yushan_Type.darkenType)
+                if (Player.Instance.yushan_Type == Yushan_Type.darkenType && Player.Instance.yushan_Move_Type == Yushan_Move_type.dashType)
                 {
-                    Debug.Log("lateupdatemotion");
+                    Debug.Log("dashtype");
 
-                    if (Input.GetKeyDown(KeyCode.K) && Player.Instance.dash)
+                    if (Input.GetKeyDown(KeyCode.K))
                     {
 
 
@@ -87,83 +87,87 @@ namespace Yushan.DarkType
 
                 }
 
-
-
-                if (Input.GetKeyDown(KeyCode.K) && Player.Instance.isSprinting && !Player.Instance.dash)
+                if (Player.Instance.yushan_Move_Type == Yushan_Move_type.runningType)
                 {
-                    Debug.Log("mousedown isrunning" + Player.Instance.isRunning);
-
-
-                    Debug.Log("player isruun right");
-                    timerIsRunniing = true;
-                    while (timerIsRunniing)
+                    Debug.Log("runningtype");
+                    if (Input.GetKeyDown(KeyCode.K))
                     {
-                        if (timeRemaining > 0f)
+                        Debug.Log("mousedown isrunning" + Player.Instance.isRunning);
+
+
+                        Debug.Log("player isruun right");
+                        timerIsRunniing = true;
+                        while (timerIsRunniing)
                         {
-                            startTime += Time.deltaTime;
-
-                            if (startTime >= timeRemaining)
+                            if (timeRemaining > 0f)
                             {
-                                readyToKick = true;
+                                startTime += Time.deltaTime;
 
-                                if (readyToKick)
+                                if (startTime >= timeRemaining)
                                 {
-                                    StartCoroutine(AttackCo());
-                                    startTime = 0;
-                                    timerIsRunniing = false;
-                                    readyToKick = false;
-                                    break;
+                                    readyToKick = true;
+
+                                    if (readyToKick)
+                                    {
+                                        StartCoroutine(AttackCo());
+                                        startTime = 0;
+                                        timerIsRunniing = false;
+                                        readyToKick = false;
+                                        break;
+                                    }
+
+
                                 }
-
-
                             }
-                        }
 
+
+
+                        }
 
 
                     }
 
-
-                }
-
-                if (Input.GetKeyDown(KeyCode.K) && Player.Instance.isSprinting && !Player.Instance.dash)
-                {
-
-                    timerIsRunniing = true;
-
-                    Debug.Log("playerrunningleft");
-
-                    while (timerIsRunniing)
+                    if (Input.GetKeyDown(KeyCode.K))
                     {
-                        if (timeRemaining > 0f)
+
+                        timerIsRunniing = true;
+
+                        Debug.Log("playerrunningleft");
+
+                        while (timerIsRunniing)
                         {
-                            startTime += Time.deltaTime;
-
-                            if (startTime >= timeRemaining)
+                            if (timeRemaining > 0f)
                             {
+                                startTime += Time.deltaTime;
 
-                                readyToKick = true;
-                                if (readyToKick)
+                                if (startTime >= timeRemaining)
                                 {
-                                    StartCoroutine(AttackCo());
-                                    startTime = 0;
-                                    timerIsRunniing = false;
-                                    readyToKick = false;
-                                    break;
+
+                                    readyToKick = true;
+                                    if (readyToKick)
+                                    {
+                                        StartCoroutine(AttackCo());
+                                        startTime = 0;
+                                        timerIsRunniing = false;
+                                        readyToKick = false;
+                                        break;
+                                    }
+
+
+
+
                                 }
-
-
-
-
                             }
                         }
+
                     }
 
+
+
                 }
-
-
 
             }
+
 
 
 
@@ -206,15 +210,7 @@ namespace Yushan.DarkType
             Debug.Log("stop");
             Player.Instance.rigidbody2D.velocity = Vector2.zero;
         }
-        public void ActivedAttack()
-        {
 
-            actived = true;
-        }
-        public void ActivedFalse()
-        {
-            actived = false;
-        }
         private void DarkKneeKick()
         {
             Debug.Log("darkkneekick");
