@@ -7,7 +7,8 @@ namespace Yushan.Enums
         runningType,
         sprintType,
         jumpType,
-        dashType
+        dashType,
+        count
     }
     public enum ItemType
     {

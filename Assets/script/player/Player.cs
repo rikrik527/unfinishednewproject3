@@ -8,43 +8,103 @@ using Yushan.abilities;
 using Yushan.DemonType;
 using Yushan.combo;
 using Yushan.DarkType;
+using System;
 
 namespace Yushan.movement
 {
     public class Player : SingletonMonobehaviour<Player>
     {
-        public Yushan_Type yushan_Type = Yushan_Type.fatType;
+        public Yushan_Type yushan_Type;
+        [Header("Components")]
+        public Rigidbody2D rigidbody2D;
+        public Animator animator;
+
+        [Header("Layer Masks")]
+        [SerializeField] private LayerMask cornerCorrectLayer;
+        [SerializeField] private LayerMask groundLayer;
+        [SerializeField] private LayerMask wallLayer;
+        [Header("Movement Variables")]
+        [SerializeField] private float movementAcceleration = 70f;
+        [SerializeField] private float maxMoveSpeed = 6.66f;
+        [SerializeField] private float groundLinearDrag = 7f;
+        public float movY;
+        public float movX;
+        public bool changeDirection => (rigidbody2D.velocity.x > 0f && movX < 0f) || (rigidbody2D.velocity.x < 0f && movX > 0f);
+        public bool facingRight = true;
+        public bool canMove => !wallGrab;
+
+        [Header("jump variable")]
+        [SerializeField] private float jumpForce = 12f;
+        [SerializeField] private float airLinearDrag = 2.5f;
+        [SerializeField] private float fallMultiplier = 8f;
+        [SerializeField] private float lowJumpFallMultiplier = 5f;
+        [SerializeField] private float downMultiplier = 12f;
+        [SerializeField] private int extraJumps = 1;
+        [SerializeField] private float hangTime = .1f;
+        [SerializeField] private float jumpBufferLength;
+        private int extraJumpValue;
+        private float hangTimeCounter;
+        private float jumpBufferCounter;
+        private bool canJump => jumpBufferCounter > 0f && (hangTimeCounter > 0f || extraJumpValue > 0 || onWall);
+        private bool isJumping = false;
+
+        [Header("wall movement variables")]
+        [SerializeField] private float wallSliderModifier = 0.5f;
+        [SerializeField] private float wallRunModifier = 0.85f;
+        [SerializeField] private float wallJumpXVelocityHaltDelay = 0.2f;
+        private bool wallGrab => onWall && !onGround && Input.GetKey(KeyCode.H) && !wallRun;
+        private bool wallSlide => onWall && !onGround && !Input.GetKey(KeyCode.H) && rigidbody2D.velocity.y < 0f && !wallRun;
+        private bool wallRun => onWall && movY > 0f;
+
+
+        [Header("Ground collision Variables")]
+        [SerializeField] private float groundRaycastLength;
+        [SerializeField] private Vector3 groundRaycastOffset;
+        private bool onGround;
+
+        [Header("wall collision variables")]
+        [SerializeField] private float wallRaycastLength;
+        private bool onWall;
+        private bool onRightWall;
+
+        [Header("corner correction variables")]
+        [SerializeField] private float topRaycastLength;
+        [SerializeField] private Vector3 edgeRaycastOffset;
+        [SerializeField] private Vector3 innerRaycastOffset;
+        private bool canCornerCorrect;
 
         //type of yushan type
         private bool fatType;
         private bool darkenType;
         private bool demonType;
-        public float slowMotionTimeScale;
 
 
-        public bool isJumping;
+
+
         public bool isAttacking = false;
 
         public PlayerState currentStat;
         private Vector3 change;
-        public Transform dashPosition;
+
         public float runningSpeed = 10f;
         public float sprintingSpeed = 15f;
         public float dashForce = 3f;
         public float startDashTimer = 0.24f;
         public float currentDashTimer;
         public float dashDirection;
-        public bool isDashing = false;
 
-        public KeyCode tapLeft;
-        public KeyCode tapRight;
 
-        public int leftTotal = 0;
-        public float leftTimeDelay = 0;
-        public int rightTotal = 0;
-        public float rightTimeDelay = 0;
-        public float dashDuration = 2;
-        public int xVel = 0;
+        [Header("Dash Variables")]
+        public float dashSpeed = 15f;
+        public float dashLength = .3f;
+        public float dashBufferLength = .1f;
+        public float dashBufferCounter;
+        public bool isDashing;
+        public bool hasDashed;
+        public bool canDash => dashBufferCounter > 0f && !hasDashed;
+
+
+
 
         private AnimatorClipInfo[] animatorClipInfo;
         public Camera mainCamera;
@@ -70,7 +130,7 @@ namespace Yushan.movement
 
 
 
-        private Transform playerTransform;
+        public GameObject playerGameObject;
         private Transform point;
         [SerializeField] private GameObject followCamera;
         [SerializeField] private GameObject closeCamera;
@@ -83,9 +143,9 @@ namespace Yushan.movement
 
         private AnimatorStateInfo animatorStateInfo;
 
-        public float dashLerpSpeed;
 
-        private bool switchDemon;
+
+
 
 
         //running bool
@@ -93,7 +153,6 @@ namespace Yushan.movement
         public bool isRunningLeft;
 
 
-        public float movX;
         public Camera camera;
 
         // game start
@@ -103,33 +162,20 @@ namespace Yushan.movement
         private float lastImageXpos;
         private float lastDash = -100f;
         public float dashTime;
-        public float dashSpeed;
+
         public float distanceBetweenImages;
         public float dashCoolDown;
-        public bool canMove;
+
         public bool canFlip;
         public bool dash;
         //movement parameters
-        private float inputX;
-        private bool isIdle;
-        private bool isWalking;
+
         public bool isRunning;
-        public bool isDashingRight;
-        public bool isDashingLeft;
         public bool isSprinting;
         public bool isSlowingDown;
-        private bool isDemonTransform;
-        public bool isDemonPowerCharge;
-        private bool isDemonPunch;
-        private bool isDemonPowerPunch;
-        private bool isDemonIdle;
-        private bool isDemon;
-        private bool isDemonSecondPunch;
-        private bool isDemonPowerPunch2;
-        public bool isDemonPowerCharge2;
-        private bool isDarkDoubleSpearKick;
 
-        public Rigidbody2D rigidbody2D;
+
+
         public Yushan_Type yushanType;
         public Direction playerDirection;
         [SerializeField] private GameObject player;
@@ -144,19 +190,18 @@ namespace Yushan.movement
             set => _playerInputIsDisabled = value;
 
         }
-        [SerializeField]
-        private float jumpForce = 5.0f;
+
 
 
         [SerializeField] private GameObject followCameraLeft;
 
         [SerializeField]
-        private LayerMask groundLayer;
+
 
         private bool resetJump = false;
 
         public Yushan_Move_type yushan_Move_Type;
-        private Animator animator;
+
 
 
 
@@ -177,7 +222,7 @@ namespace Yushan.movement
         {
 
             animator = GetComponentInChildren<Animator>();
-            playerTransform = GetComponent<Transform>();
+
             point = GameObject.FindGameObjectWithTag(Tags.Point).GetComponent<Transform>();
             hashToClip.Add(darkDoubleSpearHash, darkDoubleSpearKickClip);
             mainCamera = Camera.main;
@@ -199,7 +244,7 @@ namespace Yushan.movement
             cinemachineTransposer = cinemachineVirtualCamera.GetCinemachineComponent<CinemachineTransposer>();
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             orthoSize = cinemachineVirtualCamera.m_Lens.OrthographicSize;
-
+            Debug.Log("candash" + canDash);
         }
 
 
@@ -209,7 +254,8 @@ namespace Yushan.movement
 
             animatorClipInfo = animator.GetCurrentAnimatorClipInfo(0);
 
-
+            movX = GetInput().x;
+            movY = GetInput().y;
 
 
             switch (yushanType)
@@ -247,12 +293,12 @@ namespace Yushan.movement
 
                     if (animatorStateInfo.IsTag("motion"))
                     {
-                        movX = Input.GetAxis("Horizontal");
+
 
                         Debug.Log("motion");
-                        if (movX > 0)
+                        if (GetInput().x > 0 && Input.GetKey(KeyCode.D))
                         {
-                            canMove = true;
+
                             if (canMove)
                             {
                                 isRunning = true;
@@ -272,7 +318,7 @@ namespace Yushan.movement
                                     animator.SetBool("isRunRight", false);
                                 }
 
-                                playerTransform.Translate(runningSpeed * Time.deltaTime, 0, 0);
+                                playerGameObject.transform.Translate(runningSpeed * Time.deltaTime, 0, 0);
                                 Debug.Log("isrunningright" + isRunning);
                                 playerDirection = Direction.right;
                                 if (playerDirection == Direction.right)
@@ -288,9 +334,9 @@ namespace Yushan.movement
                             }
 
                         }
-                        else if (movX < 0)
+                        else if (GetInput().x < 0 && Input.GetKey(KeyCode.A))
                         {
-                            canMove = true;
+
                             if (canMove)
                             {
                                 isRunning = true;
@@ -310,7 +356,7 @@ namespace Yushan.movement
                                     animator.SetBool("isRunLeft", false);
                                 }
 
-                                playerTransform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
+                                playerGameObject.transform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
                                 Debug.Log("isrunningright" + isRunning);
                                 playerDirection = Direction.left;
                                 if (playerDirection == Direction.left)
@@ -326,7 +372,7 @@ namespace Yushan.movement
 
                             }
                         }
-                        if (movX > 0 && isRunning && Input.GetKey(KeyCode.M))
+                        if (GetInput().x > 0 && isRunning && Input.GetKey(KeyCode.M))
                         {
                             isSprinting = true;
                             if (isSprinting)
@@ -340,7 +386,7 @@ namespace Yushan.movement
                                     animator.SetBool("isRunRight", false);
                                     animator.SetBool("isRunning", false);
                                     animator.SetBool("isSprintRight", true);
-                                    playerTransform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
+                                    playerGameObject.transform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
                                 }
                                 if (Input.GetKeyUp(KeyCode.D))
                                 {
@@ -353,7 +399,7 @@ namespace Yushan.movement
                             }
 
                         }
-                        if (movX < 0 && isRunning && Input.GetKey(KeyCode.M))
+                        if (GetInput().x < 0 && isRunning && Input.GetKey(KeyCode.M))
                         {
                             isSprinting = true;
                             if (isSprinting)
@@ -368,7 +414,7 @@ namespace Yushan.movement
                                     animator.SetBool("isRunning", false);
                                     animator.SetBool("isRunLeft", false);
                                     animator.SetBool("isSprintLeft", true);
-                                    playerTransform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
+                                    playerGameObject.transform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
                                 }
                                 if (Input.GetKeyUp(KeyCode.A))
                                 {
@@ -391,7 +437,7 @@ namespace Yushan.movement
 
 
 
-                        if (Input.GetAxis("Horizontal") == 0)
+                        if (GetInput().x == 0)
                         {
                             isRunningLeft = false;
                             isRunningRight = false;
@@ -406,22 +452,32 @@ namespace Yushan.movement
                             animator.SetBool("isSprintLeft", false);
 
                         }
-                        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() == true)
+                        if (Input.GetButtonDown("Jump"))
                         {
-                            //jump
-                            Debug.Log("jump");
-                            isJumping = true;
-                            isSprinting = false;
-                            isRunning = false;
-                            rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, jumpForce);
-
-                            StartCoroutine(ResetJumpNeededRoutine());
+                            jumpBufferCounter = jumpBufferLength;
                         }
+                        else
+                        {
+                            jumpBufferCounter -= Time.deltaTime;
+                        }
+                        if (Input.GetButtonDown("Dash"))
+                        {
 
-
+                            dashBufferCounter = dashBufferLength;
+                            Debug.Log("j press" + canDash);
+                        }
+                        else
+                        {
+                            dashBufferCounter -= Time.deltaTime;
+                            Debug.Log("else" + canDash);
+                        }
+                        Animation();
                     }
 
+                    //if (animatorStateInfo.IsTag("dash"))
+                    //{
 
+                    //}
 
 
 
@@ -448,46 +504,159 @@ namespace Yushan.movement
             //Debug.Log(time);
 
         }
-        public void MoveYushanIsUsing()
-        {
-            if (isRunning)
-            {
-                yushan_Move_Type = Yushan_Move_type.runningType;
-                Debug.Log("runningtype" + yushan_Move_Type);
-            }
-            if (isSprinting)
-            {
-                yushan_Move_Type = Yushan_Move_type.sprintType;
-                Debug.Log("sprinttype" + Yushan_Move_type.sprintType);
-            }
-            if (isJumping)
-            {
-                yushan_Move_Type = Yushan_Move_type.jumpType;
-                Debug.Log("jumptype" + yushan_Move_Type);
-            }
-            if (dash)
-            {
-                yushan_Move_Type = Yushan_Move_type.dashType;
-            }
-            if (ComboSystem.Instance.isDarkComboSystem)
-            {
-                yushan_Move_Type = Yushan_Move_type.darkComboType;
-                Debug.Log("darkcombotype" + yushan_Move_Type);
-            }
-        }
+
+
+
+
+
+
         void FixedUpdate()
         {
-            if (Input.GetKeyDown(KeyCode.J) && movX != 0 && (IsGrounded() == true || IsGrounded() == false))
+            if (canDash) StartCoroutine(Dash(movX, movY));
+            if (!isDashing)
             {
-                Debug.Log("ready to attempdash is grounded or on air");
-                if (Time.time >= (lastDash + dashCoolDown))
+                if (canMove) MoveCharacter();
+                else
                 {
-                    StartCoroutine(AttemptToDash());
-
-
+                    rigidbody2D.velocity = Vector2.Lerp(rigidbody2D.velocity, (new Vector2(movX * maxMoveSpeed, rigidbody2D.velocity.y)), .5f * Time.deltaTime);
+                }
+                if (onGround)
+                {
+                    ApplyGroundLinearDrag();
+                    extraJumpValue = extraJumps;
+                    hangTimeCounter = hangTime;
+                    hasDashed = false;
+                }
+                else
+                {
+                    ApplyAirLinearDrag();
+                    FallMultiplier();
+                    hangTimeCounter -= Time.fixedDeltaTime;
+                    if (!onWall || rigidbody2D.velocity.y < 0f || wallRun)
+                    {
+                        isJumping = false;
+                    }
+                }
+                if (canJump)
+                {
+                    if (onwall && !onGround)
+                    {
+                        if (!wallRun && (onRightWall) && movX > 0f || !onRightWall && movX < 0f)
+                        {
+                            StartCoroutine(NeutralWallJump());
+                        }
+                        else
+                        {
+                            WallJump();
+                        }
+                        Flip();
+                    }
+                    else
+                    {
+                        Jump(Vector2.up);
+                    }
+                }
+                if (!isJumping)
+                {
+                    if (wallSlide) WallSlide();
+                    if (wallGrab) WallGrab();
+                    if (wallRun) WallRun();
+                    if (onWall) StickToWall();
                 }
             }
+            if (canCornerCorrect) cornerCorrectLayer(rigidbody2D.velocity.y);
+        }
+        private Vector2 GetInput()
+        {
+            return new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        }
 
+        private void MoveCharacter()
+        {
+            rigidbody2D.AddForce(new Vector2(movX, 0f) * movementAcceleration);
+            if (Mathf.Abs(rigidbody2D.velocity.x) > maxMoveSpeed)
+            {
+                rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
+            }
+        }
+        private void ApplyGroundLinearDrag()
+        {
+            if (Mathf.Abs(movX) < 0.4f || changeDirection)
+            {
+                Debug.Log("applygroubdlineardrag" + changeDirection);
+                rigidbody2D.drag = groundLinearDrag;
+            }
+            else
+            {
+                rigidbody2D.drag = 0f;
+            }
+        }
+        private void ApplyAirLinearDrag()
+        {
+            Debug.Log("applyairlineardrag");
+            rigidbody2D.drag = airLinearDrag;
+        }
+        private void Jump(Vector2 direction)
+        {
+            if (!onGround && !onWall)
+            {
+                extraJumpValue--;
+            }
+            ApplyAirLinearDrag();
+            rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, 0f);
+            rigidbody2D.AddForce(direction * jumpForce, ForceMode2D.Impulse);
+            hangTimeCounter = 0f;
+            jumpBufferCounter = 0f;
+            isJumping = false;
+        }
+        private void WallJump()
+        {
+
+            Vector2 jumpDirection = onRightWall ? Vector2.left : Vector2.right;
+            Jump(Vector2.up + jumpDirection);
+            Debug.Log("walljump" + jumpDirection);
+        }
+        IEnumerator Dash(float x, float y)
+        {
+            float dashStartTime = Time.time;
+            hasDashed = true;
+            isDashing = true;
+            isJumping = false;
+            rigidbody2D.velocity = Vector2.zero;
+            rigidbody2D.gravityScale = 0f;
+            rigidbody2D.drag = 0f;
+
+            Vector2 dir;
+            if (x != 0f || y != 0f) dir = new Vector2(x, y);
+            else
+            {
+                if (playerDirection == Direction.right)
+                {
+                    dir = new Vector2(1f, 0f);
+                }
+                else
+                {
+                    dir = new Vector2(-1f, 0f);
+                }
+            }
+            while (Time.time < dashStartTime + dashLength)
+            {
+                rigidbody2D.velocity = dir.normalized * dashSpeed;
+                yield return null;
+            }
+            isDashing = false;
+        }
+        void Animation()
+        {
+            if (isDashing)
+            {
+                animator.SetBool("isDashing", true);
+
+            }
+            else
+            {
+                animator.SetBool("isDashing", false);
+            }
         }
         private void LateUpdate()
         {
@@ -495,19 +664,7 @@ namespace Yushan.movement
             {
                 if (yushanType == Yushan_Type.darkenType)
                 {
-                    if (animatorStateInfo.IsName("dash") && animatorStateInfo.normalizedTime >= 0.99f)
-                    {
-                        Debug.Log("stop dash");
-                        dash = false;
-                        isDashing = false;
-                        rigidbody2D.velocity = Vector2.zero;
-                        Debug.Log("dash" + dash);
-                    }
-                    if (animatorStateInfo.IsName(Tags.isSlowingDown) && animatorStateInfo.normalizedTime >= 0.9f)
-                    {
-                        isSlowingDown = false;
-                        animator.SetBool("isSlowingDown", false);
-                    }
+
                 }
 
             }
@@ -519,7 +676,7 @@ namespace Yushan.movement
             Debug.Log("attemptodash");
             funcExcuted = false;
             isDashing = true;
-            canMove = false;
+
             canFlip = false;
             dashTimeLeft = dashTime;
             lastDash = Time.time;
@@ -557,53 +714,27 @@ namespace Yushan.movement
                 {
                     // || isTouchingWall
                     isDashing = false;
-                    canMove = true;
+
                     canFlip = true;
                 }
             }
         }
         public void Dash()
         {
-            Vector3 dashTargetPosition = dashPosition.position;
-            Vector3 playerPosition = playerTransform.position;
             dash = true;
 
-            animator.SetTrigger("isDash");
-            playerTransform.position = Vector3.MoveTowards(playerPosition, Vector3.Lerp(playerPosition, dashTargetPosition, dashLerpSpeed), dashSpeed * Time.deltaTime);
-            //rigidbody2D.velocity = new Vector2(dashSpeed * dashDirection, rigidbody2D.velocity.y);
-            if (playerDirection == Direction.right)
-            {
-                dashPosition.position = new Vector3(13f, 0, 0);
-            }
+            animator.SetTrigger("Dash");
 
-            if (playerDirection == Direction.left)
-            {
-                dashPosition.position = new Vector3(-13f, 0, 0);
-            }
+            playerGameObject.transform.Translate(dashSpeed * dashDirection, 0, 0);
+            //rigidbody2D.velocity = new Vector2(dashSpeed * dashDirection, rigidbody2D.velocity.y);
+
             Debug.Log("dash");
 
 
         }
 
-        // Update is called once per frame
 
 
-        public void InputDashLeft()
-        {
-
-        }
-        public void InputDashRight()
-        {
-
-        }
-        private void ResetMovement()
-        {
-            // reset movement
-            inputX = 0f;
-            isRunning = false;
-            isWalking = false;
-            isIdle = true;
-        }
         public void DisablePlayerInputAndResetMovement()
         {
             DisablePlayerInput();
@@ -638,21 +769,7 @@ namespace Yushan.movement
             animator.Play("demon second punch");
         }
 
-        public void DemonPowerPunch()
-        {
-            Debug.Log("demon power punch");
-            if (Input.GetMouseButtonDown(1) && isDemon && animatorStateInfo.IsName(Tags.DemonPunch) && animatorStateInfo.normalizedTime <= 0.6f)
-            {
-                isDemonPowerCharge = true;
 
-            }
-            if (Input.GetMouseButton(1) && isDemon && isDemonPowerCharge)
-            {
-                Debug.Log(animatorStateInfo.IsName(Tags.DemonPowerCharge) + "isdemonpowercharge");
-                isDemonPowerPunch = true;
-            }
-
-        }
         //dark yushan
 
 
@@ -726,16 +843,7 @@ namespace Yushan.movement
         }
 
 
-        private void ResetAnimationTriggers()
-        {
-            isDemonPunch = false;
-            isDemonSecondPunch = false;
-            isWalking = false;
-            isRunning = false;
 
-            isSprinting = false;
-            toolEffect = ToolEffect.none;
-        }
 
 
 
@@ -766,7 +874,7 @@ namespace Yushan.movement
             //    break;
             //}
 
-            if (isSprinting == true && orthoSize <= 14f)
+            if (isSprinting == true)
             {
                 followCamera.SetActive(false);
                 followCameraLeft.SetActive(true);
@@ -774,7 +882,7 @@ namespace Yushan.movement
 
             }
 
-            else if (isSprinting == false && orthoSize >= 8.345f)
+            else if (isSprinting == false)
             {
                 followCamera.SetActive(true);
                 followCameraLeft.SetActive(false);
@@ -826,8 +934,8 @@ namespace Yushan.movement
         IEnumerator StartGameTransition()
         {
             yield return new WaitForSeconds(1.0f);
-            cinemachineVirtualCamera.Follow = playerTransform;
-            cinemachineVirtualCamera.LookAt = playerTransform;
+            cinemachineVirtualCamera.Follow = playerGameObject.transform;
+            cinemachineVirtualCamera.LookAt = playerGameObject.transform;
             gameStart = true;
         }
         public Vector3 GetPlayerViewPortPosition()

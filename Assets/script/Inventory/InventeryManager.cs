@@ -30,16 +30,16 @@ public class InventeryManager : SingletonMonobehaviour<InventeryManager>
         for (int i = 0; i < (int)InventoryLocation.count; i++)
         {
             inventoryLists[i] = new List<InventoryItem>();
-            Debug.Log("inventorylists[i]" + inventoryLists[i].ToString());
+
         }
         // initialise inventory list capacity array
         inventoryListCapacityIntArray = new int[(int)InventoryLocation.count];
 
-        Debug.Log("inventorylistcapacityintarray = new int[(int)InventoryLocation.count" + inventoryListCapacityIntArray);
+
 
         // initialise player inventory list capacity
         inventoryListCapacityIntArray[(int)InventoryLocation.player] = Settings.playerInitialInventoryCapacity;
-        Debug.Log("inventoryListCapacityIntArray[(int)InventoryLocation.player]" + inventoryListCapacityIntArray[(int)InventoryLocation.player] + "ddd" + Settings.playerInitialInventoryCapacity);
+
     }
     /// <summary>
     /// add an item to the inventory list for the inventorylocation and then destroy the gameobjectodelete

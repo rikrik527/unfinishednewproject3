@@ -32,22 +32,11 @@ namespace Yushan.combo
         private void Start()
         {
             animator = GetComponent<Animator>();
-
-
+            isDarkComboSystem = true;
         }
         private void Update()
         {
             animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-            if (Player.Instance.yushan_Move_Type == Yushan_Move_type.darkComboType)
-            {
-                Debug.Log("isdarkcombosystem is true");
-                isDarkComboSystem = true;
-            }
-            else
-            {
-                Debug.Log("isdarkcombosystem" + isDarkComboSystem);
-                isDarkComboSystem = false;
-            }
 
             if (Player.Instance.yushanType == Yushan_Type.darkenType)
             {
@@ -63,6 +52,8 @@ namespace Yushan.combo
                 }
                 EventHandler.CallDarkComboEvent(isDarkSpinKick, isDarkWhirlWindKick, isDarkSweepKick, isDarkDoubleSweepKick, isDarkSpinHeadKick);
             }
+
+
 
         }
         public void ComboPossible()
@@ -92,6 +83,7 @@ namespace Yushan.combo
                 }
                 if (comboStep == 5)
                 {
+                    Debug.Log("isdarkspinheadkick" + isDarkSpinHeadKick);
                     isDarkSpinHeadKick = true;
                 }
             }

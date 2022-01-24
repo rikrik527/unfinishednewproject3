@@ -5,19 +5,26 @@ using Yushan.Enums;
 using Yushan.DarkAbilites;
 using Yushan.movement;
 using System;
+using Yushan.combo;
 
 namespace Yushan.DarkType
 {
     public class DarkTypeMoves : MonoBehaviour
     {
-        public float darkDoubleSpearKickForce = 20f;
+        [Header("dark knee kick variables")]
         public float darkKneeKickForce = 20f;
+        public float darkKneeKickLength = .3f;
+        public bool isDarkKneeKick;
+
+
+
+
+        public float darkDoubleSpearKickForce = 20f;
+
         public float kickDirection;
         public bool readyToKick;
+        public bool isDashMovesReady;
 
-        [SerializeField] private float curSpeed = 0.0f;
-        [SerializeField] private float maxSpeed = 10f;
-        [SerializeField] private float accelertation = 5.0f;
         public float timeRemaining = 1.8f;
         public bool timerIsRunniing = false;
         public float startTime = 0f;
@@ -28,7 +35,7 @@ namespace Yushan.DarkType
 
         private AnimatorStateInfo animatorStateInfo;
         public AnimatorStateInfo[] arrayStateInfo;
-        public bool isDarkKneeKick;
+
         private Transform playerTransform;
         private BoxCollider2D boxCollider2D;//player boxcollider2d
         //get the animation state hash for each Animation state
@@ -61,35 +68,42 @@ namespace Yushan.DarkType
         private void Update()
         {
             animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            kickDirection = (int)Player.Instance.movX;
             if (animatorStateInfo.IsTag("motion"))
             {
-                if (Player.Instance.yushan_Type == Yushan_Type.darkenType && Player.Instance.yushan_Move_Type == Yushan_Move_type.dashType)
+                ComboSystem.Instance.isDarkComboSystem = false;
+                if (Player.Instance.yushan_Type == Yushan_Type.darkenType)
                 {
                     Debug.Log("dashtype");
-
-                    if (Input.GetKeyDown(KeyCode.K))
+                    if (isDashMovesReady = true)
                     {
+                        if (Input.GetKeyDown(KeyCode.K))
+                        {
 
 
 
-                        Debug.Log("k press is dash knee kick" + Player.Instance.dash);
+                            Debug.Log("k press is dash knee kick" + Player.Instance.isDashing);
 
 
-                        //Player.Instance.rigidbody2D.velocity = Vector2.zero;
-                        //Player.Instance.dashDirection = (int)Player.Instance.movX;
-                        DarkKneeKick();
+                            //Player.Instance.rigidbody2D.velocity = Vector2.zero;
+                            //Player.Instance.dashDirection = (int)Player.Instance.movX;
+                            DarkKneeKick();
+
+                            StartCoroutine(TurnOnComboSystem());
 
 
-
-
+                        }
                     }
 
 
-                }
 
-                if (Player.Instance.yushan_Move_Type == Yushan_Move_type.runningType)
+                }
+            }
+            if (animatorStateInfo.IsTag("motion"))
+            {
+                ComboSystem.Instance.isDarkComboSystem = false;
+                if (Player.Instance.isRunning)
                 {
-                    Debug.Log("runningtype");
                     if (Input.GetKeyDown(KeyCode.K))
                     {
                         Debug.Log("mousedown isrunning" + Player.Instance.isRunning);
@@ -97,7 +111,7 @@ namespace Yushan.DarkType
 
                         Debug.Log("player isruun right");
                         timerIsRunniing = true;
-                        while (timerIsRunniing)
+                        if (timerIsRunniing)
                         {
                             if (timeRemaining > 0f)
                             {
@@ -105,16 +119,13 @@ namespace Yushan.DarkType
 
                                 if (startTime >= timeRemaining)
                                 {
-                                    readyToKick = true;
 
-                                    if (readyToKick)
-                                    {
-                                        StartCoroutine(AttackCo());
-                                        startTime = 0;
-                                        timerIsRunniing = false;
-                                        readyToKick = false;
-                                        break;
-                                    }
+                                    StartCoroutine(AttackCo());
+                                    startTime = 0;
+                                    timerIsRunniing = false;
+
+                                    StartCoroutine(TurnOnComboSystem());
+
 
 
                                 }
@@ -134,7 +145,7 @@ namespace Yushan.DarkType
 
                         Debug.Log("playerrunningleft");
 
-                        while (timerIsRunniing)
+                        if (timerIsRunniing)
                         {
                             if (timeRemaining > 0f)
                             {
@@ -143,35 +154,33 @@ namespace Yushan.DarkType
                                 if (startTime >= timeRemaining)
                                 {
 
-                                    readyToKick = true;
-                                    if (readyToKick)
-                                    {
-                                        StartCoroutine(AttackCo());
-                                        startTime = 0;
-                                        timerIsRunniing = false;
-                                        readyToKick = false;
-                                        break;
-                                    }
+
+                                    StartCoroutine(AttackCo());
+                                    startTime = 0;
+                                    timerIsRunniing = false;
 
 
 
+                                    StartCoroutine(TurnOnComboSystem());
 
                                 }
                             }
                         }
 
                     }
-
-
-
                 }
+
+
+
 
             }
 
 
 
-
         }
+
+
+
 
 
 
@@ -195,16 +204,16 @@ namespace Yushan.DarkType
                     Stop();
                 }
             }
-            if (animatorStateInfo.IsName(Tags.Dash) && animatorStateInfo.normalizedTime >= 0.9f)
-            {
-                Debug.Log("dash stops");
-                Stop();
-            }
 
 
 
         }
-
+        private IEnumerator TurnOnComboSystem()
+        {
+            yield return new WaitForSeconds(1f);
+            ComboSystem.Instance.isDarkComboSystem = true;
+            Debug.Log("turn on comnbo system");
+        }
         public void Stop()
         {
             Debug.Log("stop");
@@ -217,7 +226,6 @@ namespace Yushan.DarkType
 
             isDarkKneeKick = true;
             animator.SetTrigger("isDarkKneeKick");
-            Player.Instance.transform.position = transform.right * Player.Instance.dashDirection * darkKneeKickForce;
 
 
 
@@ -228,7 +236,31 @@ namespace Yushan.DarkType
 
 
         }
+        public void DarkKneeKickForce()
+        {
+            float kickStartTime = Time.time;
+            Debug.Log("trigger dark knee kick force");
 
+            Player.Instance.rigidbody2D.velocity = Vector2.zero;
+            Player.Instance.rigidbody2D.gravityScale = 0f;
+            Player.Instance.rigidbody2D.drag = 0f;
+            Vector2 dir = new Vector2(kickDirection, 0f);
+            while (Time.time < kickStartTime + darkKneeKickLength)
+            {
+                Player.Instance.rigidbody2D.velocity = dir.normalized * darkKneeKickForce;
+                break;
+            }
+            isDarkKneeKick = false;
+            Debug.Log("isdarkkneekick" + isDarkKneeKick);
+        }
+        public void IsDashMovesReady()
+        {
+            isDashMovesReady = true;
+        }
+        public void IsDashMovesNotReady()
+        {
+            isDashMovesReady = false;
+        }
         public void DarkDoubleSpearKick()
         {
 
@@ -237,7 +269,7 @@ namespace Yushan.DarkType
             animator.SetTrigger("isDarkDoubleSpearKick");
             //float time = GetCurrentAnimatorTime(animator, 1);
             //Debug.Log(time);
-            kickDirection = (int)Player.Instance.movX;
+
             Player.Instance.rigidbody2D.velocity = transform.right *
             kickDirection * darkDoubleSpearKickForce;
 
