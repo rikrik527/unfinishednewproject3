@@ -32,7 +32,7 @@ namespace Yushan.combo
         private void Start()
         {
             animator = GetComponent<Animator>();
-            isDarkComboSystem = true;
+
         }
         private void Update()
         {

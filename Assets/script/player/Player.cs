@@ -25,6 +25,8 @@ namespace Yushan.movement
         [SerializeField] private LayerMask wallLayer;
         [Header("Movement Variables")]
         [SerializeField] private float movementAcceleration = 70f;
+        [SerializeField] private float sprintAcceleration = 90f;
+        [SerializeField] private float maxSprintSpeed = 9.99f;
         [SerializeField] private float maxMoveSpeed = 6.66f;
         [SerializeField] private float groundLinearDrag = 7f;
         public float movY;
@@ -148,9 +150,7 @@ namespace Yushan.movement
 
 
 
-        //running bool
-        public bool isRunningRight;
-        public bool isRunningLeft;
+
 
 
         public Camera camera;
@@ -171,7 +171,7 @@ namespace Yushan.movement
         //movement parameters
 
         public bool isRunning;
-        public bool isSprinting;
+        public bool isSprint;
         public bool isSlowingDown;
 
 
@@ -296,163 +296,163 @@ namespace Yushan.movement
 
 
                         Debug.Log("motion");
-                        if (GetInput().x > 0 && Input.GetKey(KeyCode.D))
-                        {
+                        //if (GetInput().x > 0 && Input.GetKey(KeyCode.D))
+                        //{
 
-                            if (canMove)
-                            {
-                                isRunning = true;
-                                isRunningRight = true;
-                                isRunningLeft = false;
-                                if (isRunning)
-                                {
-                                    isSprinting = false;
-                                }
+                        //    if (canMove)
+                        //    {
+                        //        isRunning = true;
+                        //        isRunningRight = true;
+                        //        isRunningLeft = false;
+                        //        if (isRunning)
+                        //        {
+                        //            isSprinting = false;
+                        //        }
 
-                                if (IsGrounded() == true)
-                                {
-                                    animator.SetBool("isRunRight", true);
-                                }
-                                else if (IsGrounded() == false)
-                                {
-                                    animator.SetBool("isRunRight", false);
-                                }
+                        //        if (IsGrounded() == true)
+                        //        {
+                        //            animator.SetBool("isRunRight", true);
+                        //        }
+                        //        else if (IsGrounded() == false)
+                        //        {
+                        //            animator.SetBool("isRunRight", false);
+                        //        }
 
-                                playerGameObject.transform.Translate(runningSpeed * Time.deltaTime, 0, 0);
-                                Debug.Log("isrunningright" + isRunning);
-                                playerDirection = Direction.right;
-                                if (playerDirection == Direction.right)
-                                {
-                                    canFlip = true;
-                                    if (canFlip)
-                                    {
-                                        spriteRenderer.flipX = false;
-                                    }
+                        //        playerGameObject.transform.Translate(runningSpeed * Time.deltaTime, 0, 0);
+                        //        Debug.Log("isrunningright" + isRunning);
+                        //        playerDirection = Direction.right;
+                        //        if (playerDirection == Direction.right)
+                        //        {
+                        //            canFlip = true;
+                        //            if (canFlip)
+                        //            {
+                        //                spriteRenderer.flipX = false;
+                        //            }
 
-                                }
+                        //        }
 
-                            }
+                        //    }
 
-                        }
-                        else if (GetInput().x < 0 && Input.GetKey(KeyCode.A))
-                        {
+                        //}
+                        //else if (GetInput().x < 0 && Input.GetKey(KeyCode.A))
+                        //{
 
-                            if (canMove)
-                            {
-                                isRunning = true;
-                                isRunningRight = false;
-                                isRunningLeft = true;
+                        //    if (canMove)
+                        //    {
+                        //        isRunning = true;
+                        //        isRunningRight = false;
+                        //        isRunningLeft = true;
 
-                                if (isRunning)
-                                {
-                                    isSprinting = false;
-                                }
-                                if (IsGrounded() == true)
-                                {
-                                    animator.SetBool("isRunLeft", true);
-                                }
-                                else if (IsGrounded() == false)
-                                {
-                                    animator.SetBool("isRunLeft", false);
-                                }
+                        //        if (isRunning)
+                        //        {
+                        //            isSprinting = false;
+                        //        }
+                        //        if (IsGrounded() == true)
+                        //        {
+                        //            animator.SetBool("isRunLeft", true);
+                        //        }
+                        //        else if (IsGrounded() == false)
+                        //        {
+                        //            animator.SetBool("isRunLeft", false);
+                        //        }
 
-                                playerGameObject.transform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
-                                Debug.Log("isrunningright" + isRunning);
-                                playerDirection = Direction.left;
-                                if (playerDirection == Direction.left)
-                                {
-                                    canFlip = true;
-                                    if (canFlip)
-                                    {
-                                        spriteRenderer.flipX = true;
-                                    }
+                        //        playerGameObject.transform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
+                        //        Debug.Log("isrunningright" + isRunning);
+                        //        playerDirection = Direction.left;
+                        //        if (playerDirection == Direction.left)
+                        //        {
+                        //            canFlip = true;
+                        //            if (canFlip)
+                        //            {
+                        //                spriteRenderer.flipX = true;
+                        //            }
 
-                                }
-
-
-                            }
-                        }
-                        if (GetInput().x > 0 && isRunning && Input.GetKey(KeyCode.M))
-                        {
-                            isSprinting = true;
-                            if (isSprinting)
-                            {
-                                isRunning = false;
-                                isRunningRight = false;
-                                isRunningLeft = false;
-                                Debug.Log("isspritnt");
-                                if (Input.GetKey(KeyCode.D))
-                                {
-                                    animator.SetBool("isRunRight", false);
-                                    animator.SetBool("isRunning", false);
-                                    animator.SetBool("isSprintRight", true);
-                                    playerGameObject.transform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
-                                }
-                                if (Input.GetKeyUp(KeyCode.D))
-                                {
-                                    Debug.Log("keyupD");
-                                    isSprinting = false;
-                                    isSlowingDown = true;
-                                    animator.SetBool("isSprintRight", false);
-                                    animator.SetTrigger("isSlowingDown");
-                                }
-                            }
-
-                        }
-                        if (GetInput().x < 0 && isRunning && Input.GetKey(KeyCode.M))
-                        {
-                            isSprinting = true;
-                            if (isSprinting)
-                            {
-
-                                isRunning = false;
-                                Debug.Log("issprintleft");
-                                isRunningRight = false;
-                                isRunningLeft = false;
-                                if (Input.GetKey(KeyCode.A))
-                                {
-                                    animator.SetBool("isRunning", false);
-                                    animator.SetBool("isRunLeft", false);
-                                    animator.SetBool("isSprintLeft", true);
-                                    playerGameObject.transform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
-                                }
-                                if (Input.GetKeyUp(KeyCode.A))
-                                {
-                                    Debug.Log("keyup left sprint");
-                                    isSprinting = false;
-                                    isSlowingDown = true;
-                                    animator.SetBool("isSprintingLeft", false);
-                                    animator.SetBool("isSlowingDown", true);
-                                }
-                            }
+                        //        }
 
 
-                        }
+                        //    }
+                        //}
+                        //if (GetInput().x > 0 && isRunning && Input.GetKey(KeyCode.M))
+                        //{
+                        //    isSprinting = true;
+                        //    if (isSprinting)
+                        //    {
+                        //        isRunning = false;
+                        //        isRunningRight = false;
+                        //        isRunningLeft = false;
+                        //        Debug.Log("isspritnt");
+                        //        if (Input.GetKey(KeyCode.D))
+                        //        {
+                        //            animator.SetBool("isRunRight", false);
+                        //            animator.SetBool("isRunning", false);
+                        //            animator.SetBool("isSprintRight", true);
+                        //            playerGameObject.transform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
+                        //        }
+                        //        if (Input.GetKeyUp(KeyCode.D))
+                        //        {
+                        //            Debug.Log("keyupD");
+                        //            isSprinting = false;
+                        //            isSlowingDown = true;
+                        //            animator.SetBool("isSprintRight", false);
+                        //            animator.SetTrigger("isSlowingDown");
+                        //        }
+                        //    }
+
+                        //}
+                        //if (GetInput().x < 0 && isRunning && Input.GetKey(KeyCode.M))
+                        //{
+                        //    isSprinting = true;
+                        //    if (isSprinting)
+                        //    {
+
+                        //        isRunning = false;
+                        //        Debug.Log("issprintleft");
+                        //        isRunningRight = false;
+                        //        isRunningLeft = false;
+                        //        if (Input.GetKey(KeyCode.A))
+                        //        {
+                        //            animator.SetBool("isRunning", false);
+                        //            animator.SetBool("isRunLeft", false);
+                        //            animator.SetBool("isSprintLeft", true);
+                        //            playerGameObject.transform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
+                        //        }
+                        //        if (Input.GetKeyUp(KeyCode.A))
+                        //        {
+                        //            Debug.Log("keyup left sprint");
+                        //            isSprinting = false;
+                        //            isSlowingDown = true;
+                        //            animator.SetBool("isSprintingLeft", false);
+                        //            animator.SetBool("isSlowingDown", true);
+                        //        }
+                        //    }
 
 
-                        dashDirection = (int)movX;
+                        //}
 
 
+                        //dashDirection = (int)movX;
 
 
 
 
-                        if (GetInput().x == 0)
-                        {
-                            isRunningLeft = false;
-                            isRunningRight = false;
-                            isDashing = false;
-                            isRunning = false;
-                            isSprinting = false;
-                            dash = false;
-                            animator.SetBool("isSprinting", false);
-                            animator.SetBool("isRunRight", false);
-                            animator.SetBool("isRunLeft", false);
-                            animator.SetBool("isSprintRight", false);
-                            animator.SetBool("isSprintLeft", false);
 
-                        }
-                        if (Input.GetButtonDown("Jump"))
+
+                        //if (GetInput().x == 0)
+                        //{
+                        //    isRunningLeft = false;
+                        //    isRunningRight = false;
+                        //    isDashing = false;
+                        //    isRunning = false;
+                        //    isSprinting = false;
+                        //    dash = false;
+                        //    animator.SetBool("isSprinting", false);
+                        //    animator.SetBool("isRunRight", false);
+                        //    animator.SetBool("isRunLeft", false);
+                        //    animator.SetBool("isSprintRight", false);
+                        //    animator.SetBool("isSprintLeft", false);
+
+                        //}
+                        if (Input.GetKeyDown(KeyCode.Space))
                         {
                             jumpBufferCounter = jumpBufferLength;
                         }
@@ -471,7 +471,7 @@ namespace Yushan.movement
                             dashBufferCounter -= Time.deltaTime;
                             Debug.Log("else" + canDash);
                         }
-                        Animation();
+
                     }
 
                     //if (animatorStateInfo.IsTag("dash"))
@@ -492,7 +492,7 @@ namespace Yushan.movement
 
 
 
-
+            Animation();
 
             CameraPlayerPosition();
 
@@ -512,6 +512,7 @@ namespace Yushan.movement
 
         void FixedUpdate()
         {
+            CheckCollisions();
             if (canDash) StartCoroutine(Dash(movX, movY));
             if (!isDashing)
             {
@@ -539,7 +540,7 @@ namespace Yushan.movement
                 }
                 if (canJump)
                 {
-                    if (onwall && !onGround)
+                    if (onWall && !onGround)
                     {
                         if (!wallRun && (onRightWall) && movX > 0f || !onRightWall && movX < 0f)
                         {
@@ -564,7 +565,12 @@ namespace Yushan.movement
                     if (onWall) StickToWall();
                 }
             }
-            if (canCornerCorrect) cornerCorrectLayer(rigidbody2D.velocity.y);
+            if (canCornerCorrect) CornerCorrect(rigidbody2D.velocity.y);
+        }
+        void Flip()
+        {
+            facingRight = !facingRight;
+            transform.Rotate(0f, 180f, 0f);
         }
         private Vector2 GetInput()
         {
@@ -577,6 +583,19 @@ namespace Yushan.movement
             if (Mathf.Abs(rigidbody2D.velocity.x) > maxMoveSpeed)
             {
                 rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
+            }
+            if (Input.GetKey(KeyCode.M))
+            {
+                isSprint = true;
+                rigidbody2D.AddForce(new Vector2(movX, 0f) * sprintAcceleration);
+                if (Mathf.Abs(rigidbody2D.velocity.x) > maxSprintSpeed)
+                {
+                    rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSprintSpeed, rigidbody2D.velocity.y);
+                }
+            }
+            if (Input.GetKeyUp(KeyCode.M))
+            {
+                isSprint = false;
             }
         }
         private void ApplyGroundLinearDrag()
@@ -609,12 +628,82 @@ namespace Yushan.movement
             jumpBufferCounter = 0f;
             isJumping = false;
         }
+        IEnumerator NeutralWallJump()
+        {
+            Debug.Log("neutrawalljump");
+            Vector2 jumpDirection = onRightWall ? Vector2.left : Vector2.right;
+            Jump(Vector2.up + jumpDirection);
+            yield return new WaitForSeconds(wallJumpXVelocityHaltDelay);
+            rigidbody2D.velocity = new Vector2(0f, rigidbody2D.velocity.y);
+        }
         private void WallJump()
         {
 
             Vector2 jumpDirection = onRightWall ? Vector2.left : Vector2.right;
             Jump(Vector2.up + jumpDirection);
             Debug.Log("walljump" + jumpDirection);
+        }
+
+
+        private void FallMultiplier()
+        {
+            if (movY < 0f)
+            {
+                rigidbody2D.gravityScale = downMultiplier;
+            }
+            else
+            {
+                if (rigidbody2D.velocity.y < 0)
+                {
+                    rigidbody2D.gravityScale = fallMultiplier;
+                }
+                else if (rigidbody2D.velocity.y > 0 && !Input.GetKeyDown(KeyCode.Space))
+                {
+                    rigidbody2D.gravityScale = lowJumpFallMultiplier;
+                }
+                else
+                {
+                    rigidbody2D.gravityScale = 1f;
+                }
+            }
+        }
+        void WallGrab()
+        {
+            rigidbody2D.gravityScale = 0f;
+            rigidbody2D.velocity = Vector2.zero;
+        }
+
+        void WallSlide()
+        {
+            rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, -maxMoveSpeed * wallSliderModifier);
+        }
+
+        void WallRun()
+        {
+            rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, movY * maxMoveSpeed * wallRunModifier);
+        }
+
+        void StickToWall()
+        {
+            //Push player torwards wall
+            if (onRightWall && movX >= 0f)
+            {
+                rigidbody2D.velocity = new Vector2(1f, rigidbody2D.velocity.y);
+            }
+            else if (!onRightWall && movX <= 0f)
+            {
+                rigidbody2D.velocity = new Vector2(-1f, rigidbody2D.velocity.y);
+            }
+
+            //Face correct direction
+            if (onRightWall && !facingRight)
+            {
+                Flip();
+            }
+            else if (!onRightWall && facingRight)
+            {
+                Flip();
+            }
         }
         IEnumerator Dash(float x, float y)
         {
@@ -648,16 +737,141 @@ namespace Yushan.movement
         }
         void Animation()
         {
+            if (isSprint)
+            {
+                animator.SetBool("isSprint", true);
+            }
+            else if (!isSprint)
+            {
+                animator.SetBool("isSprint", false);
+            }
             if (isDashing)
             {
                 animator.SetBool("isDashing", true);
-
+                animator.SetBool("isGrounded", false);
+                animator.SetBool("isFalling", false);
+                animator.SetBool("wallGrab", false);
+                animator.SetBool("isJumping", false);
+                animator.SetFloat("movX", 0f);
+                animator.SetFloat("movY", 0f);
             }
             else
             {
                 animator.SetBool("isDashing", false);
+
+                if ((movX < 0f && facingRight || movX > 0f && !facingRight && !wallGrab && !wallSlide))
+                {
+                    Flip();
+                }
+                if (onGround)
+                {
+                    animator.SetBool("isGrounded", true);
+                    animator.SetBool("isFalling", false);
+                    animator.SetBool("wallGrab", false);
+                    animator.SetFloat("movX", Mathf.Abs(movX));
+                }
+                else
+                {
+                    animator.SetBool("isGrounded", false);
+                }
+                if (isJumping)
+                {
+                    animator.SetBool("isJumping", true);
+                    animator.SetBool("isFalling", true);
+                    animator.SetBool("wallGrab", false);
+                    animator.SetFloat("movY", 0f);
+                }
+                else
+                {
+                    animator.SetBool("isJumping", false);
+
+                    if (wallGrab || wallSlide)
+                    {
+                        animator.SetBool("wallGrab", true);
+                        animator.SetBool("isFalling", false);
+                        animator.SetFloat("movY", 0f);
+                    }
+                    else if (rigidbody2D.velocity.y < 0f)
+                    {
+                        animator.SetBool("isFalling", true);
+                        animator.SetBool("wallGrab", false);
+                        animator.SetFloat("movY", 0f);
+                    }
+                    if (wallRun)
+                    {
+                        animator.SetBool("isFalling", false);
+                        animator.SetBool("wallGrab", false);
+                        animator.SetFloat("movY", Mathf.Abs(movY));
+                    }
+                }
             }
         }
+
+        void CornerCorrect(float Yvelocity)
+        {
+            //Push player to the right
+            RaycastHit2D hit = Physics2D.Raycast(transform.position - innerRaycastOffset + Vector3.up * topRaycastLength, Vector3.left, topRaycastLength, cornerCorrectLayer);
+            if (hit.collider != null)
+            {
+                float _newPos = Vector3.Distance(new Vector3(hit.point.x, transform.position.y, 0f) + Vector3.up * topRaycastLength,
+                    transform.position - edgeRaycastOffset + Vector3.up * topRaycastLength);
+                transform.position = new Vector3(transform.position.x + _newPos, transform.position.y, transform.position.z);
+                rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, Yvelocity);
+                return;
+            }
+
+            //Push player to the left
+            hit = Physics2D.Raycast(transform.position + innerRaycastOffset + Vector3.up * topRaycastLength, Vector3.right, topRaycastLength, cornerCorrectLayer);
+            if (hit.collider != null)
+            {
+                float _newPos = Vector3.Distance(new Vector3(hit.point.x, transform.position.y, 0f) + Vector3.up * topRaycastLength,
+                    transform.position + edgeRaycastOffset + Vector3.up * topRaycastLength);
+                transform.position = new Vector3(transform.position.x - _newPos, transform.position.y, transform.position.z);
+                rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, Yvelocity);
+            }
+        }
+        private void CheckCollisions()
+        {
+            //Ground Collisions
+            onGround = Physics2D.Raycast(transform.position + groundRaycastOffset, Vector2.down, groundRaycastLength, groundLayer) ||
+                        Physics2D.Raycast(transform.position - groundRaycastOffset, Vector2.down, groundRaycastLength, groundLayer);
+
+            //Corner Collisions
+            canCornerCorrect = Physics2D.Raycast(transform.position + edgeRaycastOffset, Vector2.up, topRaycastLength, cornerCorrectLayer) &&
+                                !Physics2D.Raycast(transform.position + innerRaycastOffset, Vector2.up, topRaycastLength, cornerCorrectLayer) ||
+                                Physics2D.Raycast(transform.position - edgeRaycastOffset, Vector2.up, topRaycastLength, cornerCorrectLayer) &&
+                                !Physics2D.Raycast(transform.position - innerRaycastOffset, Vector2.up, topRaycastLength, cornerCorrectLayer);
+
+            //Wall Collisions
+            onWall = Physics2D.Raycast(transform.position, Vector2.right, wallRaycastLength, wallLayer) ||
+                        Physics2D.Raycast(transform.position, Vector2.left, wallRaycastLength, wallLayer);
+            onRightWall = Physics2D.Raycast(transform.position, Vector2.right, wallRaycastLength, wallLayer);
+        }
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.green;
+
+            //Ground Check
+            Gizmos.DrawLine(transform.position + groundRaycastOffset, transform.position + groundRaycastOffset + Vector3.down * groundRaycastLength);
+            Gizmos.DrawLine(transform.position - groundRaycastOffset, transform.position - groundRaycastOffset + Vector3.down * groundRaycastLength);
+
+            //Corner Check
+            Gizmos.DrawLine(transform.position + edgeRaycastOffset, transform.position + edgeRaycastOffset + Vector3.up * topRaycastLength);
+            Gizmos.DrawLine(transform.position - edgeRaycastOffset, transform.position - edgeRaycastOffset + Vector3.up * topRaycastLength);
+            Gizmos.DrawLine(transform.position + innerRaycastOffset, transform.position + innerRaycastOffset + Vector3.up * topRaycastLength);
+            Gizmos.DrawLine(transform.position - innerRaycastOffset, transform.position - innerRaycastOffset + Vector3.up * topRaycastLength);
+
+            //Corner Distance Check
+            Gizmos.DrawLine(transform.position - innerRaycastOffset + Vector3.up * topRaycastLength,
+                            transform.position - innerRaycastOffset + Vector3.up * topRaycastLength + Vector3.left * topRaycastLength);
+            Gizmos.DrawLine(transform.position + innerRaycastOffset + Vector3.up * topRaycastLength,
+                            transform.position + innerRaycastOffset + Vector3.up * topRaycastLength + Vector3.right * topRaycastLength);
+
+            //Wall Check
+            Gizmos.DrawLine(transform.position, transform.position + Vector3.right * wallRaycastLength);
+            Gizmos.DrawLine(transform.position, transform.position + Vector3.left * wallRaycastLength);
+        }
+
         private void LateUpdate()
         {
             if (animator != null)
@@ -755,92 +969,15 @@ namespace Yushan.movement
 
 
 
-        public void DemonTransform()
-        {
-            animator.SetTrigger("isDemonTransform");
-        }
-        public void DemonPunch()
-        {
-            animator.Play("demon punch");
-        }
-        public void DemonSecondPunch()
-        {
-            Debug.Log("demon second punch");
-            animator.Play("demon second punch");
-        }
 
 
         //dark yushan
 
 
 
-        private void ChangeSprite()
-        {
-            //if (fatType)
-            //{
-            //    spriteRenderer = playerSprite[0];
-            //}
-            //if (darkType)
-            //{
-            //    spriteRenderer = playerSprite[1];
-            //}
-            //if (demonType)
-            //{
-            //    spriteRenderer = playerSprite[2];
-            //}
-
-        }
-
-
-        void InputMouseAttack()
-        {
-            if (Input.GetKeyDown(KeyCode.E) && gameStart)
-            {
-
-                DemonTransform();
 
 
 
-            }
-            if (Input.GetKeyDown(KeyCode.R) && gameStart)
-            {
-
-
-            }
-
-
-
-            //if (Input.GetMouseButtonDown(0) && isDemon && !isDemonPowerCharge && !isDemonPowerCharge2)
-            //{
-
-            //    Debug.Log(isDemonPowerCharge + "first click");
-            //    DemonAnimationController.Instance.NormalAttack();
-            //    canMove = true;
-
-
-            //}
-            //if (Input.GetMouseButtonDown(0) && isDemon)
-            //{
-            //    Debug.Log("moudedown");
-            //    NormalAttack();
-            //}
-            //if (Input.GetMouseButtonDown(1) && isDemon)
-            //{
-            //    Debug.Log("mouse smash clicked");
-            //    SmashAttack();
-            //}
-
-            //if (Input.GetMouseButtonDown(0))
-            //{
-            //    Debug.Log("attack next");
-            //    StartCoroutine(AttackCo());
-            //    Debug.Log("currentstat" + currentStat);
-            //    InputMouseAttack();
-            //    EventHandler.CallMovementEvent(inputX, isWalking, isRunning, isSprinting, isDashing, isIdle, toolEffect, isDemonTransform, isDarkDoubleSpearKick);
-            //    EventHandler.CallDemonEvent(isDemon, isDemonIdle, isDemonPunch, isDemonPowerCharge, isDemonPowerPunch, isDemonSecondPunch, isDemonPowerCharge2, isDemonPowerPunch2);
-            //}
-
-        }
 
 
 
@@ -874,7 +1011,7 @@ namespace Yushan.movement
             //    break;
             //}
 
-            if (isSprinting == true)
+            if (isSprint == true)
             {
                 followCamera.SetActive(false);
                 followCameraLeft.SetActive(true);
@@ -882,7 +1019,7 @@ namespace Yushan.movement
 
             }
 
-            else if (isSprinting == false)
+            else if (isSprint == false)
             {
                 followCamera.SetActive(true);
                 followCameraLeft.SetActive(false);
@@ -892,33 +1029,6 @@ namespace Yushan.movement
 
 
 
-        public bool IsGrounded()
-        {
-            //2d raycast to the ground
-            RaycastHit2D hitInfo = Physics2D.Raycast(transform.position, Vector2.down, 0.6f, groundLayer.value);
-
-
-
-            if (hitInfo.collider != null)
-            {
-                if (resetJump == false)
-                {
-                    isJumping = false;
-                    return true;
-
-                }
-
-
-            }
-            isJumping = true;
-            return false;
-        }
-        IEnumerator ResetJumpNeededRoutine()
-        {
-            resetJump = true;
-            yield return new WaitForSeconds(0.1f);
-            resetJump = false;
-        }
 
 
 

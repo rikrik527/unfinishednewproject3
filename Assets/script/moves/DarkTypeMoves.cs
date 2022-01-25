@@ -75,7 +75,7 @@ namespace Yushan.DarkType
                 if (Player.Instance.yushan_Type == Yushan_Type.darkenType)
                 {
                     Debug.Log("dashtype");
-                    if (isDashMovesReady = true)
+                    if (isDashMovesReady == true)
                     {
                         if (Input.GetKeyDown(KeyCode.K))
                         {
