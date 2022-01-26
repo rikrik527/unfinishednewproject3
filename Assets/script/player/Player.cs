@@ -31,6 +31,8 @@ namespace Yushan.movement
         [SerializeField] private float groundLinearDrag = 7f;
         public float movY;
         public float movX;
+        public bool isRunningRight;
+        public bool isRunningLeft;
         public bool changeDirection => (rigidbody2D.velocity.x > 0f && movX < 0f) || (rigidbody2D.velocity.x < 0f && movX > 0f);
         public bool facingRight = true;
         public bool canMove => !wallGrab;
@@ -296,162 +298,188 @@ namespace Yushan.movement
 
 
                         Debug.Log("motion");
-                        //if (GetInput().x > 0 && Input.GetKey(KeyCode.D))
-                        //{
+                        if (GetInput().x > 0 && Input.GetKey(KeyCode.D))
+                        {
 
-                        //    if (canMove)
-                        //    {
-                        //        isRunning = true;
-                        //        isRunningRight = true;
-                        //        isRunningLeft = false;
-                        //        if (isRunning)
-                        //        {
-                        //            isSprinting = false;
-                        //        }
+                            if (canMove)
+                            {
+                                isRunning = true;
+                                isRunningRight = true;
+                                isRunningLeft = false;
+                                if (isRunning)
+                                {
+                                    isSprint = false;
+                                }
 
-                        //        if (IsGrounded() == true)
-                        //        {
-                        //            animator.SetBool("isRunRight", true);
-                        //        }
-                        //        else if (IsGrounded() == false)
-                        //        {
-                        //            animator.SetBool("isRunRight", false);
-                        //        }
+                                if (onGround)
+                                {
+                                    animator.SetBool("isRunRight", true);
+                                }
+                                else if (!onGround)
+                                {
+                                    animator.SetBool("isRunRight", false);
+                                }
 
-                        //        playerGameObject.transform.Translate(runningSpeed * Time.deltaTime, 0, 0);
-                        //        Debug.Log("isrunningright" + isRunning);
-                        //        playerDirection = Direction.right;
-                        //        if (playerDirection == Direction.right)
-                        //        {
-                        //            canFlip = true;
-                        //            if (canFlip)
-                        //            {
-                        //                spriteRenderer.flipX = false;
-                        //            }
+                                //playerGameObject.transform.Translate(runningSpeed * Time.deltaTime, 0, 0);
+                                Debug.Log("isrunningright" + isRunning);
+                                rigidbody2D.AddForce(new Vector2(movX, 0f) * movementAcceleration);
+                                if (Mathf.Abs(rigidbody2D.velocity.x) > maxMoveSpeed)
+                                {
+                                    rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
+                                }
+                                playerDirection = Direction.right;
+                                if (playerDirection == Direction.right)
+                                {
+                                    canFlip = true;
+                                    if (canFlip)
+                                    {
+                                        spriteRenderer.flipX = false;
+                                    }
 
-                        //        }
+                                }
 
-                        //    }
+                            }
 
-                        //}
-                        //else if (GetInput().x < 0 && Input.GetKey(KeyCode.A))
-                        //{
+                        }
+                        else if (GetInput().x < 0 && Input.GetKey(KeyCode.A))
+                        {
 
-                        //    if (canMove)
-                        //    {
-                        //        isRunning = true;
-                        //        isRunningRight = false;
-                        //        isRunningLeft = true;
+                            if (canMove)
+                            {
+                                isRunning = true;
+                                isRunningRight = false;
+                                isRunningLeft = true;
 
-                        //        if (isRunning)
-                        //        {
-                        //            isSprinting = false;
-                        //        }
-                        //        if (IsGrounded() == true)
-                        //        {
-                        //            animator.SetBool("isRunLeft", true);
-                        //        }
-                        //        else if (IsGrounded() == false)
-                        //        {
-                        //            animator.SetBool("isRunLeft", false);
-                        //        }
+                                if (isRunning)
+                                {
+                                    isSprint = false;
+                                }
+                                if (onGround)
+                                {
+                                    animator.SetBool("isRunLeft", true);
+                                }
+                                else if (!onGround)
+                                {
+                                    animator.SetBool("isRunLeft", false);
+                                }
 
-                        //        playerGameObject.transform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
-                        //        Debug.Log("isrunningright" + isRunning);
-                        //        playerDirection = Direction.left;
-                        //        if (playerDirection == Direction.left)
-                        //        {
-                        //            canFlip = true;
-                        //            if (canFlip)
-                        //            {
-                        //                spriteRenderer.flipX = true;
-                        //            }
+                                //playerGameObject.transform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
+                                //Debug.Log("isrunningright" + isRunning);
+                                rigidbody2D.AddForce(new Vector2(-movX, 0f) * movementAcceleration);
+                                if (Mathf.Abs(rigidbody2D.velocity.x) > maxMoveSpeed)
+                                {
+                                    rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
+                                }
+                                playerDirection = Direction.left;
+                                if (playerDirection == Direction.left)
+                                {
+                                    canFlip = true;
+                                    if (canFlip)
+                                    {
+                                        spriteRenderer.flipX = true;
+                                    }
 
-                        //        }
-
-
-                        //    }
-                        //}
-                        //if (GetInput().x > 0 && isRunning && Input.GetKey(KeyCode.M))
-                        //{
-                        //    isSprinting = true;
-                        //    if (isSprinting)
-                        //    {
-                        //        isRunning = false;
-                        //        isRunningRight = false;
-                        //        isRunningLeft = false;
-                        //        Debug.Log("isspritnt");
-                        //        if (Input.GetKey(KeyCode.D))
-                        //        {
-                        //            animator.SetBool("isRunRight", false);
-                        //            animator.SetBool("isRunning", false);
-                        //            animator.SetBool("isSprintRight", true);
-                        //            playerGameObject.transform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
-                        //        }
-                        //        if (Input.GetKeyUp(KeyCode.D))
-                        //        {
-                        //            Debug.Log("keyupD");
-                        //            isSprinting = false;
-                        //            isSlowingDown = true;
-                        //            animator.SetBool("isSprintRight", false);
-                        //            animator.SetTrigger("isSlowingDown");
-                        //        }
-                        //    }
-
-                        //}
-                        //if (GetInput().x < 0 && isRunning && Input.GetKey(KeyCode.M))
-                        //{
-                        //    isSprinting = true;
-                        //    if (isSprinting)
-                        //    {
-
-                        //        isRunning = false;
-                        //        Debug.Log("issprintleft");
-                        //        isRunningRight = false;
-                        //        isRunningLeft = false;
-                        //        if (Input.GetKey(KeyCode.A))
-                        //        {
-                        //            animator.SetBool("isRunning", false);
-                        //            animator.SetBool("isRunLeft", false);
-                        //            animator.SetBool("isSprintLeft", true);
-                        //            playerGameObject.transform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
-                        //        }
-                        //        if (Input.GetKeyUp(KeyCode.A))
-                        //        {
-                        //            Debug.Log("keyup left sprint");
-                        //            isSprinting = false;
-                        //            isSlowingDown = true;
-                        //            animator.SetBool("isSprintingLeft", false);
-                        //            animator.SetBool("isSlowingDown", true);
-                        //        }
-                        //    }
+                                }
 
 
-                        //}
+                            }
+                        }
+                        if (GetInput().x > 0 && isRunning && Input.GetKey(KeyCode.M))
+                        {
+                            isSprint = true;
+                            if (isSprint)
+                            {
+                                isRunning = false;
+                                isRunningRight = false;
+                                isRunningLeft = false;
+                                Debug.Log("isspritnt");
+                                if (Input.GetKey(KeyCode.D))
+                                {
+                                    animator.SetBool("isRunRight", false);
+                                    animator.SetBool("isRunning", false);
+                                    animator.SetBool("isSprintRight", true);
+                                    //playerGameObject.transform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
+                                    rigidbody2D.AddForce(new Vector2(movX, 0f) * sprintAcceleration);
+                                    if (Mathf.Abs(rigidbody2D.velocity.x) > maxSprintSpeed)
+                                    {
+                                        rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSprintSpeed, rigidbody2D.velocity.y);
+                                    }
+                                }
+                                if (Input.GetKeyUp(KeyCode.D))
+                                {
+                                    Debug.Log("keyupD");
+                                    isSprint = false;
+                                    isSlowingDown = true;
+                                    animator.SetBool("isSprintRight", false);
+                                    animator.SetTrigger("isSlowingDown");
+                                }
+                            }
+
+                        }
+                        if (GetInput().x < 0 && isRunning && Input.GetKey(KeyCode.M))
+                        {
+                            isSprint = true;
+                            if (isSprint)
+                            {
+
+                                isRunning = false;
+                                Debug.Log("issprintleft");
+                                isRunningRight = false;
+                                isRunningLeft = false;
+                                if (Input.GetKey(KeyCode.A))
+                                {
+                                    animator.SetBool("isRunning", false);
+                                    animator.SetBool("isRunLeft", false);
+                                    animator.SetBool("isSprintLeft", true);
+                                    //playerGameObject.transform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
+                                    rigidbody2D.AddForce(new Vector2(-movX, 0f) * sprintAcceleration);
+                                    if (Mathf.Abs(rigidbody2D.velocity.x) > maxSprintSpeed)
+                                    {
+                                        rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSprintSpeed, rigidbody2D.velocity.y);
+                                    }
+                                }
+                                if (Input.GetKeyUp(KeyCode.A))
+                                {
+                                    Debug.Log("keyup left sprint");
+                                    isSprint = false;
+                                    isSlowingDown = true;
+                                    animator.SetBool("isSprintingLeft", false);
+                                    animator.SetBool("isSlowingDown", true);
+                                }
+                            }
 
 
-                        //dashDirection = (int)movX;
+                        }
+
+
+                        dashDirection = (int)movX;
 
 
 
 
 
 
-                        //if (GetInput().x == 0)
-                        //{
-                        //    isRunningLeft = false;
-                        //    isRunningRight = false;
-                        //    isDashing = false;
-                        //    isRunning = false;
-                        //    isSprinting = false;
-                        //    dash = false;
-                        //    animator.SetBool("isSprinting", false);
-                        //    animator.SetBool("isRunRight", false);
-                        //    animator.SetBool("isRunLeft", false);
-                        //    animator.SetBool("isSprintRight", false);
-                        //    animator.SetBool("isSprintLeft", false);
+                        if (GetInput().x == 0)
+                        {
+                            isRunningLeft = false;
+                            isRunningRight = false;
+                            isDashing = false;
+                            isRunning = false;
+                            isSprint = false;
+                            dash = false;
+                            animator.SetBool("isSprinting", false);
+                            animator.SetBool("isRunRight", false);
+                            animator.SetBool("isRunLeft", false);
+                            animator.SetBool("isSprintRight", false);
+                            animator.SetBool("isSprintLeft", false);
 
-                        //}
+                        }
+
+
+
+                    }
+                    if (animatorStateInfo.IsTag("jump"))
+                    {
                         if (Input.GetKeyDown(KeyCode.Space))
                         {
                             jumpBufferCounter = jumpBufferLength;
@@ -460,6 +488,10 @@ namespace Yushan.movement
                         {
                             jumpBufferCounter -= Time.deltaTime;
                         }
+                    }
+
+                    if (animatorStateInfo.IsTag("dash"))
+                    {
                         if (Input.GetButtonDown("Dash"))
                         {
 
@@ -471,13 +503,7 @@ namespace Yushan.movement
                             dashBufferCounter -= Time.deltaTime;
                             Debug.Log("else" + canDash);
                         }
-
                     }
-
-                    //if (animatorStateInfo.IsTag("dash"))
-                    //{
-
-                    //}
 
 
 
@@ -492,7 +518,7 @@ namespace Yushan.movement
 
 
 
-            Animation();
+
 
             CameraPlayerPosition();
 
@@ -579,24 +605,8 @@ namespace Yushan.movement
 
         private void MoveCharacter()
         {
-            rigidbody2D.AddForce(new Vector2(movX, 0f) * movementAcceleration);
-            if (Mathf.Abs(rigidbody2D.velocity.x) > maxMoveSpeed)
-            {
-                rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
-            }
-            if (Input.GetKey(KeyCode.M))
-            {
-                isSprint = true;
-                rigidbody2D.AddForce(new Vector2(movX, 0f) * sprintAcceleration);
-                if (Mathf.Abs(rigidbody2D.velocity.x) > maxSprintSpeed)
-                {
-                    rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSprintSpeed, rigidbody2D.velocity.y);
-                }
-            }
-            if (Input.GetKeyUp(KeyCode.M))
-            {
-                isSprint = false;
-            }
+
+
         }
         private void ApplyGroundLinearDrag()
         {
