@@ -82,6 +82,8 @@ namespace Yushan.movement
         private bool darkenType;
         private bool demonType;
 
+        // player moves
+        private bool isRunning;
 
 
 
@@ -172,7 +174,7 @@ namespace Yushan.movement
         public bool dash;
         //movement parameters
 
-        public bool isRunning;
+
         public bool isSprint;
         public bool isSlowingDown;
 
@@ -411,6 +413,9 @@ namespace Yushan.movement
                                     Debug.Log("keyupD");
                                     isSprint = false;
                                     isSlowingDown = true;
+                                    isRunning = false;
+                                    isRunningRight = true;
+                                    isSprintRight = false;
                                     animator.SetBool("isSprintRight", false);
                                     animator.SetTrigger("isSlowingDown");
                                 }
@@ -601,7 +606,7 @@ namespace Yushan.movement
         void Flip()
         {
             facingRight = !facingRight;
-            transform.Rotate(0f, 180f, 0f);
+            spriteRenderer.flipX = true;
         }
         private Vector2 GetInput()
         {
@@ -854,6 +859,7 @@ namespace Yushan.movement
             //Ground Collisions
             onGround = Physics2D.Raycast(transform.position + groundRaycastOffset, Vector2.down, groundRaycastLength, groundLayer) ||
                         Physics2D.Raycast(transform.position - groundRaycastOffset, Vector2.down, groundRaycastLength, groundLayer);
+            Debug.Log("onGround", onGround);
 
             //Corner Collisions
             canCornerCorrect = Physics2D.Raycast(transform.position + edgeRaycastOffset, Vector2.up, topRaycastLength, cornerCorrectLayer) &&
