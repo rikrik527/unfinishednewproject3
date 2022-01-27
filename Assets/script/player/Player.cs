@@ -384,7 +384,7 @@ namespace Yushan.movement
 
                             }
                         }
-                        if (GetInput().x > 0 && isRunning && Input.GetKey(KeyCode.M))
+                        if (GetInput().x > 0 && Input.GetKey(KeyCode.M))
                         {
                             isSprint = true;
                             if (isSprint)
@@ -395,6 +395,7 @@ namespace Yushan.movement
                                 Debug.Log("isspritnt");
                                 if (Input.GetKey(KeyCode.D))
                                 {
+                                    Debug.Log("issprintright");
                                     animator.SetBool("isRunRight", false);
                                     animator.SetBool("isRunning", false);
                                     animator.SetBool("isSprintRight", true);
@@ -423,11 +424,12 @@ namespace Yushan.movement
                             {
 
                                 isRunning = false;
-                                Debug.Log("issprintleft");
+
                                 isRunningRight = false;
                                 isRunningLeft = false;
                                 if (Input.GetKey(KeyCode.A))
                                 {
+                                    Debug.Log("issprintleft");
                                     animator.SetBool("isRunning", false);
                                     animator.SetBool("isRunLeft", false);
                                     animator.SetBool("isSprintLeft", true);
@@ -475,25 +477,21 @@ namespace Yushan.movement
 
                         }
 
-
-
-                    }
-                    if (animatorStateInfo.IsTag("jump"))
-                    {
                         if (Input.GetKeyDown(KeyCode.Space))
                         {
+                            Debug.Log("spece");
                             jumpBufferCounter = jumpBufferLength;
                         }
                         else
                         {
                             jumpBufferCounter -= Time.deltaTime;
                         }
-                    }
 
-                    if (animatorStateInfo.IsTag("dash"))
-                    {
+
+
                         if (Input.GetButtonDown("Dash"))
                         {
+                            Debug.Log("j prss dash");
 
                             dashBufferCounter = dashBufferLength;
                             Debug.Log("j press" + canDash);
@@ -503,7 +501,11 @@ namespace Yushan.movement
                             dashBufferCounter -= Time.deltaTime;
                             Debug.Log("else" + canDash);
                         }
+                        Animation();
                     }
+
+
+
 
 
 
@@ -545,6 +547,7 @@ namespace Yushan.movement
                 if (canMove) MoveCharacter();
                 else
                 {
+                    Debug.Log("else");
                     rigidbody2D.velocity = Vector2.Lerp(rigidbody2D.velocity, (new Vector2(movX * maxMoveSpeed, rigidbody2D.velocity.y)), .5f * Time.deltaTime);
                 }
                 if (onGround)
