@@ -489,7 +489,7 @@ namespace Yushan.movement
 
 
 
-                        if (Input.GetButtonDown("Dash"))
+                        if (Input.GetKeyDown(KeyCode.J))
                         {
                             Debug.Log("j prss dash");
 
@@ -544,14 +544,15 @@ namespace Yushan.movement
             if (canDash) StartCoroutine(Dash(movX, movY));
             if (!isDashing)
             {
-                if (canMove) MoveCharacter();
-                else
-                {
-                    Debug.Log("else");
-                    rigidbody2D.velocity = Vector2.Lerp(rigidbody2D.velocity, (new Vector2(movX * maxMoveSpeed, rigidbody2D.velocity.y)), .5f * Time.deltaTime);
-                }
+                //if (canMove) MoveCharacter();
+                //else
+                //{
+                //    Debug.Log("else");
+                //    rigidbody2D.velocity = Vector2.Lerp(rigidbody2D.velocity, (new Vector2(movX * maxMoveSpeed, rigidbody2D.velocity.y)), .5f * Time.deltaTime);
+                //}
                 if (onGround)
                 {
+                    Debug.Log("onground");
                     ApplyGroundLinearDrag();
                     extraJumpValue = extraJumps;
                     hangTimeCounter = hangTime;
@@ -559,6 +560,7 @@ namespace Yushan.movement
                 }
                 else
                 {
+
                     ApplyAirLinearDrag();
                     FallMultiplier();
                     hangTimeCounter -= Time.fixedDeltaTime;
@@ -606,11 +608,7 @@ namespace Yushan.movement
             return new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         }
 
-        private void MoveCharacter()
-        {
 
-
-        }
         private void ApplyGroundLinearDrag()
         {
             if (Mathf.Abs(movX) < 0.4f || changeDirection)
@@ -630,6 +628,7 @@ namespace Yushan.movement
         }
         private void Jump(Vector2 direction)
         {
+            Debug.Log("jump");
             if (!onGround && !onWall)
             {
                 extraJumpValue--;
@@ -682,29 +681,36 @@ namespace Yushan.movement
         }
         void WallGrab()
         {
+            Debug.Log("wallgrab");
             rigidbody2D.gravityScale = 0f;
             rigidbody2D.velocity = Vector2.zero;
         }
 
         void WallSlide()
         {
+            Debug.Log("wallslide");
             rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, -maxMoveSpeed * wallSliderModifier);
         }
 
         void WallRun()
         {
+            Debug.Log("wallrun");
+
             rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, movY * maxMoveSpeed * wallRunModifier);
         }
 
         void StickToWall()
         {
+            Debug.Log("stickto wall");
             //Push player torwards wall
             if (onRightWall && movX >= 0f)
             {
+                Debug.Log("onrightwall");
                 rigidbody2D.velocity = new Vector2(1f, rigidbody2D.velocity.y);
             }
             else if (!onRightWall && movX <= 0f)
             {
+                Debug.Log("onleftwall");
                 rigidbody2D.velocity = new Vector2(-1f, rigidbody2D.velocity.y);
             }
 
