@@ -14,6 +14,31 @@ namespace Yushan.movement
 {
     public class Player : SingletonMonobehaviour<Player>
     {
+        [Header("Eventhandler darkmovement")]
+
+        public float movX;
+        public float movY;
+        public bool isRunning;
+        public bool isDarkDoubleSpearKick;
+        public bool isSprint;
+        public bool isDashing;
+        public bool isDarkSpinBack;
+        public bool isDarkKneeKick;
+        public bool isDarkCrossKick;
+        public bool isJumping;
+        public bool isFalling;
+        public bool isSprintJump;
+        public bool isSprintFall;
+        public bool isRunningJump;
+        public bool isRunningFall;
+        public bool isWallGrab;
+        public bool isWallJumping;
+        public bool isWallFall;
+        public bool isIdle;
+        public bool isDarkPowerUp;
+
+
+
         public Yushan_Type yushan_Type;
         [Header("Components")]
         public Rigidbody2D rigidbody2D;
@@ -29,8 +54,7 @@ namespace Yushan.movement
         [SerializeField] private float maxSprintSpeed = 9.99f;
         [SerializeField] private float maxMoveSpeed = 6.66f;
         [SerializeField] private float groundLinearDrag = 7f;
-        public float movY;
-        public float movX;
+
         public bool isRunningRight;
         public bool isRunningLeft;
         public bool changeDirection => (rigidbody2D.velocity.x > 0f && movX < 0f) || (rigidbody2D.velocity.x < 0f && movX > 0f);
@@ -50,7 +74,7 @@ namespace Yushan.movement
         private float hangTimeCounter;
         private float jumpBufferCounter;
         private bool canJump => jumpBufferCounter > 0f && (hangTimeCounter > 0f || extraJumpValue > 0 || onWall);
-        private bool isJumping = false;
+
 
         [Header("wall movement variables")]
         [SerializeField] private float wallSliderModifier = 0.5f;
@@ -83,11 +107,11 @@ namespace Yushan.movement
         private bool demonType;
 
         // player moves
-        private bool isRunning;
 
 
 
-        public bool isAttacking = false;
+
+
 
         public PlayerState currentStat;
         private Vector3 change;
@@ -105,7 +129,7 @@ namespace Yushan.movement
         public float dashLength = .3f;
         public float dashBufferLength = .1f;
         public float dashBufferCounter;
-        public bool isDashing;
+
         public bool hasDashed;
         public bool canDash => dashBufferCounter > 0f && !hasDashed;
 
@@ -175,7 +199,7 @@ namespace Yushan.movement
         //movement parameters
 
 
-        public bool isSprint;
+
         public bool isSlowingDown;
 
 
@@ -202,7 +226,7 @@ namespace Yushan.movement
         [SerializeField]
 
 
-        private bool resetJump = false;
+
 
         public Yushan_Move_type yushan_Move_Type;
 
@@ -306,21 +330,12 @@ namespace Yushan.movement
                             if (canMove)
                             {
                                 isRunning = true;
-                                isRunningRight = true;
-                                isRunningLeft = false;
-                                if (isRunning)
+                                if (onGround)
                                 {
+                                    isRunning = false;
                                     isSprint = false;
                                 }
 
-                                if (onGround)
-                                {
-                                    animator.SetBool("isRunRight", true);
-                                }
-                                else if (!onGround)
-                                {
-                                    animator.SetBool("isRunRight", false);
-                                }
 
                                 //playerGameObject.transform.Translate(runningSpeed * Time.deltaTime, 0, 0);
                                 Debug.Log("isrunningright" + isRunning);
@@ -349,20 +364,11 @@ namespace Yushan.movement
                             if (canMove)
                             {
                                 isRunning = true;
-                                isRunningRight = false;
-                                isRunningLeft = true;
 
-                                if (isRunning)
-                                {
-                                    isSprint = false;
-                                }
                                 if (onGround)
                                 {
-                                    animator.SetBool("isRunLeft", true);
-                                }
-                                else if (!onGround)
-                                {
-                                    animator.SetBool("isRunLeft", false);
+                                    isRunning = false;
+                                    isSprint = false;
                                 }
 
                                 //playerGameObject.transform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
@@ -386,43 +392,41 @@ namespace Yushan.movement
 
                             }
                         }
-                        if (GetInput().x > 0 && Input.GetKey(KeyCode.M))
+                        if (GetInput().x > 0 && Input.GetKey(KeyCode.M) && Input.GetKey(KeyCode.D))
                         {
                             isSprint = true;
                             if (isSprint)
                             {
                                 isRunning = false;
-                                isRunningRight = false;
-                                isRunningLeft = false;
+
                                 Debug.Log("isspritnt");
-                                if (Input.GetKey(KeyCode.D))
+
+
+
+
+                                //playerGameObject.transform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
+                                rigidbody2D.AddForce(new Vector2(movX, 0f) * sprintAcceleration);
+                                if (Mathf.Abs(rigidbody2D.velocity.x) > maxSprintSpeed)
                                 {
-                                    Debug.Log("issprintright");
-                                    animator.SetBool("isRunRight", false);
-                                    animator.SetBool("isRunning", false);
-                                    animator.SetBool("isSprintRight", true);
-                                    //playerGameObject.transform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
-                                    rigidbody2D.AddForce(new Vector2(movX, 0f) * sprintAcceleration);
-                                    if (Mathf.Abs(rigidbody2D.velocity.x) > maxSprintSpeed)
-                                    {
-                                        rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSprintSpeed, rigidbody2D.velocity.y);
-                                    }
+                                    rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSprintSpeed, rigidbody2D.velocity.y);
                                 }
+
                                 if (Input.GetKeyUp(KeyCode.D))
                                 {
                                     Debug.Log("keyupD");
                                     isSprint = false;
                                     isSlowingDown = true;
                                     isRunning = false;
-                                    isRunningRight = true;
-                                    isSprintRight = false;
-                                    animator.SetBool("isSprintRight", false);
-                                    animator.SetTrigger("isSlowingDown");
+
+                                }
+                                if (Input.GetKeyUp(KeyCode.M))
+                                {
+                                    isSprint = false;
                                 }
                             }
 
                         }
-                        if (GetInput().x < 0 && isRunning && Input.GetKey(KeyCode.M))
+                        if (GetInput().x < 0 && isRunning && Input.GetKey(KeyCode.M) && Input.GetKey(KeyCode.A))
                         {
                             isSprint = true;
                             if (isSprint)
@@ -430,28 +434,24 @@ namespace Yushan.movement
 
                                 isRunning = false;
 
-                                isRunningRight = false;
-                                isRunningLeft = false;
-                                if (Input.GetKey(KeyCode.A))
+
+                                //playerGameObject.transform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
+                                rigidbody2D.AddForce(new Vector2(-movX, 0f) * sprintAcceleration);
+                                if (Mathf.Abs(rigidbody2D.velocity.x) > maxSprintSpeed)
                                 {
-                                    Debug.Log("issprintleft");
-                                    animator.SetBool("isRunning", false);
-                                    animator.SetBool("isRunLeft", false);
-                                    animator.SetBool("isSprintLeft", true);
-                                    //playerGameObject.transform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
-                                    rigidbody2D.AddForce(new Vector2(-movX, 0f) * sprintAcceleration);
-                                    if (Mathf.Abs(rigidbody2D.velocity.x) > maxSprintSpeed)
-                                    {
-                                        rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSprintSpeed, rigidbody2D.velocity.y);
-                                    }
+                                    rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSprintSpeed, rigidbody2D.velocity.y);
                                 }
+
                                 if (Input.GetKeyUp(KeyCode.A))
                                 {
                                     Debug.Log("keyup left sprint");
                                     isSprint = false;
                                     isSlowingDown = true;
-                                    animator.SetBool("isSprintingLeft", false);
-                                    animator.SetBool("isSlowingDown", true);
+                                    isRunning = false;
+                                }
+                                if (Input.GetKeyUp(KeyCode.M))
+                                {
+                                    isSprint = false;
                                 }
                             }
 
@@ -474,11 +474,7 @@ namespace Yushan.movement
                             isRunning = false;
                             isSprint = false;
                             dash = false;
-                            animator.SetBool("isSprinting", false);
-                            animator.SetBool("isRunRight", false);
-                            animator.SetBool("isRunLeft", false);
-                            animator.SetBool("isSprintRight", false);
-                            animator.SetBool("isSprintLeft", false);
+                            isIdle = true;
 
                         }
 
@@ -506,7 +502,7 @@ namespace Yushan.movement
                             dashBufferCounter -= Time.deltaTime;
                             Debug.Log("else" + canDash);
                         }
-                        Animation();
+
                     }
 
 
@@ -637,6 +633,7 @@ namespace Yushan.movement
             if (!onGround && !onWall)
             {
                 extraJumpValue--;
+                isJumping = true;
             }
             ApplyAirLinearDrag();
             rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, 0f);
@@ -859,7 +856,7 @@ namespace Yushan.movement
             //Ground Collisions
             onGround = Physics2D.Raycast(transform.position + groundRaycastOffset, Vector2.down, groundRaycastLength, groundLayer) ||
                         Physics2D.Raycast(transform.position - groundRaycastOffset, Vector2.down, groundRaycastLength, groundLayer);
-            Debug.Log("onGround", onGround);
+            Debug.Log("onGround" + onGround);
 
             //Corner Collisions
             canCornerCorrect = Physics2D.Raycast(transform.position + edgeRaycastOffset, Vector2.up, topRaycastLength, cornerCorrectLayer) &&

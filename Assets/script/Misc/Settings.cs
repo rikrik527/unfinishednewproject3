@@ -12,11 +12,9 @@ public static class Settings
     public static int movX;
 
     public static int movY;
-    public static int isRunningRight;
-    public static int isRunningLeft;
+
     public static int isSprint;
-    public static int isSprintRight;
-    public static int isSprintLeft;
+    public static int isIdle;
     public static int isRunning;
     public static int isRunningJump;
     public static int isRunningFall;
@@ -58,27 +56,24 @@ public static class Settings
         //dark movement
         movY = Animator.StringToHash("movY");
         movX = Animator.StringToHash("movX");
-        isRunningRight = Animator.StringToHash("isRunningRight");
-        isRunningLeft = Animator.StringToHash("isRunningLeft");
-        isSprint= Animator.StringToHash("isSprint");
-        isSprintLeft= Animator.StringToHash("isSprintLeft");
-        isSprintRight= Animator.StringToHash("isSprintRight");
-        isRunning= Animator.StringToHash("isRunning");
-        isRunningJump= Animator.StringToHash("isRunningJump");
-        isRunningFall= Animator.StringToHash("isRunningFall");
-        isSprintJump= Animator.StringToHash("isSprintJump");
-        isSprintFall= Animator.StringToHash("isSprintFall");
-        isJumping= Animator.StringToHash("isJumping");
-        isFalling= Animator.StringToHash("isFalling");
-        isDashing= Animator.StringToHash("isDashing");
-        isDarkKneeKick= Animator.StringToHash("isDarkKneeKick");
-        isDarkCrossKick= Animator.StringToHash("isDarkCrossKick");
-        isDarkDoubleSpearKick= Animator.StringToHash("isDarkDoubleSpearKick");
-        isWallGrab= Animator.StringToHash("isWallGrab");
-        isWallJumping= Animator.StringToHash("isWallJump");
-        isWallFall= Animator.StringToHash("isWallFall");
-        isDarkSpinBack= Animator.StringToHash("isDarkSpinBack");
-        isDarkPowerUp= Animator.StringToHash("isDarkPowerUp");
+
+        isRunning = Animator.StringToHash("isRunning");
+        isRunningJump = Animator.StringToHash("isRunningJump");
+        isRunningFall = Animator.StringToHash("isRunningFall");
+        isSprintJump = Animator.StringToHash("isSprintJump");
+        isSprintFall = Animator.StringToHash("isSprintFall");
+        isJumping = Animator.StringToHash("isJumping");
+        isFalling = Animator.StringToHash("isFalling");
+        isDashing = Animator.StringToHash("isDashing");
+        isDarkKneeKick = Animator.StringToHash("isDarkKneeKick");
+        isDarkCrossKick = Animator.StringToHash("isDarkCrossKick");
+        isDarkDoubleSpearKick = Animator.StringToHash("isDarkDoubleSpearKick");
+        isIdle = Animator.StringToHash("isIdle");
+        isWallGrab = Animator.StringToHash("isWallGrab");
+        isWallJumping = Animator.StringToHash("isWallJump");
+        isWallFall = Animator.StringToHash("isWallFall");
+        isDarkSpinBack = Animator.StringToHash("isDarkSpinBack");
+        isDarkPowerUp = Animator.StringToHash("isDarkPowerUp");
     }
 
 }
