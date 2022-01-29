@@ -18,7 +18,7 @@ public class DarkMovementAnimationControl : MonoBehaviour
     {
         EventHandler.DarkMovementEvent -= SetDarkAnimationParameter;
     }
-    private void SetDarkAnimationParameter(float movX, float movY, bool isRunning, bool isDarkDoubleSpearKick, bool isSprint, bool isDashing, bool isDarkSpinBack, bool isDarkKneeKick, bool isDarkCrossKick, bool isJumping, bool isFalling, bool isSprintJump, bool isSprintFall, bool isRunningJump, bool isRunningFall, bool isWallGrab, bool isWallJumping, bool isWallFall, bool isIdle, bool isDarkPowerUp)
+    private void SetDarkAnimationParameter(float movX, float movY, bool isRunning,bool isSprint, bool isDashing, bool isDarkSpinBack, bool isJumping, bool isFalling, bool isSprintJump, bool isSprintFall, bool isRunningJump, bool isRunningFall, bool isWallGrab, bool isWallJumping, bool isWallFall, bool isIdle, bool isDarkPowerUp)
     {
         animator.SetFloat(Settings.movX, movX);
         animator.SetFloat(Settings.movY, movY);
@@ -35,22 +35,12 @@ public class DarkMovementAnimationControl : MonoBehaviour
         animator.SetBool(Settings.isWallFall, isWallFall);
         animator.SetBool(Settings.isWallJumping, isWallJumping);
         animator.SetBool(Settings.isIdle, isIdle);
-        if (isDarkDoubleSpearKick)
-        {
-            animator.SetTrigger(Settings.isDarkDoubleSpearKick);
-        }
-        if (isDarkKneeKick)
-        {
-            animator.SetTrigger(Settings.isDarkKneeKick);
-        }
+    
         if (isDarkSpinBack)
         {
             animator.SetTrigger(Settings.isDarkSpinBack);
         }
-        if (isDarkCrossKick)
-        {
-            animator.SetTrigger(Settings.isDarkCrossKick);
-        }
+     
         if (isDarkPowerUp)
         {
             animator.SetTrigger(Settings.isDarkPowerUp);

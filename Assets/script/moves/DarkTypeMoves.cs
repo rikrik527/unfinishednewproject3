@@ -11,10 +11,15 @@ namespace Yushan.DarkType
 {
     public class DarkTypeMoves : MonoBehaviour
     {
+        [Header("dark combat variables")]
+        public bool isDarkDoubleSpearKick;
+        public bool isDarkKneeKick;
+        public bool isDarkCrossKick;
+
         [Header("dark knee kick variables")]
         public float darkKneeKickForce = 20f;
         public float darkKneeKickLength = .3f;
-        public bool isDarkKneeKick;
+       
 
 
 
@@ -69,9 +74,9 @@ namespace Yushan.DarkType
         {
             animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
             kickDirection = (int)Player.Instance.movX;
-            if (animatorStateInfo.IsTag("motion"))
+            if (animatorStateInfo.IsTag("dash"))
             {
-                ComboSystem.Instance.isDarkComboSystem = false;
+              
                 if (Player.Instance.yushan_Type == Yushan_Type.darkenType)
                 {
                     Debug.Log("dashtype");
@@ -89,7 +94,7 @@ namespace Yushan.DarkType
                             //Player.Instance.dashDirection = (int)Player.Instance.movX;
                             DarkKneeKick();
 
-                            StartCoroutine(TurnOnComboSystem());
+                            
 
 
                         }
@@ -98,10 +103,11 @@ namespace Yushan.DarkType
 
 
                 }
+                EventHandler.CallDarkCombatEvent(isDarkDoubleSpearKick, isDarkKneeKick, isDarkCrossKick);
             }
-            if (animatorStateInfo.IsTag("motion"))
+            if (animatorStateInfo.IsTag("running"))
             {
-                ComboSystem.Instance.isDarkComboSystem = false;
+             
                 if (Player.Instance.isRunning)
                 {
                     if (Input.GetKeyDown(KeyCode.K))
@@ -124,7 +130,7 @@ namespace Yushan.DarkType
                                     startTime = 0;
                                     timerIsRunniing = false;
 
-                                    StartCoroutine(TurnOnComboSystem());
+                                    
 
 
 
@@ -161,7 +167,7 @@ namespace Yushan.DarkType
 
 
 
-                                    StartCoroutine(TurnOnComboSystem());
+                                    
 
                                 }
                             }
@@ -171,7 +177,7 @@ namespace Yushan.DarkType
                 }
 
 
-
+                EventHandler.CallDarkCombatEvent(isDarkDoubleSpearKick, isDarkKneeKick, isDarkCrossKick);
 
             }
 
@@ -208,12 +214,7 @@ namespace Yushan.DarkType
 
 
         }
-        private IEnumerator TurnOnComboSystem()
-        {
-            yield return new WaitForSeconds(1f);
-            ComboSystem.Instance.isDarkComboSystem = true;
-            Debug.Log("turn on comnbo system");
-        }
+     
         public void Stop()
         {
             Debug.Log("stop");
@@ -225,7 +226,7 @@ namespace Yushan.DarkType
             Debug.Log("darkkneekick");
 
             isDarkKneeKick = true;
-            animator.SetTrigger("isDarkKneeKick");
+            
 
 
 
@@ -266,7 +267,7 @@ namespace Yushan.DarkType
 
             Debug.Log("darkdoublespearkick");
             //animator.SetBool("isAttacking", true);
-            animator.SetTrigger("isDarkDoubleSpearKick");
+            isDarkDoubleSpearKick = true;
             //float time = GetCurrentAnimatorTime(animator, 1);
             //Debug.Log(time);
 
@@ -300,7 +301,7 @@ namespace Yushan.DarkType
         }
         public void DarkCrossKick()
         {
-            animator.SetTrigger("isDarkCrossKick");
+            isDarkCrossKick = true;
         }
         public float GetCurrentAnimatorTime(Animator targetAnim, int layer = 0)
         {

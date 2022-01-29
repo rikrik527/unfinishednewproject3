@@ -19,12 +19,11 @@ namespace Yushan.movement
         public float movX;
         public float movY;
         public bool isRunning;
-        public bool isDarkDoubleSpearKick;
+  
         public bool isSprint;
         public bool isDashing;
         public bool isDarkSpinBack;
-        public bool isDarkKneeKick;
-        public bool isDarkCrossKick;
+      
         public bool isJumping;
         public bool isFalling;
         public bool isSprintJump;
@@ -330,7 +329,7 @@ namespace Yushan.movement
                             if (canMove)
                             {
                                 isRunning = true;
-                                if (onGround)
+                                if (!onGround)
                                 {
                                     isRunning = false;
                                     isSprint = false;
@@ -365,7 +364,7 @@ namespace Yushan.movement
                             {
                                 isRunning = true;
 
-                                if (onGround)
+                                if (!onGround)
                                 {
                                     isRunning = false;
                                     isSprint = false;
@@ -502,7 +501,7 @@ namespace Yushan.movement
                             dashBufferCounter -= Time.deltaTime;
                             Debug.Log("else" + canDash);
                         }
-
+                        EventHandler.CallDarkMovementEvent(movX, movY, isRunning,  isSprint, isDashing, isDarkSpinBack, isJumping, isFalling, isSprintJump, isSprintFall, isRunningJump, isRunningFall, isWallGrab, isWallJumping, isWallFall, isIdle, isDarkPowerUp);
                     }
 
 
