@@ -7,7 +7,7 @@ public static class Settings
     public const float sprintSpeed = 20.666f;
     public const float runningSpeed = 18.666f;
     public const float walkingSpeed = 2.666f;
-
+    public static bool readyToPerformRunningMoves;
     // player moves
     public static int movX;
 
@@ -31,7 +31,7 @@ public static class Settings
     public static int isWallFall;
     public static int isDarkSpinBack;
     public static int isDarkPowerUp;
-
+    public static int isLanding;
 
     public static int playerInitialInventoryCapacity = 24;
     public static int playerMaximumInventoryCapacity = 48;
@@ -56,7 +56,7 @@ public static class Settings
         //dark movement
         movY = Animator.StringToHash("movY");
         movX = Animator.StringToHash("movX");
-
+        isLanding = Animator.StringToHash("isLanding");
         isRunning = Animator.StringToHash("isRunning");
         isRunningJump = Animator.StringToHash("isRunningJump");
         isRunningFall = Animator.StringToHash("isRunningFall");

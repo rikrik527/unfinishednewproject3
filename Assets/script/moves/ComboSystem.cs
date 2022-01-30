@@ -37,21 +37,24 @@ namespace Yushan.combo
         private void Update()
         {
             animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-
-            if (Player.Instance.yushanType == Yushan_Type.darkenType)
-            {
-
-                Debug.Log("combosystem");
-                if (Input.GetKeyDown(KeyCode.K) && isDarkComboSystem)
+            
+                if (Player.Instance.yushanType == Yushan_Type.darkenType)
                 {
-                    NormalAttack();
-                }
-                if (Input.GetKeyDown(KeyCode.L) && isDarkComboSystem)
+                if (animatorStateInfo.IsTag("motion") && animatorStateInfo.IsTag("running")&& !Settings.readyToPerformRunningMoves)
                 {
-                    SmashAttack();
+                    
+                    if (Input.GetKeyDown(KeyCode.K))
+                    {
+                        NormalAttack();
+                    }
+                    if (Input.GetKeyDown(KeyCode.L))
+                    {
+                        SmashAttack();
+                    }
+                    EventHandler.CallDarkComboEvent(isDarkSpinKick, isDarkWhirlWindKick, isDarkSweepKick, isDarkDoubleSweepKick, isDarkSpinHeadKick);
                 }
-                EventHandler.CallDarkComboEvent(isDarkSpinKick, isDarkWhirlWindKick, isDarkSweepKick, isDarkDoubleSweepKick, isDarkSpinHeadKick);
             }
+            
 
 
 

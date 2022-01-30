@@ -30,9 +30,7 @@ namespace Yushan.DarkType
         public bool readyToKick;
         public bool isDashMovesReady;
 
-        public float timeRemaining = 1.8f;
-        public bool timerIsRunniing = false;
-        public float startTime = 0f;
+        
         private Animator animator;
         public static DarkTypeMoves Instance { get; private set; }
 
@@ -82,6 +80,7 @@ namespace Yushan.DarkType
                     Debug.Log("dashtype");
                     if (isDashMovesReady == true)
                     {
+                        Debug.Log("isDarkmoveReady");
                         if (Input.GetKeyDown(KeyCode.K))
                         {
 
@@ -105,85 +104,44 @@ namespace Yushan.DarkType
                 }
                 EventHandler.CallDarkCombatEvent(isDarkDoubleSpearKick, isDarkKneeKick, isDarkCrossKick);
             }
-            if (animatorStateInfo.IsTag("running"))
+            if (animatorStateInfo.IsTag("running") && Settings.readyToPerformRunningMoves)
             {
              
-                if (Player.Instance.isRunning)
-                {
+               
                     if (Input.GetKeyDown(KeyCode.K))
                     {
-                        Debug.Log("mousedown isrunning" + Player.Instance.isRunning);
-
-
-                        Debug.Log("player isruun right");
-                        timerIsRunniing = true;
-                        if (timerIsRunniing)
-                        {
-                            if (timeRemaining > 0f)
-                            {
-                                startTime += Time.deltaTime;
-
-                                if (startTime >= timeRemaining)
-                                {
-
-                                    StartCoroutine(AttackCo());
-                                    startTime = 0;
-                                    timerIsRunniing = false;
+                        StartCoroutine(AttackCo());
+                                    
 
                                     
 
 
 
-                                }
+                                
                             }
 
 
 
-                        }
+                        
 
 
-                    }
+                    
 
-                    if (Input.GetKeyDown(KeyCode.K))
-                    {
-
-                        timerIsRunniing = true;
-
-                        Debug.Log("playerrunningleft");
-
-                        if (timerIsRunniing)
-                        {
-                            if (timeRemaining > 0f)
-                            {
-                                startTime += Time.deltaTime;
-
-                                if (startTime >= timeRemaining)
-                                {
-
-
-                                    StartCoroutine(AttackCo());
-                                    startTime = 0;
-                                    timerIsRunniing = false;
-
-
-
-                                    
-
-                                }
-                            }
-                        }
-
-                    }
-                }
-
-
+                   
                 EventHandler.CallDarkCombatEvent(isDarkDoubleSpearKick, isDarkKneeKick, isDarkCrossKick);
+            }
+
+                    
+                
+
+
+                
 
             }
 
 
 
-        }
+        
 
 
 
@@ -192,24 +150,24 @@ namespace Yushan.DarkType
 
         private void LateUpdate()
         {
-            if (animator != null)
-            {
-                Debug.Log("animator is not null");
-                if (animatorStateInfo.IsName(Tags.DarkDoubleSpearKick) && animatorStateInfo.normalizedTime >= 0.9f)
-                {
-                    Debug.Log("darkdoublespearkick finished stop");
-                    Stop();
+            //if (animator != null)
+            //{
+            //    Debug.Log("animator is not null");
+            //    if (animatorStateInfo.IsName(Tags.DarkDoubleSpearKick) && animatorStateInfo.normalizedTime >= 0.9f)
+            //    {
+            //        Debug.Log("darkdoublespearkick finished stop");
+            //        Stop();
 
-                }
+            //    }
 
 
 
-                if (animatorStateInfo.IsName(Tags.DarkKneeKick) && animatorStateInfo.normalizedTime >= 0.9f)
-                {
-                    Debug.Log("stop darkknee kick");
-                    Stop();
-                }
-            }
+            //    if (animatorStateInfo.IsName(Tags.DarkKneeKick) && animatorStateInfo.normalizedTime >= 0.9f)
+            //    {
+            //        Debug.Log("stop darkknee kick");
+            //        Stop();
+            //    }
+            //}
 
 
 
@@ -296,8 +254,8 @@ namespace Yushan.DarkType
             yield return new WaitForSeconds(1f);
             Player.Instance.rigidbody2D.velocity = Vector2.zero;
             readyToKick = false;
-
-            Debug.Log("coruotine done" + animatorStateInfo.IsName(Tags.DarkDoubleSpearKick) + animatorStateInfo.normalizedTime);
+            Settings.readyToPerformRunningMoves = false;
+          
         }
         public void DarkCrossKick()
         {

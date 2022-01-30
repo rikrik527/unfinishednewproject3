@@ -3,7 +3,7 @@ using System;
 using Yushan.Enums;
 
 public delegate void DarkMovementDelegate(float movX, float movY, bool isRunning, bool isSprint, bool isDashing,bool isDarkSpinBack,
-    bool isJumping, bool isFalling, bool isSprintJump, bool isSprintFall, bool isRunningJump, bool isRunningFall, bool isWallGrab, bool isWallJumping, bool isWallFall, bool isIdle, bool isDarkPowerUp);
+    bool isJumping, bool isFalling,bool isLanding, bool isSprintJump, bool isSprintFall, bool isRunningJump, bool isRunningFall, bool isWallGrab, bool isWallJumping, bool isWallFall, bool isIdle, bool isDarkPowerUp);
 
 public delegate void DarkCombatMovesDelegate(bool isDarkDoubleSpearKick, bool isDarkKneeKick, bool isDarkCrossKick);
 public delegate void DarkComboDelegate(bool isDarkSpinKick, bool isDarkWhirlWindKick, bool isDarkSweepKick, bool isDarkDoubleSweepKick, bool isDarkSpinHeadKick);
@@ -35,11 +35,11 @@ public static class EventHandler
     }
     //player moves
     public static event DarkMovementDelegate DarkMovementEvent;
-    public static void CallDarkMovementEvent(float movX, float movY, bool isRunning,  bool isSprint, bool isDashing, bool isDarkSpinBack, bool isJumping, bool isFalling, bool isSprintJump, bool isSprintFall, bool isRunningJump, bool isRunningFall, bool isWallGrab, bool isWallJumping, bool isWallFall, bool isIdle, bool isDarkPowerUp)
+    public static void CallDarkMovementEvent(float movX, float movY, bool isRunning,  bool isSprint, bool isDashing, bool isDarkSpinBack, bool isJumping, bool isFalling,bool isLanding, bool isSprintJump, bool isSprintFall, bool isRunningJump, bool isRunningFall, bool isWallGrab, bool isWallJumping, bool isWallFall, bool isIdle, bool isDarkPowerUp)
     {
         if (DarkMovementEvent != null)
         {
-            DarkMovementEvent(movX, movY, isRunning,  isSprint, isDashing, isDarkSpinBack, isJumping, isFalling, isSprintJump, isSprintFall, isRunningJump, isRunningFall, isWallGrab, isWallJumping, isWallFall, isIdle, isDarkPowerUp);
+            DarkMovementEvent(movX, movY, isRunning,  isSprint, isDashing, isDarkSpinBack, isJumping, isFalling,isLanding, isSprintJump, isSprintFall, isRunningJump, isRunningFall, isWallGrab, isWallJumping, isWallFall, isIdle, isDarkPowerUp);
         }
     }
     //dark combat moves
