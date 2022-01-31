@@ -8,7 +8,7 @@ public class DarkMovementAnimationControl : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        animator = GetComponent<Animator>();
+        animator = GetComponentInChildren<Animator>();
     }
     private void OnEnable()
     {

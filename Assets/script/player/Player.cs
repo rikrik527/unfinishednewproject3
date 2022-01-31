@@ -58,7 +58,7 @@ namespace Yushan.movement
         public bool isRunningLeft;
         public bool changeDirection => (rigidbody2D.velocity.x > 0f && movX < 0f) || (rigidbody2D.velocity.x < 0f && movX > 0f);
         public bool facingRight = true;
-        public bool canMove => !wallGrab;
+        public bool canMove;
 
         [Header("jump variable")]
         [SerializeField] private float jumpForce = 12f;
@@ -72,7 +72,7 @@ namespace Yushan.movement
         private int extraJumpValue;
         private float hangTimeCounter;
         private float jumpBufferCounter;
-        private bool canJump => jumpBufferCounter > 0f && (hangTimeCounter > 0f || extraJumpValue > 0 || onWall);
+        public bool canJump;
 
 
         [Header("wall movement variables")]
@@ -134,7 +134,7 @@ namespace Yushan.movement
         public float dashBufferCounter;
 
         public bool hasDashed;
-        public bool canDash => dashBufferCounter > 0f && !hasDashed;
+        public bool canDash;
 
 
 
@@ -330,7 +330,7 @@ namespace Yushan.movement
                         if (movX > 0 && Input.GetKey(KeyCode.D))
                         {
 
-                           
+                            canMove = true;
                                 isRunning = true;
                                 if (!onGround && movY < -1)
                                 {
@@ -340,48 +340,53 @@ namespace Yushan.movement
                                 }
                                 if (isRunning)
                                 {
+                                Debug.Log("start counting");
                                     timerIsRunning = true;
                                     if (timerIsRunning)
                                     {
                                         if(timeRemaining > 0f)
                                         {
-                                            startDashTimer += Time.deltaTime;
-                                            if(startDashTimer >= timeRemaining)
+                                            startTime += Time.deltaTime;
+                                            if(startTime >= timeRemaining)
                                             {
                                                 Settings.readyToPerformRunningMoves = true;
-                                                
 
-                                                
+                                            rigidbody2D.AddForce(new Vector2(movX, 0f) * movementAcceleration);
+                                            if (Mathf.Abs(rigidbody2D.velocity.x) > maxMoveSpeed)
+                                            {
+                                                rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
                                             }
+
+                                        }
                                         }
                                     }
                                 }
 
-                                //playerGameObject.transform.Translate(runningSpeed * Time.deltaTime, 0, 0);
-                                Debug.Log("isrunningright" + isRunning);
-                                rigidbody2D.AddForce(new Vector2(movX, 0f) * movementAcceleration);
-                                if (Mathf.Abs(rigidbody2D.velocity.x) > maxMoveSpeed)
-                                {
-                                    rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
-                                }
-                                //playerDirection = Direction.right;
-                                //if (playerDirection == Direction.right)
-                                //{
-                                //    canFlip = true;
-                                //    if (canFlip)
-                                //    {
-                                //        spriteRenderer.flipX = false;
-                                //    }
+                            //playerGameObject.transform.Translate(runningSpeed * Time.deltaTime, 0, 0);
 
-                                //}
 
+                            //playerDirection = Direction.right;
+                            //if (playerDirection == Direction.right)
+                            //{
+                            //    canFlip = true;
+                            //    if (canFlip)
+                            //    {
+                            //        spriteRenderer.flipX = false;
+                            //    }
+
+                            //}
+                            if (Input.GetKeyUp(KeyCode.D))
+                            {
+                                Debug.Log("d is up stop running");
+                                isRunning = false;
+                            }
                             
 
                         }
                         if (movX < 0 && Input.GetKey(KeyCode.A))
                         {
-
-                            
+                            Flip();
+                            canMove = true;
                                 isRunning = true;
 
                                 if (!onGround && movY < -1) 
@@ -397,45 +402,51 @@ namespace Yushan.movement
                                     {
                                         if (timeRemaining > 0f)
                                         {
-                                            startDashTimer += Time.deltaTime;
-                                            if (startDashTimer >= timeRemaining)
+                                            startTime += Time.deltaTime;
+                                            if (startTime >= timeRemaining)
                                             {
                                                 Settings.readyToPerformRunningMoves = true;
-
-
-
+                                            rigidbody2D.AddForce(new Vector2(-movX, 0f) * movementAcceleration);
+                                            if (Mathf.Abs(rigidbody2D.velocity.x) > maxMoveSpeed)
+                                            {
+                                                rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
                                             }
+
+
+                                        }
                                         }
                                     }
                                 }
-                                //playerGameObject.transform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
-                                //Debug.Log("isrunningright" + isRunning);
-                                rigidbody2D.AddForce(new Vector2(-movX, 0f) * movementAcceleration);
-                                if (Mathf.Abs(rigidbody2D.velocity.x) > maxMoveSpeed)
-                                {
-                                    rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
-                                }
-                                //playerDirection = Direction.left;
-                                //if (playerDirection == Direction.left)
-                                //{
-                                //    canFlip = true;
-                                //    if (canFlip)
-                                //    {
-                                //        spriteRenderer.flipX = true;
-                                //    }
+                            //playerGameObject.transform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
+                            //Debug.Log("isrunningright" + isRunning);
 
-                                //}
+                            //playerDirection = Direction.left;
+                            //if (playerDirection == Direction.left)
+                            //{
+                            //    canFlip = true;
+                            //    if (canFlip)
+                            //    {
+                            //        spriteRenderer.flipX = true;
+                            //    }
 
+                            //}
 
+                            if (Input.GetKeyUp(KeyCode.A))
+                            {
+                                isRunning = false;
+                            }
                             
                         }
-                        if (movX > 0  && Input.GetKey(KeyCode.D))
+
+                        //sprint
+                        if (movX > 0 && Input.GetKey(KeyCode.D) && isRunning)
                         {
                             if (Input.GetKey(KeyCode.M))
                             {
+                                canMove = true;
                                 isSprint = true;
                             }
-                            
+
                             if (isSprint)
                             {
                                 isRunning = false;
@@ -451,8 +462,9 @@ namespace Yushan.movement
                                 {
                                     rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSprintSpeed, rigidbody2D.velocity.y);
                                 }
-
-                                if (Input.GetKeyUp(KeyCode.M))
+                            }
+                        
+                                if (Input.GetKeyUp(KeyCode.M)&& isSprint)
                                 {
                                     Debug.Log("keyupD");
                                     isSprint = false;
@@ -461,16 +473,17 @@ namespace Yushan.movement
 
                                 }
                               
-                            }
+                            
 
                         }
                         if (movX < 0 && isRunning  && Input.GetKey(KeyCode.A))
                         {
+                            Flip();
                             if (Input.GetKey(KeyCode.M))
                             {
                                 isSprint = true;
                             }
-                            
+
                             if (isSprint)
                             {
 
@@ -483,8 +496,8 @@ namespace Yushan.movement
                                 {
                                     rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSprintSpeed, rigidbody2D.velocity.y);
                                 }
-
-                                if (Input.GetKeyUp(KeyCode.M))
+                            }
+                                if (Input.GetKeyUp(KeyCode.M) && isSprint)
                                 {
                                     Debug.Log("keyup left sprint");
                                     isSprint = false;
@@ -492,7 +505,7 @@ namespace Yushan.movement
                                     
                                 }
                                
-                            }
+                            
 
 
                         }
@@ -505,22 +518,20 @@ namespace Yushan.movement
 
 
 
-                        if (GetInput().x == 0)
+                        if (movX == 0 && movY == 0)
                         {
-                            isRunningLeft = false;
-                            isRunningRight = false;
+                            Debug.Log("idle");
                             isDashing = false;
                             isRunning = false;
                             isSprint = false;
-                            dash = false;
+                            isJumping = false;
                             isIdle = true;
 
                         }
 
                         if (Input.GetKeyDown(KeyCode.Space))
                         {
-                            Debug.Log("spece");
-                            jumpBufferCounter = jumpBufferLength;
+                            canJump = true;
                         }
                         else
                         {
@@ -531,10 +542,8 @@ namespace Yushan.movement
 
                         if (Input.GetKeyDown(KeyCode.J))
                         {
-                            Debug.Log("j prss dash");
-
-                            dashBufferCounter = dashBufferLength;
-                            Debug.Log("j press" + canDash);
+                            canDash = true;
+                           
                         }
                         else
                         {
@@ -590,6 +599,7 @@ namespace Yushan.movement
                 //    Debug.Log("else");
                 //    rigidbody2D.velocity = Vector2.Lerp(rigidbody2D.velocity, (new Vector2(movX * maxMoveSpeed, rigidbody2D.velocity.y)), .5f * Time.deltaTime);
                 //}
+
                 if (onGround)
                 {
                     Debug.Log("onground");
