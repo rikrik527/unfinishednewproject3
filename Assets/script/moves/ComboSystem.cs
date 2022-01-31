@@ -42,6 +42,7 @@ namespace Yushan.combo
                 {
                 if (animatorStateInfo.IsTag("motion") && animatorStateInfo.IsTag("running")&& !Settings.readyToPerformRunningMoves)
                 {
+                    Debug.Log("should be false settings.readytoperformrunnmoves" + Settings.readyToPerformRunningMoves);
                     
                     if (Input.GetKeyDown(KeyCode.K))
                     {
