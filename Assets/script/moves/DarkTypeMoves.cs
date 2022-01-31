@@ -93,16 +93,16 @@ namespace Yushan.DarkType
                             //Player.Instance.dashDirection = (int)Player.Instance.movX;
                             DarkKneeKick();
 
-                            
 
 
+                            EventHandler.CallDarkCombatEvent(isDarkDoubleSpearKick, isDarkKneeKick, isDarkCrossKick);
                         }
                     }
 
 
 
                 }
-                EventHandler.CallDarkCombatEvent(isDarkDoubleSpearKick, isDarkKneeKick, isDarkCrossKick);
+                
             }
             if (animatorStateInfo.IsTag("running") && Settings.readyToPerformRunningMoves)
             {
@@ -111,14 +111,14 @@ namespace Yushan.DarkType
                     if (Input.GetKeyDown(KeyCode.K))
                     {
                         StartCoroutine(AttackCo());
-                                    
-
-                                    
 
 
 
-                                
-                            }
+
+
+                    EventHandler.CallDarkCombatEvent(isDarkDoubleSpearKick, isDarkKneeKick, isDarkCrossKick);
+
+                }
 
 
 
@@ -128,7 +128,7 @@ namespace Yushan.DarkType
                     
 
                    
-                EventHandler.CallDarkCombatEvent(isDarkDoubleSpearKick, isDarkKneeKick, isDarkCrossKick);
+                
             }
 
                     
