@@ -327,7 +327,7 @@ namespace Yushan.movement
 
 
                         Debug.Log("motion");
-                        if (movX > 0 && Input.GetKey(KeyCode.D))
+                        if (movX > 0 && Input.GetKey(KeyCode.D)&&!isRunning)
                         {
 
                             canMove = true;
@@ -359,6 +359,8 @@ namespace Yushan.movement
 
                                         }
                                         }
+                                    startTime = 0;
+                                    timerIsRunning = false;
                                     }
                                 }
 
@@ -375,17 +377,21 @@ namespace Yushan.movement
                             //    }
 
                             //}
-                            if (Input.GetKeyUp(KeyCode.D))
-                            {
-                                Debug.Log("d is up stop running");
-                                isRunning = false;
-                            }
+                            
                             
 
                         }
-                        if (movX < 0 && Input.GetKey(KeyCode.A))
+                        if (Input.GetKeyUp(KeyCode.D)&& isRunning)
+                        {
+                            Debug.Log("d is up stop running");
+                            canMove = false;
+                            isRunning = false;
+                            rigidbody2D.velocity = Vector2.zero;
+                        }
+                        if (movX < 0 && Input.GetKey(KeyCode.A)&&!isRunning)
                         {
                             Flip();
+                            playerDirection = Direction.left;
                             canMove = true;
                                 isRunning = true;
 
@@ -395,7 +401,7 @@ namespace Yushan.movement
                                     isRunning = false;
                                     isSprint = false;
                                 }
-                                if (isRunning)
+                                if (isRunning && playerDirection == Direction.left)
                                 {
                                     timerIsRunning = true;
                                     if (timerIsRunning)
@@ -412,7 +418,8 @@ namespace Yushan.movement
                                                 rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
                                             }
 
-
+                                            startTime = 0;
+                                            timerIsRunning = false;
                                         }
                                         }
                                     }
@@ -431,11 +438,14 @@ namespace Yushan.movement
 
                             //}
 
-                            if (Input.GetKeyUp(KeyCode.A))
-                            {
-                                isRunning = false;
-                            }
+             
                             
+                        }
+                        if (Input.GetKeyUp(KeyCode.A)&& isRunning)
+                        {
+                            canMove = false;
+                            isRunning = false;
+                            rigidbody2D.velocity = Vector2.zero;
                         }
 
                         //sprint
@@ -464,22 +474,25 @@ namespace Yushan.movement
                                 }
                             }
                         
-                                if (Input.GetKeyUp(KeyCode.M)&& isSprint)
-                                {
-                                    Debug.Log("keyupD");
-                                    isSprint = false;
-                                    isSlowingDown = true;
-                                    
-
-                                }
+                             
                               
                             
+
+                        }
+                        if (Input.GetKeyUp(KeyCode.M) && isSprint)
+                        {
+                            Debug.Log("keyupD");
+                            isRunning = true;
+                            isSprint = false;
+                            isSlowingDown = true;
+
 
                         }
                         if (movX < 0 && isRunning  && Input.GetKey(KeyCode.A))
                         {
                             Flip();
-                            if (Input.GetKey(KeyCode.M))
+                            playerDirection = Direction.left;
+                            if (Input.GetKey(KeyCode.M)&& playerDirection == Direction.left)
                             {
                                 isSprint = true;
                             }
@@ -497,19 +510,20 @@ namespace Yushan.movement
                                     rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSprintSpeed, rigidbody2D.velocity.y);
                                 }
                             }
-                                if (Input.GetKeyUp(KeyCode.M) && isSprint)
-                                {
-                                    Debug.Log("keyup left sprint");
-                                    isSprint = false;
-                                    isSlowingDown = true;
-                                    
-                                }
+                               
                                
                             
 
 
                         }
+                        if (Input.GetKeyUp(KeyCode.M) && isSprint && playerDirection == Direction.left)
+                        {
+                            Debug.Log("keyup left sprint");
+                            isRunning = true;
+                            isSprint = false;
+                            isSlowingDown = true;
 
+                        }
 
                         dashDirection = (int)movX;
 
