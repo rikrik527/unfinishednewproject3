@@ -4,7 +4,8 @@ using UnityEngine;
 using Yushan.movement;
 using TMPro;
 using UnityEngine.UI;
-public class MovingT : MonoBehaviour
+using Yushan.DarkType;
+public class MovingText : MonoBehaviour
 {
     public GameObject movingText;
 
@@ -19,5 +20,10 @@ public class MovingT : MonoBehaviour
         Vector2 followPos = Camera.main.WorldToScreenPoint(this.transform.position);
         movingText.gameObject.transform.position = followPos;
         timerText.text = Player.Instance.startTime.ToString();
+        if(Settings.readyToPerformRunningMoves == true)
+        {
+            timerText.text = "";
+            timerText.text = DarkTypeMoves.Instance.readyText.text;
+        }
     }
 }

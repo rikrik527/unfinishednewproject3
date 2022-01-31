@@ -52,8 +52,9 @@ namespace Yushan.combo
                     {
                         SmashAttack();
                     }
-                    EventHandler.CallDarkComboEvent(isDarkSpinKick, isDarkWhirlWindKick, isDarkSweepKick, isDarkDoubleSweepKick, isDarkSpinHeadKick);
+                   
                 }
+                EventHandler.CallDarkComboEvent(isDarkSpinKick, isDarkWhirlWindKick, isDarkSweepKick, isDarkDoubleSweepKick, isDarkSpinHeadKick);
             }
             
 

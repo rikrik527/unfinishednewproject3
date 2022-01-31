@@ -344,7 +344,7 @@ namespace Yushan.movement
                                 timerIsRunning = true;
                                 if (timerIsRunning)
                                 {
-                                    while (timeRemaining > 0f)
+                                    if (timeRemaining > 0f)
                                     {
                                         startTime += Time.deltaTime;
                                         Debug.Log("starttime" + startTime);
@@ -357,9 +357,7 @@ namespace Yushan.movement
                                             {
                                                 rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
                                             }
-                                            startTime = 0;
-                                            timerIsRunning = false;
-                                            break;
+                                            // perform moves ready in darktypemoves cs
                                         }
                                     }
                                    
@@ -390,6 +388,10 @@ namespace Yushan.movement
                             canMove = false;
                             isRunning = false;
                             rigidbody2D.velocity = Vector2.zero;
+                            if (Settings.readyToPerformRunningMoves)
+                            {
+                                Settings.readyToPerformRunningMoves = false;
+                            }
                         }
                         if (movX < 0 && Input.GetKey(KeyCode.A) && !isRunning)
                         {
@@ -409,7 +411,7 @@ namespace Yushan.movement
                                 timerIsRunning = true;
                                 if (timerIsRunning)
                                 {
-                                    while (timeRemaining > 0f)
+                                    if (timeRemaining > 0f)
                                     {
                                         startTime += Time.deltaTime;
                                         if (startTime >= timeRemaining)
@@ -419,9 +421,8 @@ namespace Yushan.movement
                                             if (Mathf.Abs(rigidbody2D.velocity.x) > maxMoveSpeed)
                                             {
                                                 rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
-                                                startTime = 0;
-                                                timerIsRunning = false;
-                                                break;
+                                                
+                                             //performing readytoperformrunningmoves in darktypemoves.cs   
                                             }
 
                                             
@@ -451,6 +452,11 @@ namespace Yushan.movement
                             canMove = false;
                             isRunning = false;
                             rigidbody2D.velocity = Vector2.zero;
+                            if (Settings.readyToPerformRunningMoves)
+                            {
+                                Settings.readyToPerformRunningMoves = false;
+                            }
+                            
                         }
 
                         //sprint
