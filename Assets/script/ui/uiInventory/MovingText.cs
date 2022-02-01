@@ -23,7 +23,7 @@ public class MovingText : MonoBehaviour
         if(Settings.readyToPerformRunningMoves == true)
         {
             timerText.text = "";
-            timerText.text = DarkTypeMoves.Instance.readyText.text;
+            timerText.text = "ready to perform running moves";
         }
     }
 }

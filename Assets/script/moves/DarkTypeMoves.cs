@@ -108,7 +108,7 @@ using TMPro;
 
                 if (animatorStateInfo.IsTag("running") && Settings.readyToPerformRunningMoves)
                 {
-                    readyText.text = "ready to perform running moves";
+                    Debug.Log("readytoperformrunningmoves"+Settings.readyToPerformRunningMoves);
 
                     if (Input.GetKeyDown(KeyCode.K))
                     {

@@ -54,8 +54,7 @@ namespace Yushan.movement
         [SerializeField] private float maxMoveSpeed = 6.66f;
         [SerializeField] private float groundLinearDrag = 7f;
 
-        public bool isRunningRight;
-        public bool isRunningLeft;
+      
         public bool changeDirection => (rigidbody2D.velocity.x > 0f && movX < 0f) || (rigidbody2D.velocity.x < 0f && movX > 0f);
         public bool facingRight = true;
         public bool canMove;
@@ -114,7 +113,11 @@ namespace Yushan.movement
 
 
 
-
+        [Header("running and sprint variable")]
+        public bool isRunningRight;
+        public bool isRunningLeft;
+        public bool isSprintingRight;
+        public bool isSprintingLeft;
 
         public PlayerState currentStat;
         private Vector3 change;
@@ -283,10 +286,7 @@ namespace Yushan.movement
         {
 
 
-            animatorClipInfo = animator.GetCurrentAnimatorClipInfo(0);
-
-            movX = Input.GetAxisRaw("Horizontal");
-            movY = Input.GetAxisRaw("Vertical");
+          
 
 
             switch (yushanType)
@@ -317,306 +317,29 @@ namespace Yushan.movement
             if (yushanType == Yushan_Type.darkenType)
             {
 
+
+
                 if (!PlayerInputIsDisabled)
                 {
+                    CameraPlayerPosition();
 
-                    Debug.Log("!playerinputiddisabled");
-
-                    if (animatorStateInfo.IsTag("motion"))
-                    {
-
-
-                        Debug.Log("motion");
-                        if (movX > 0 && Input.GetKey(KeyCode.D) && !isRunning)
-                        {
-                            playerDirection = Direction.right;
-                            canMove = true;
-                            isRunning = true;
-                            if (!onGround)
-                            {
-                                isRunning = false;
-                                isSprint = false;
-
-                            }
-                            if (isRunning && playerDirection == Direction.right)
-                            {
-                                Debug.Log("start counting");
-                                timerIsRunning = true;
-                                if (timerIsRunning)
-                                {
-                                    if (timeRemaining > 0f)
-                                    {
-                                        startTime += Time.deltaTime;
-                                        Debug.Log("starttime" + startTime);
-                                        if (startTime >= timeRemaining)
-                                        {
-                                            Settings.readyToPerformRunningMoves = true;
-
-                                            rigidbody2D.AddForce(new Vector2(movX, 0f) * movementAcceleration);
-                                            if (Mathf.Abs(rigidbody2D.velocity.x) > maxMoveSpeed)
-                                            {
-                                                rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
-                                            }
-                                            // perform moves ready in darktypemoves cs
-                                        }
-                                    }
-                                   
-                                    
-                                }
-                            }
-
-                            //playerGameObject.transform.Translate(runningSpeed * Time.deltaTime, 0, 0);
-
-
-                            //playerDirection = Direction.right;
-                            //if (playerDirection == Direction.right)
-                            //{
-                            //    canFlip = true;
-                            //    if (canFlip)
-                            //    {
-                            //        spriteRenderer.flipX = false;
-                            //    }
-
-                            //}
-
-
-
-                        }
-                        if (Input.GetKeyUp(KeyCode.D) && playerDirection == Direction.right)
-                        {
-                            Debug.Log("d is up stop running");
-                            canMove = false;
-                            isRunning = false;
-                            rigidbody2D.velocity = Vector2.zero;
-                            if (Settings.readyToPerformRunningMoves)
-                            {
-                                Settings.readyToPerformRunningMoves = false;
-                            }
-                        }
-                        if (movX < 0 && Input.GetKey(KeyCode.A) && !isRunning)
-                        {
-                            Flip();
-                            playerDirection = Direction.left;
-                            canMove = true;
-                            isRunning = true;
-
-                            if (!onGround && movY < -1)
-                            {
-                                isFalling = true;
-                                isRunning = false;
-                                isSprint = false;
-                            }
-                            if (isRunning && playerDirection == Direction.left)
-                            {
-                                timerIsRunning = true;
-                                if (timerIsRunning)
-                                {
-                                    if (timeRemaining > 0f)
-                                    {
-                                        startTime += Time.deltaTime;
-                                        if (startTime >= timeRemaining)
-                                        {
-                                            Settings.readyToPerformRunningMoves = true;
-                                            rigidbody2D.AddForce(new Vector2(-movX, 0f) * movementAcceleration);
-                                            if (Mathf.Abs(rigidbody2D.velocity.x) > maxMoveSpeed)
-                                            {
-                                                rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
-                                                
-                                             //performing readytoperformrunningmoves in darktypemoves.cs   
-                                            }
-
-                                            
-                                        }
-                                    }
-                                }
-                            }
-                            //playerGameObject.transform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
-                            //Debug.Log("isrunningright" + isRunning);
-
-                            //playerDirection = Direction.left;
-                            //if (playerDirection == Direction.left)
-                            //{
-                            //    canFlip = true;
-                            //    if (canFlip)
-                            //    {
-                            //        spriteRenderer.flipX = true;
-                            //    }
-
-                            //}
-
-
-
-                        }
-                        if (Input.GetKeyUp(KeyCode.A) && playerDirection == Direction.left)
-                        {
-                            canMove = false;
-                            isRunning = false;
-                            rigidbody2D.velocity = Vector2.zero;
-                            if (Settings.readyToPerformRunningMoves)
-                            {
-                                Settings.readyToPerformRunningMoves = false;
-                            }
-                            
-                        }
-
-                        //sprint
-                        if (movX > 0 && Input.GetKey(KeyCode.D) && isRunning)
-                        {
-                            playerDirection = Direction.right;
-                            if (Input.GetKey(KeyCode.M)&& playerDirection == Direction.right)
-                            {
-                                canMove = true;
-                                isSprint = true;
-                            }
-
-                            if (isSprint)
-                            {
-                                isRunning = false;
-
-                                Debug.Log("isspritnt");
-
-
-
-
-                                //playerGameObject.transform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
-                                rigidbody2D.AddForce(new Vector2(movX, 0f) * sprintAcceleration);
-                                if (Mathf.Abs(rigidbody2D.velocity.x) > maxSprintSpeed)
-                                {
-                                    rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSprintSpeed, rigidbody2D.velocity.y);
-                                }
-                            }
-
-
-
-
-
-                        }
-                        if (Input.GetKeyUp(KeyCode.M) && playerDirection == Direction.right)
-                        {
-                            Debug.Log("keyupD");
-                            isRunning = true;
-                            isSprint = false;
-                            isSlowingDown = true;
-
-
-                        }
-                        if (movX < 0 && isRunning && Input.GetKey(KeyCode.A))
-                        {
-                            Flip();
-                            playerDirection = Direction.left;
-                            if (Input.GetKey(KeyCode.M) && playerDirection == Direction.left)
-                            {
-                                isSprint = true;
-                            }
-
-                            if (isSprint)
-                            {
-
-                                isRunning = false;
-
-
-                                //playerGameObject.transform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
-                                rigidbody2D.AddForce(new Vector2(-movX, 0f) * sprintAcceleration);
-                                if (Mathf.Abs(rigidbody2D.velocity.x) > maxSprintSpeed)
-                                {
-                                    rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSprintSpeed, rigidbody2D.velocity.y);
-                                }
-                            }
-
-
-
-
-
-                        }
-                        if (Input.GetKeyUp(KeyCode.M) && isSprint && playerDirection == Direction.left)
-                        {
-                            Debug.Log("keyup left sprint");
-                            isRunning = true;
-                            isSprint = false;
-                            isSlowingDown = true;
-
-                        }
-
-                        dashDirection = (int)movX;
-
-
-
-
-
-
-                        if (movX == 0 && movY == 0)
-                        {
-                            Debug.Log("idle");
-                            isDashing = false;
-                            isRunning = false;
-                            isSprint = false;
-                            isJumping = false;
-                            isIdle = true;
-
-                        }
-
-                        if (Input.GetKeyDown(KeyCode.Space))
-                        {
-                            canJump = true;
-                            Jump(Vector2.up);
-                        }
-                        else
-                        {
-                            jumpBufferCounter -= Time.deltaTime;
-                        }
-
-
-
-                        if (Input.GetKeyDown(KeyCode.J))
-                        {
-                            canDash = true;
-                            StartCoroutine(Dash(movX, movY));
-                        }
-                        else
-                        {
-                            dashBufferCounter -= Time.deltaTime;
-                            Debug.Log("else" + canDash);
-                        }
-
-                    }
-
-
-
-
-
-
+                    DarkMovementInput();
 
                     // send event to any listeners for player movement input
 
-
+                    EventHandler.CallDarkMovementEvent(movX, movY, isRunning, isSprint, isDashing, isDarkSpinBack, isJumping, isFalling, isLanding, isSprintJump, isSprintFall, isRunningJump, isRunningFall, isWallGrab, isWallJumping, isWallFall, isIdle, isDarkPowerUp);
 
                 }
-                EventHandler.CallDarkMovementEvent(movX, movY, isRunning, isSprint, isDashing, isDarkSpinBack, isJumping, isFalling, isLanding, isSprintJump, isSprintFall, isRunningJump, isRunningFall, isWallGrab, isWallJumping, isWallFall, isIdle, isDarkPowerUp);
+
             }
-
-
-
-
-
-
-            CameraPlayerPosition();
-
-
-
-
-
-            //float time = GetCurrentAnimatorTime(animator, 0);
-            //Debug.Log(time);
 
         }
 
-
-
-
-
-
         void FixedUpdate()
         {
+
+
+            Movement();
             CheckCollisions();
             //if (canDash) StartCoroutine(Dash(movX, movY));
             if (!isDashing)
@@ -678,15 +401,15 @@ namespace Yushan.movement
         }
         void Flip()
         {
-            if(playerDirection == Direction.right)
+            if (playerDirection == Direction.right)
             {
                 spriteRenderer.flipX = false;
             }
-            else if(playerDirection == Direction.left)
+            else if (playerDirection == Direction.left)
             {
                 spriteRenderer.flipX = true;
             }
-            
+
         }
         //private Vector2 GetInput()
         //{
@@ -727,6 +450,372 @@ namespace Yushan.movement
             isJumping = false;
 
         }
+        private void DarkMovementInput()
+        {
+            animatorClipInfo = animator.GetCurrentAnimatorClipInfo(0);
+
+            movX = Input.GetAxisRaw("Horizontal");
+            movY = Input.GetAxisRaw("Vertical");
+
+            Debug.Log("!playerinputiddisabled");
+
+            if (animatorStateInfo.IsTag("motion"))
+            {
+
+
+                Debug.Log("motion");
+                if (movX > 0 && Input.GetKeyDown(KeyCode.D) && !isRunning)
+                {
+                    Debug.Log("keydown not running");
+                    playerDirection = Direction.right;
+                    canMove = true;
+                    isRunning = true;
+                    if (!onGround)
+                    {
+                        Debug.Log("!ground");
+                        isRunning = false;
+                        isSprint = false;
+
+                    }
+                    if (isRunning && playerDirection == Direction.right)
+                    {
+                        Debug.Log("start counting");
+                        timerIsRunning = true;
+                        if (Input.GetKey(KeyCode.D))
+                        {
+                            isRunningRight = true;
+                            Debug.Log("getkey D running");
+                            if (timerIsRunning)
+                            {
+                                if (timeRemaining > 0f)
+                                {
+                                    startTime += Time.deltaTime;
+
+                                    if (startTime >= timeRemaining)
+                                    {
+                                        Settings.readyToPerformRunningMoves = true;
+
+                                      
+                                        // perform moves ready in darktypemoves cs
+                                    }
+                                }
+
+
+                            }
+                        }
+
+                    }
+
+                    //playerGameObject.transform.Translate(runningSpeed * Time.deltaTime, 0, 0);
+
+
+                    //playerDirection = Direction.right;
+                    //if (playerDirection == Direction.right)
+                    //{
+                    //    canFlip = true;
+                    //    if (canFlip)
+                    //    {
+                    //        spriteRenderer.flipX = false;
+                    //    }
+
+                    //}
+
+
+
+                }
+                if (Input.GetKeyUp(KeyCode.D) && playerDirection == Direction.right && isRunning)
+                {
+                    Debug.Log("d is up stop running");
+                    canMove = false;
+                    isRunning = false;
+                    isRunningRight = false;
+                    startTime = 0;
+                    timerIsRunning = false;
+                    rigidbody2D.velocity = Vector2.zero;
+                    if (Settings.readyToPerformRunningMoves)
+                    {
+                        Settings.readyToPerformRunningMoves = false;
+                        
+                        
+                    }
+                }
+                if (movX < 0 && Input.GetKeyDown(KeyCode.A) && !isRunning)
+                {
+                    Debug.Log("keydown not running key a");
+                    Flip();
+                    playerDirection = Direction.left;
+                    canMove = true;
+                    isRunning = true;
+
+                    if (!onGround && movY < -1)
+                    {
+                        Debug.Log("on on ground isfalling");
+                        isFalling = true;
+                        isRunning = false;
+                        isSprint = false;
+                    }
+                    if (isRunning && playerDirection == Direction.left)
+                    {
+                        timerIsRunning = true;
+                        if (Input.GetKey(KeyCode.A))
+                        {
+                            isRunningLeft = true;
+                            Debug.Log("keyget running count time");
+                            if (timerIsRunning)
+                            {
+                                if (timeRemaining > 0f)
+                                {
+                                    startTime += Time.deltaTime;
+                                    if (startTime >= timeRemaining)
+                                    {
+                                        Settings.readyToPerformRunningMoves = true;
+                                       
+
+                                            //performing readytoperformrunningmoves in darktypemoves.cs   
+                                        }
+
+
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                    //playerGameObject.transform.Translate(-runningSpeed * Time.deltaTime, 0, 0);
+                    //Debug.Log("isrunningright" + isRunning);
+
+                    //playerDirection = Direction.left;
+                    //if (playerDirection == Direction.left)
+                    //{
+                    //    canFlip = true;
+                    //    if (canFlip)
+                    //    {
+                    //        spriteRenderer.flipX = true;
+                    //    }
+
+                    //}
+
+
+
+                
+                if (Input.GetKeyUp(KeyCode.A) && playerDirection == Direction.left && isRunning)
+                {
+                    Debug.Log("a is up stop running");
+                    canMove = false;
+                    isRunning = false;
+                    startTime = 0;
+                    timerIsRunning = false;
+                    isRunningLeft = false;
+                    rigidbody2D.velocity = Vector2.zero;
+                    if (Settings.readyToPerformRunningMoves)
+                    {
+                        Settings.readyToPerformRunningMoves = false;
+                    
+                    
+                    }
+
+                }
+
+                //sprint
+                if (movX > 0 && Input.GetKeyDown(KeyCode.D) && isRunning)
+                {
+                    Debug.Log("getkeydown isrunning canmove = tre");
+                    playerDirection = Direction.right;
+                    canMove = true;
+
+
+                    if (Input.GetKey(KeyCode.M) && playerDirection == Direction.right)
+                    {
+                        Debug.Log("getkey M to sprint");
+                        isSprint = true;
+                    }
+                    if (Input.GetKey(KeyCode.D) && isSprint == true && playerDirection == Direction.right)
+                    {
+                        Debug.Log("getkey d sprint");
+                        if (isSprint)
+                        {
+
+                            isSprintingRight = true;
+                            Debug.Log("isspritnt");
+
+
+
+
+                            //playerGameObject.transform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
+                 
+                        }
+                    }
+
+
+
+
+
+
+                }
+                if (Input.GetKeyUp(KeyCode.D) && isSprint && playerDirection == Direction.right)
+                {
+                    Debug.Log("keyup d stoping");
+                    isSprint = false;
+                    isRunning = false;
+                    isSprintingRight = false;
+                    canMove = false;
+                    rigidbody2D.velocity = Vector2.zero;
+                }
+                if (Input.GetKeyUp(KeyCode.M) && playerDirection == Direction.right && isRunning || isSprint)
+                {
+                    Debug.Log("keyup M");
+                    isRunning = true;
+                    isSprint = false;
+                    isSlowingDown = true;
+
+                }
+
+                    if (movX < 0 && isRunning && Input.GetKeyDown(KeyCode.A))
+                    {
+                        Debug.Log("keydown a left");
+                        Flip();
+                        playerDirection = Direction.left;
+                        canMove = true;
+                        if (Input.GetKey(KeyCode.M) && playerDirection == Direction.left && isRunning)
+                        {
+                            isSprint = true;
+                        }
+                        if (Input.GetKey(KeyCode.A) && isSprint == true && playerDirection == Direction.left)
+                        {
+                            Debug.Log("getkey A sould be sprinting");
+                            if (isSprint)
+                            {
+
+                                isSprintingLeft = true;
+
+
+                                //playerGameObject.transform.Translate(-sprintingSpeed * Time.deltaTime, 0, 0);
+                              
+                            }
+
+                        }
+
+
+
+                    }
+                    if (Input.GetKeyUp(KeyCode.A) && isSprint||isRunning && playerDirection == Direction.left)
+                    {
+                        Debug.Log("keyup a stoping");
+                        isSprint = false;
+                        isRunning = false;
+                        canMove = false;
+                        isSprintingLeft = false;
+                        rigidbody2D.velocity = Vector2.zero;
+                    }
+                    if (Input.GetKeyUp(KeyCode.M) && playerDirection == Direction.left && isRunning || isSprint)
+                    {
+                        Debug.Log("keyup left sprint to run");
+
+                        isSprint = false;
+                        isSlowingDown = true;
+
+                    }
+
+                    dashDirection = (int)movX;
+
+
+
+
+
+
+                    if (movX == 0 && movY == 0)
+                    {
+                        Debug.Log("idle");
+                        isDashing = false;
+                        isRunning = false;
+                        isSprint = false;
+                        isJumping = false;
+                        isIdle = true;
+                        canMove = false;
+                    }
+
+                    if (Input.GetKeyDown(KeyCode.Space))
+                    {
+                        canJump = true;
+                        Jump(Vector2.up);
+                    }
+                    else
+                    {
+                        jumpBufferCounter -= Time.deltaTime;
+                    }
+
+
+
+                    if (Input.GetKeyDown(KeyCode.J))
+                    {
+                        canDash = true;
+                        StartCoroutine(Dash(movX, movY));
+                    }
+                    else
+                    {
+                        dashBufferCounter -= Time.deltaTime;
+                        Debug.Log("else" + canDash);
+                    }
+
+                    if (movX != 0 || movY != 0)
+                    {
+                        isRunning = true;
+
+                        isIdle = false;
+
+
+                        // Capture player direction for save game
+                        if (movX < 0)
+                        {
+                            playerDirection = Direction.left;
+                        }
+                        else if (movX > 0)
+                        {
+                            playerDirection = Direction.right;
+                        }
+                    }
+
+                }
+
+            // send event to any listeners for player movement input
+
+            EventHandler.CallDarkMovementEvent(movX, movY, isRunning, isSprint, isDashing, isDarkSpinBack, isJumping, isFalling, isLanding, isSprintJump, isSprintFall, isRunningJump, isRunningFall, isWallGrab, isWallJumping, isWallFall, isIdle, isDarkPowerUp);
+        }
+    void Movement()
+    {
+        if (isRunningRight)
+        {
+            rigidbody2D.AddForce(new Vector2(movX, 0f) * movementAcceleration);
+            if (Mathf.Abs(rigidbody2D.velocity.x) > maxMoveSpeed)
+            {
+                rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxMoveSpeed, rigidbody2D.velocity.y);
+            }
+        }
+        if (isRunningLeft)
+        {
+            rigidbody2D.AddForce(new Vector2(movX, 0f) * -movementAcceleration);
+            if (Mathf.Abs(rigidbody2D.velocity.x) > maxMoveSpeed)
+            {
+                rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * -maxMoveSpeed, rigidbody2D.velocity.y);
+            }
+        }
+            if (isSprintingRight)
+            {
+                rigidbody2D.AddForce(new Vector2(movX, 0f) * sprintAcceleration);
+                if (Mathf.Abs(rigidbody2D.velocity.x) > maxSprintSpeed)
+                {
+                    rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSprintSpeed, rigidbody2D.velocity.y);
+                }
+            }
+            if (isSprintingLeft)
+            {
+                rigidbody2D.AddForce(new Vector2(movX, 0f) * -sprintAcceleration);
+                if (Mathf.Abs(rigidbody2D.velocity.x) > maxSprintSpeed)
+                {
+                    rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * -maxSprintSpeed, rigidbody2D.velocity.y);
+                }
+            }
+    }
         IEnumerator NeutralWallJump()
         {
             Debug.Log("neutrawalljump");
@@ -1136,20 +1225,6 @@ namespace Yushan.movement
                 followCameraLeft.SetActive(false);
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         IEnumerator StartGameTransition()
