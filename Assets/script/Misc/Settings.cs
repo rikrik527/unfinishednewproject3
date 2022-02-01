@@ -56,6 +56,7 @@ public static class Settings
         //dark movement
         movY = Animator.StringToHash("movY");
         movX = Animator.StringToHash("movX");
+        isSprint = Animator.StringToHash("isSprint");
         isLanding = Animator.StringToHash("isLanding");
         isRunning = Animator.StringToHash("isRunning");
         isRunningJump = Animator.StringToHash("isRunningJump");

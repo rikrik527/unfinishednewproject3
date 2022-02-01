@@ -60,7 +60,7 @@ namespace Yushan.movement
         public bool canMove;
 
         [Header("jump variable")]
-        [SerializeField] private float jumpForce = 12f;
+        [SerializeField] private float jumpForce = 20f;
         [SerializeField] private float airLinearDrag = 2.5f;
         [SerializeField] private float fallMultiplier = 8f;
         [SerializeField] private float lowJumpFallMultiplier = 5f;
@@ -382,7 +382,7 @@ namespace Yushan.movement
                         {
                             WallJump();
                         }
-                        Flip();
+                       
                     }
                     //else
                     //{
@@ -401,14 +401,10 @@ namespace Yushan.movement
         }
         void Flip()
         {
-            if (playerDirection == Direction.right)
-            {
-                spriteRenderer.flipX = false;
-            }
-            else if (playerDirection == Direction.left)
-            {
+           
+           
                 spriteRenderer.flipX = true;
-            }
+            
 
         }
         //private Vector2 GetInput()
@@ -421,7 +417,7 @@ namespace Yushan.movement
         {
             if (Mathf.Abs(movX) < 0.4f || changeDirection)
             {
-                Debug.Log("applygroubdlineardrag" + changeDirection);
+                Debug.Log("applygroubdlineardrag" + changeDirection+movX);
                 rigidbody2D.drag = groundLinearDrag;
             }
             else
@@ -434,17 +430,23 @@ namespace Yushan.movement
             Debug.Log("applyairlineardrag");
             rigidbody2D.drag = airLinearDrag;
         }
-        private void Jump(Vector2 direction)
+        private void Jump(Vector2 position)
         {
             Debug.Log("jump");
             if (!onGround && !onWall)
             {
+                
+                   
+                    isRunning = false;
+                    isSprint = false;
+                    canDash = true;
+
                 extraJumpValue--;
                 isJumping = true;
             }
             ApplyAirLinearDrag();
             rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, 0f);
-            rigidbody2D.AddForce(direction * jumpForce, ForceMode2D.Impulse);
+            rigidbody2D.AddForce(position * jumpForce, ForceMode2D.Impulse);
             hangTimeCounter = 0f;
             jumpBufferCounter = 0f;
             isJumping = false;
@@ -453,17 +455,19 @@ namespace Yushan.movement
         private void DarkMovementInput()
         {
             animatorClipInfo = animator.GetCurrentAnimatorClipInfo(0);
-
+           animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
             movX = Input.GetAxisRaw("Horizontal");
             movY = Input.GetAxisRaw("Vertical");
 
-            Debug.Log("!playerinputiddisabled");
+         
 
             if (animatorStateInfo.IsTag("motion"))
             {
 
 
                 Debug.Log("motion");
+
+                // run right
                 if (movX > 0 && Input.GetKeyDown(KeyCode.D) && !isRunning)
                 {
                     Debug.Log("keydown not running");
@@ -475,7 +479,7 @@ namespace Yushan.movement
                         Debug.Log("!ground");
                         isRunning = false;
                         isSprint = false;
-
+                        canDash = true;
                     }
                     if (isRunning && playerDirection == Direction.right)
                     {
@@ -485,18 +489,21 @@ namespace Yushan.movement
                         {
                             isRunningRight = true;
                             Debug.Log("getkey D running");
-                            if (timerIsRunning)
+                            while(timerIsRunning)
                             {
                                 if (timeRemaining > 0f)
                                 {
                                     startTime += Time.deltaTime;
-
+                                    Debug.Log(startTime);
                                     if (startTime >= timeRemaining)
                                     {
                                         Settings.readyToPerformRunningMoves = true;
-
+                                     if(Settings.readyToPerformRunningMoves == false)
+                                        {
+                                            break;
+                                        }
                                       
-                                        // perform moves ready in darktypemoves cs
+                                        // perform moves ready in darktypemoves cs timerisRunning will be off after perform a attack move in darktypemove.cs or get key up keycode.D
                                     }
                                 }
 
@@ -523,12 +530,13 @@ namespace Yushan.movement
 
 
                 }
-                if (Input.GetKeyUp(KeyCode.D) && playerDirection == Direction.right && isRunning)
+                if (Input.GetKeyUp(KeyCode.D) && playerDirection == Direction.right && isRunning || isSprint)
                 {
                     Debug.Log("d is up stop running");
                     canMove = false;
                     isRunning = false;
                     isRunningRight = false;
+                    isSprint = false;
                     startTime = 0;
                     timerIsRunning = false;
                     rigidbody2D.velocity = Vector2.zero;
@@ -539,20 +547,21 @@ namespace Yushan.movement
                         
                     }
                 }
+
+                //left input for running
                 if (movX < 0 && Input.GetKeyDown(KeyCode.A) && !isRunning)
                 {
                     Debug.Log("keydown not running key a");
-                    Flip();
+                   
                     playerDirection = Direction.left;
                     canMove = true;
                     isRunning = true;
-
-                    if (!onGround && movY < -1)
+                    if (!onGround)
                     {
-                        Debug.Log("on on ground isfalling");
-                        isFalling = true;
+                        Debug.Log("!ground");
                         isRunning = false;
                         isSprint = false;
+                        canDash = true;
                     }
                     if (isRunning && playerDirection == Direction.left)
                     {
@@ -561,7 +570,7 @@ namespace Yushan.movement
                         {
                             isRunningLeft = true;
                             Debug.Log("keyget running count time");
-                            if (timerIsRunning)
+                            while (timerIsRunning)
                             {
                                 if (timeRemaining > 0f)
                                 {
@@ -569,10 +578,13 @@ namespace Yushan.movement
                                     if (startTime >= timeRemaining)
                                     {
                                         Settings.readyToPerformRunningMoves = true;
-                                       
 
-                                            //performing readytoperformrunningmoves in darktypemoves.cs   
+                                        if (Settings.readyToPerformRunningMoves == false)
+                                        {
+                                            break;
                                         }
+                                        //performing readytoperformrunningmoves in darktypemoves.cs   
+                                    }
 
 
                                     }
@@ -598,40 +610,33 @@ namespace Yushan.movement
 
 
                 
-                if (Input.GetKeyUp(KeyCode.A) && playerDirection == Direction.left && isRunning)
+                if (Input.GetKeyUp(KeyCode.A) && playerDirection == Direction.left && isRunning || isSprint)
                 {
                     Debug.Log("a is up stop running");
                     canMove = false;
                     isRunning = false;
+                    isRunningLeft = false;
+                    isSprint = false;
                     startTime = 0;
                     timerIsRunning = false;
-                    isRunningLeft = false;
                     rigidbody2D.velocity = Vector2.zero;
                     if (Settings.readyToPerformRunningMoves)
                     {
                         Settings.readyToPerformRunningMoves = false;
-                    
-                    
+
+
                     }
 
                 }
 
                 //sprint
-                if (movX > 0 && Input.GetKeyDown(KeyCode.D) && isRunning)
-                {
-                    Debug.Log("getkeydown isrunning canmove = tre");
-                    playerDirection = Direction.right;
-                    canMove = true;
-
-
-                    if (Input.GetKey(KeyCode.M) && playerDirection == Direction.right)
+               
+                    if (Input.GetKey(KeyCode.M) && playerDirection == Direction.right && isRunning)
                     {
                         Debug.Log("getkey M to sprint");
                         isSprint = true;
                     }
-                    if (Input.GetKey(KeyCode.D) && isSprint == true && playerDirection == Direction.right)
-                    {
-                        Debug.Log("getkey d sprint");
+                   
                         if (isSprint)
                         {
 
@@ -643,7 +648,7 @@ namespace Yushan.movement
 
                             //playerGameObject.transform.Translate(sprintingSpeed * Time.deltaTime, 0, 0);
                  
-                        }
+                        
                     }
 
 
@@ -651,7 +656,7 @@ namespace Yushan.movement
 
 
 
-                }
+                
                 if (Input.GetKeyUp(KeyCode.D) && isSprint && playerDirection == Direction.right)
                 {
                     Debug.Log("keyup d stoping");
@@ -730,14 +735,16 @@ namespace Yushan.movement
                         isRunning = false;
                         isSprint = false;
                         isJumping = false;
-                        isIdle = true;
-                        canMove = false;
+                    isIdle = true;
+                    canMove = false;
                     }
-
+                    //jump input
                     if (Input.GetKeyDown(KeyCode.Space))
                     {
                         canJump = true;
-                        Jump(Vector2.up);
+
+                    
+                    Jump(Vector2.up);
                     }
                     else
                     {
@@ -772,6 +779,7 @@ namespace Yushan.movement
                         else if (movX > 0)
                         {
                             playerDirection = Direction.right;
+                        Flip();
                         }
                     }
 
@@ -814,6 +822,10 @@ namespace Yushan.movement
                 {
                     rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * -maxSprintSpeed, rigidbody2D.velocity.y);
                 }
+            }
+            if (canJump)
+            {
+                Jump(new Vector2(rigidbody2D.velocity.x, jumpForce));
             }
     }
         IEnumerator NeutralWallJump()
