@@ -10,10 +10,11 @@ public class MovingText : MonoBehaviour
     public GameObject movingText;
 
     public TMP_Text timerText;
-
+    public TMP_Text readyText;
     private void Start()
     {
         timerText = GameObject.FindGameObjectWithTag("tmpro-running-count").GetComponent<TMP_Text>();
+        readyText = GameObject.FindGameObjectWithTag("tmpro-ready").GetComponent<TMP_Text>();
     }
     private void Update()
     {
@@ -23,7 +24,15 @@ public class MovingText : MonoBehaviour
         if(Settings.readyToPerformRunningMoves == true)
         {
             timerText.text = "";
-            timerText.text = "ready to perform running moves";
+            timerText.text = Player.Instance.startTime.ToString();
+            readyText.text = "";
+            readyText.text = "ready to perform running moves";
+        }else if(Settings.readyToPerformRunningMoves == false)
+        {
+            timerText.text = "";
+            timerText.text = Player.Instance.startTime.ToString();
+            readyText.text = "";
+            readyText.text = "not ready";
         }
     }
 }

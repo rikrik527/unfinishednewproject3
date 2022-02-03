@@ -40,8 +40,9 @@ namespace Yushan.combo
             
                 if (Player.Instance.yushanType == Yushan_Type.darkenType)
                 {
-                if (animatorStateInfo.IsTag("motion") && animatorStateInfo.IsTag("running")&& !Settings.readyToPerformRunningMoves)
+                if (animatorStateInfo.IsTag("motion") || animatorStateInfo.IsTag("running") && Settings.readyToPerformRunningMoves==false)
                 {
+                    Debug.Log("combo animator motion running"+animatorStateInfo.IsTag("motion")+animatorStateInfo.IsTag("running"));
                     Debug.Log("should be false settings.readytoperformrunnmoves" + Settings.readyToPerformRunningMoves);
                     
                     if (Input.GetKeyDown(KeyCode.K))

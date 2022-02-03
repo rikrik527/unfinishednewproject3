@@ -88,7 +88,7 @@ using TMPro;
 
 
 
-                            Debug.Log("k press is dash knee kick" + Player.Instance.isDashing);
+                            Debug.Log("k press is dash knee kick" + "animator is tag dash"+ animatorStateInfo.IsTag("dash"));
 
 
                             //Player.Instance.rigidbody2D.velocity = Vector2.zero;
@@ -106,9 +106,9 @@ using TMPro;
                 }
 
 
-                if (animatorStateInfo.IsTag("running") && Settings.readyToPerformRunningMoves)
+                if (animatorStateInfo.IsTag("running") && Settings.readyToPerformRunningMoves == true)
                 {
-                    Debug.Log("readytoperformrunningmoves"+Settings.readyToPerformRunningMoves);
+                    Debug.Log("animator is tag running"+animatorStateInfo.IsTag("running"));
 
                     if (Input.GetKeyDown(KeyCode.K))
                     {
