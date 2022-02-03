@@ -5,6 +5,7 @@ using UnityEngine;
 public class DarkMovementAnimationControl : MonoBehaviour
 {
     private Animator animator;
+    private AnimatorStateInfo animatorStateInfo;
     // Start is called before the first frame update
     void Awake()
     {
@@ -22,11 +23,23 @@ public class DarkMovementAnimationControl : MonoBehaviour
     {
         animator.SetFloat(Settings.movX, movX);
         animator.SetFloat(Settings.movY, movY);
-        animator.SetBool(Settings.isRunning, isRunning);
-        animator.SetBool(Settings.isSprint, isSprint);
-        animator.SetBool(Settings.isDashing, isDashing);
-        animator.SetBool(Settings.isJumping, isJumping);
-        animator.SetBool(Settings.isFalling, isFalling);
+        if (animatorStateInfo.IsTag("motion"))
+        {
+            animator.SetBool(Settings.isRunning, isRunning);
+            animator.SetBool(Settings.isDashing, isDashing);
+            animator.SetBool(Settings.isJumping, isJumping);
+        }
+        if (animatorStateInfo.IsTag("running")||animatorStateInfo.IsTag("motion"))
+        {
+            animator.SetBool(Settings.isSprint, isSprint);
+        }
+        
+        if (animatorStateInfo.IsTag("jump"))
+        {
+            animator.SetBool(Settings.isFalling, isFalling);
+            animator.SetBool(Settings.isLanding, isLanding);
+        }
+
         animator.SetBool(Settings.isSprintJump, isSprintJump);
         animator.SetBool(Settings.isSprintFall, isSprintFall);
         animator.SetBool(Settings.isRunningJump, isRunningJump);
@@ -35,7 +48,7 @@ public class DarkMovementAnimationControl : MonoBehaviour
         animator.SetBool(Settings.isWallFall, isWallFall);
         animator.SetBool(Settings.isWallJumping, isWallJumping);
         animator.SetBool(Settings.isIdle, isIdle);
-        animator.SetBool(Settings.isLanding, isLanding);
+       
         if (isDarkSpinBack)
         {
             animator.SetTrigger(Settings.isDarkSpinBack);
@@ -55,6 +68,6 @@ public class DarkMovementAnimationControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
     }
 }
