@@ -20,14 +20,20 @@ using TMPro;
             [Header("dark knee kick variables")]
             public float darkKneeKickForce = 20f;
             public float darkKneeKickLength = .3f;
+        public bool canKneeKick;
 
 
         [Header("tmp pro text")]
         public TMP_Text readyText;
 
+        [Header("DarkDoublespearkick")]
             public float darkDoubleSpearKickForce = 20f;
+        public float darkDoubleSpearKickLength = .3f;
+        public bool canDSKick;
 
-            public float kickDirection;
+
+
+        public float kickDirection;
             public bool readyToKick;
             public bool isDashMovesReady;
 
@@ -72,11 +78,10 @@ using TMPro;
             private void Update()
             {
                 animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-                kickDirection = (int)Player.Instance.movX;
+                
             if (Player.Instance.yushan_Type == Yushan_Type.darkenType)
             {
-                if (animatorStateInfo.IsTag("dash"))
-                {
+              
 
 
                     Debug.Log("dashtype");
@@ -88,37 +93,36 @@ using TMPro;
 
 
 
-                            Debug.Log("k press is dash knee kick" + "animator is tag dash"+ animatorStateInfo.IsTag("dash"));
-
-
-                            //Player.Instance.rigidbody2D.velocity = Vector2.zero;
-                            //Player.Instance.dashDirection = (int)Player.Instance.movX;
-                            DarkKneeKick();
 
 
 
-                            EventHandler.CallDarkCombatEvent(isDarkDoubleSpearKick, isDarkKneeKick, isDarkCrossKick);
+                        //Player.Instance.rigidbody2D.velocity = Vector2.zero;
+                        //Player.Instance.dashDirection = (int)Player.Instance.movX;
+                        canKneeKick = true;
+
+
+
+                            
                         }
                     }
 
 
 
-                }
+                
 
 
-                if (Settings.readyToPerformRunningMoves == true)
-                {
-                    Debug.Log("animator is tag running"+animatorStateInfo.IsTag("running"));
+               
 
                     if (Input.GetKeyDown(KeyCode.K))
                     {
-                        StartCoroutine(AttackCo());
+                    if (Settings.readyToPerformRunningMoves == true)
+                    {
+                        Debug.Log("animator is tag running" + animatorStateInfo.IsTag("running"));
+                        canDSKick = true;
 
-                        Player.Instance.startTime = 0;
-                        Player.Instance.timerIsRunning = false;
-                      
+                       
 
-                        EventHandler.CallDarkCombatEvent(isDarkDoubleSpearKick, isDarkKneeKick, isDarkCrossKick);
+                        
 
                     }
 
@@ -143,51 +147,49 @@ using TMPro;
 
 
 
-
-
-
-
-
-
-
-            private void LateUpdate()
+        private void FixedUpdate()
+        {
+            if(Player.Instance.yushanType == Yushan_Type.darkenType)
             {
-                //if (animator != null)
-                //{
-                //    Debug.Log("animator is not null");
-                //    if (animatorStateInfo.IsName(Tags.DarkDoubleSpearKick) && animatorStateInfo.normalizedTime >= 0.9f)
-                //    {
-                //        Debug.Log("darkdoublespearkick finished stop");
-                //        Stop();
-
-                //    }
-
-
-
-                //    if (animatorStateInfo.IsName(Tags.DarkKneeKick) && animatorStateInfo.normalizedTime >= 0.9f)
-                //    {
-                //        Debug.Log("stop darkknee kick");
-                //        Stop();
-                //    }
-                //}
-
-
+                if (canKneeKick)
+                {
+                    DarkKneeKick();
+                }
+                if (canDSKick)
+                {
+                    DarkDoubleSpearKick();
+                }
+                EventHandler.CallDarkCombatEvent(isDarkDoubleSpearKick, isDarkKneeKick, isDarkCrossKick);
 
             }
 
-            public void Stop()
-            {
-                Debug.Log("stop");
-                Player.Instance.rigidbody2D.velocity = Vector2.zero;
-            }
+        }
 
-            private void DarkKneeKick()
+
+
+
+
+
+       
+
+          
+        public void IsDashMovesReady()
+        {
+            Debug.Log("isdashmoveready");
+            isDashMovesReady = true;
+        }
+        public void IsDashMovesNotReady()
+        {
+            Debug.Log("isdashmoves false");
+            isDashMovesReady = false;
+        }
+        private void DarkKneeKick()
             {
                 Debug.Log("darkkneekick");
 
                 isDarkKneeKick = true;
 
-            animator.SetTrigger("isDarkKneeKick");
+         
 
 
 
@@ -214,51 +216,36 @@ using TMPro;
                 isDarkKneeKick = false;
                 Debug.Log("isdarkkneekick" + isDarkKneeKick);
             }
-            public void IsDashMovesReady()
-            {
-                isDashMovesReady = true;
-            }
-            public void IsDashMovesNotReady()
-            {
-                isDashMovesReady = false;
-            }
+            
             public void DarkDoubleSpearKick()
             {
-
-                Debug.Log("darkdoublespearkick");
+            float kickStartTime = Time.time;
+            Debug.Log("darkdoublespearkick");
                 //animator.SetBool("isAttacking", true);
                 isDarkDoubleSpearKick = true;
             //float time = GetCurrentAnimatorTime(animator, 1);
             //Debug.Log(time);
-            animator.SetTrigger("isDarkDoubleSpearKick");
-                Player.Instance.rigidbody2D.velocity = transform.right *
-                kickDirection * darkDoubleSpearKickForce;
 
-
-
-
-
-            }
-
-
-
-            private IEnumerator AttackCo()
+            Player.Instance.rigidbody2D.velocity = Vector2.zero;
+            Player.Instance.rigidbody2D.gravityScale = 0f;
+            Player.Instance.rigidbody2D.drag = 0f;
+            Vector2 dir = new Vector2(kickDirection, 0f);
+            while (Time.time < kickStartTime + darkDoubleSpearKickLength)
             {
-
-                Debug.Log("StartCoroutine");
-                DarkDoubleSpearKick();
-
-                yield return null;
-
-
-
-
-                yield return new WaitForSeconds(1f);
-                Player.Instance.rigidbody2D.velocity = Vector2.zero;
-                readyToKick = false;
-                Settings.readyToPerformRunningMoves = false;
-            Debug.Log("readymove is false from darkdoyublespearkick"+Settings.readyToPerformRunningMoves+Player.Instance.startTime+Player.Instance.timerIsRunning);
+                Player.Instance.rigidbody2D.velocity = dir.normalized * darkDoubleSpearKickForce;
+                break;
             }
+            isDarkKneeKick = false;
+
+      
+
+
+
+        }
+
+
+
+       
             public void DarkCrossKick()
             {
                 isDarkCrossKick = true;

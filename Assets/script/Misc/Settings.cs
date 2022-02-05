@@ -7,7 +7,9 @@ public static class Settings
     public const float sprintSpeed = 20.666f;
     public const float runningSpeed = 18.666f;
     public const float walkingSpeed = 2.666f;
-    public static bool? readyToPerformRunningMoves = null;
+    public const float maxSprintSpeed = 9.99f;
+    public const float maxMoveSpeed = 6.66f;
+    public static bool readyToPerformRunningMoves;
     // player moves
     public static int movX;
 
