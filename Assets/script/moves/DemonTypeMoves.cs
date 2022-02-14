@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Yushan.DemonAbilities;
+
 using Yushan.Enums;
 using Yushan.movement;
 namespace Yushan.DemonType

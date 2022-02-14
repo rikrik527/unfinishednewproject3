@@ -23,15 +23,17 @@ namespace Yushan.Enums
 
 
     }
+
     public enum Stats
     {
-        isRunningRight,
-        isRunningLeft,
-        isWalkingRight,
-        isWalkingLeft,
-        isSprintingRight,
-        isSprintingLeft,
-        isIdle
+        running,
+        sprint,
+        attack,
+        combo,
+        jump,
+        dash,
+        crouch,
+        idle
     }
     public enum Yushan_Type
     {
