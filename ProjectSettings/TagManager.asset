@@ -17,6 +17,8 @@ TagManager:
   - item-parent-transform
   - inventory-bar
   - moving-rec
+  - tmpro-running-count
+  - tmpro-ready
   layers:
   - Default
   - TransparentFX
@@ -27,7 +29,7 @@ TagManager:
   - ground
   - punch
   - player
-  - 
+  - wall
   - 
   - 
   - 
